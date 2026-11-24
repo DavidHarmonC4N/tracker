@@ -169,3 +169,8 @@ details p { margin-top: .65rem; }
 .unverified-toggle { display: block; width: 100%; margin: .5rem 0 1.5rem; padding: .8rem 1rem; border: 1px dashed #627447; border-radius: 6px; background: transparent; color: var(--green); font: 650 .95rem var(--mono); cursor: pointer; }
 .unverified-toggle:hover { background: #192316; }
 .status-tab:focus-visible, .unverified-toggle:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.hero-support { margin: 1rem 0 0; font-size: .92rem; color: var(--dim); }
+.hero-support a { color: var(--green); text-underline-offset: .18em; }
+.asterisk { color: var(--amber); font-weight: 800; cursor: help; }
+.etsy-note { margin: 1rem 0 0; color: var(--dim); font-size: .88rem; max-width: 80ch; }
+.tab-intro { margin: 0 0 1rem; color: var(--dim); font-size: .9rem; }

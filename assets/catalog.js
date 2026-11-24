@@ -23,6 +23,7 @@ const tabs = [
   { key: 'preorder', label: 'Preorder' },
   { key: 'unknown', label: 'Unverified' },
   { key: 'out_of_stock', label: 'Out of stock' },
+  { key: 'manual', label: 'Manual review', note: 'Checked by hand because the seller blocks automated checks' },
   { key: 'all', label: 'All' }
 ];
 const groupNotes = {
@@ -115,7 +116,14 @@ function card(row) {
   first.append(el('span', 'card-kind', role === 'unspecified' ? lookup.kind[row.kind] : lookup.role[role]), el('span', 'tag ' + status, lookup.status[status] + count));
 
   const title = el('div');
-  title.append(el('h3', '', row.name), el('p', 'seller', row.seller + (row.location ? ' · ' + row.location : '')));
+  const sellerLine = el('p', 'seller', row.seller + (row.location ? ' · ' + row.location : ''));
+  if (isEtsy(row)) {
+    const star = el('span', 'asterisk', ' *');
+    star.title = 'Etsy blocks automated stock checks, so this listing is checked by hand.';
+    star.setAttribute('aria-label', '. Etsy blocks automated stock checks, so this listing is checked by hand.');
+    sellerLine.append(star);
+  }
+  title.append(el('h3', '', row.name), sellerLine);
 
   const firmware = el('div');
   firmware.append(el('p', 'firmware-label', lookup.firmware[row.firmware]), el('p', 'setup-label', lookup.setup[row.setup]));
@@ -154,7 +162,18 @@ function card(row) {
   return result;
 }
 
-function matchesTab(key, status) {
+function isEtsy(row) {
+  try {
+    const host = new URL(row.url).hostname.toLowerCase();
+    return host === 'etsy.com' || host.endsWith('.etsy.com');
+  } catch (error) {
+    return false;
+  }
+}
+
+function matchesTab(key, row) {
+  const status = displayStatus(row);
+  if (key === 'manual') return Boolean(row.manual);
   return key === 'all' || (key === 'available' ? status === 'in_stock' || status === 'orderable' : status === key);
 }
 
@@ -202,14 +221,14 @@ function draw() {
   // Tab counts follow the other filters, so each tab shows what a click would give you.
   document.querySelectorAll('.status-tab').forEach((button) => {
     const key = button.dataset.tab;
-    const total = base.filter((row) => matchesTab(key, displayStatus(row))).length;
+    const total = base.filter((row) => matchesTab(key, row)).length;
     button.querySelector('.tab-count').textContent = total;
     button.setAttribute('aria-pressed', String(key === tab));
     button.classList.toggle('active', key === tab);
   });
 
   const unverifiedRows = base.filter((row) => displayStatus(row) === 'unknown');
-  const inTab = base.filter((row) => matchesTab(tab, displayStatus(row)));
+  const inTab = base.filter((row) => matchesTab(tab, row));
   // Unverified listings stay out of the broad views until the visitor asks for them.
   const hideable = tab === 'available' || tab === 'all';
   const hiddenCount = hideable ? unverifiedRows.length : 0;
@@ -223,6 +242,9 @@ function draw() {
   writeUrlFilters();
 
   const parts = [];
+  if (tab === 'manual') {
+    parts.push(el('p', 'tab-intro', 'These sellers do not allow automated checks, so their price and stock are entered by hand and may lag the seller’s page.'));
+  }
   if (!shown.length) {
     const empty = el('div', 'panel empty', '');
     const reset = el('button', 'text-button', 'Clear filters');
@@ -264,6 +286,7 @@ function draw() {
     parts.push(toggle);
   }
   byId('list').replaceChildren(...parts);
+  byId('etsy-note').hidden = !shown.some(isEtsy);
   if (restoreFocus) {
     restoreFocus = false;
     byId('unverified-toggle')?.focus();
