@@ -52,7 +52,7 @@ try {
     if (!extension_loaded('curl') || !extension_loaded('dom')) {
         throw new RuntimeException('Enable the PHP cURL and DOM extensions.');
     }
-    $jobs = api($base, $token, 'jobs', ['limit'=>10])['jobs'] ?? [];
+    $jobs = api($base, $token, 'jobs', ['limit'=>24])['jobs'] ?? [];
     echo 'Claimed ' . count($jobs) . " listing(s).\n";
     $cache = sys_get_temp_dir() . '/offgrid-runner-' . bin2hex(random_bytes(4));
     mkdir($cache, 0700);

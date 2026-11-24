@@ -168,7 +168,38 @@ function robots_allows(string $url, string $rules): bool {
     return $winner === 'allow';
 }
 
+/**
+ * Remembers each fetched page (or failure) for the rest of this process, so listings that share one product page,
+ * such as one listing per warehouse, cost the seller a single request. $load does the real request.
+ */
+function fetch_cached(string $key, callable $load): array {
+    static $cache = [];
+    if (array_key_exists($key, $cache)) {
+        if ($cache[$key] instanceof ScanFailure) {
+            throw new ScanFailure($cache[$key]->getMessage(), $cache[$key]->cooldown);
+        }
+        return $cache[$key];
+    }
+    try {
+        $result = $load();
+    } catch (ScanFailure $failure) {
+        $result = $failure;
+    }
+    if (count($cache) >= 12) {
+        array_shift($cache);
+    }
+    $cache[$key] = $result;
+    if ($result instanceof ScanFailure) {
+        throw new ScanFailure($result->getMessage(), $result->cooldown);
+    }
+    return $result;
+}
+
 function guarded_fetch(string $url, string $dir): array {
+    return fetch_cached($url, static fn() => guarded_fetch_live($url, $dir));
+}
+
+function guarded_fetch_live(string $url, string $dir): array {
     static $robots = [];
     $host = strtolower(product_url($url)['host']);
     $file = $dir . '/robots-' . hash('sha256',$host) . '.json';
@@ -549,7 +580,7 @@ function has_remote_work(array $state): bool {
     return false;
 }
 
-/** Hands the U.S. runner its next listings: eligible, up to REMOTE_PER_SELLER per seller, with the same pacing as the server cron. */
+/** Hands the U.S. runner its next listings: eligible, up to REMOTE_PER_SELLER distinct pages per seller, with the same pacing as the server cron. */
 function claim_jobs(string $dir, int $limit): array {
     $jobs = [];
     change_state($dir, static function (&$state) use (&$jobs,$limit) {
@@ -564,13 +595,20 @@ function claim_jobs(string $dir, int $limit): array {
             }
             $item = $state['items'][$index];
             $host = remote_ready($state, $item, $now);
-            if ($host === null || ($perHost[$host] ?? 0) >= REMOTE_PER_SELLER) {
+            if ($host === null) {
                 continue;
             }
-            $perHost[$host] = ($perHost[$host] ?? 0) + 1;
+            // The cap counts distinct pages, not listings: listings that share a page (one per warehouse, for
+            // example) are fetched once by the runner, so they all go out together.
+            $pages = $perHost[$host] ?? [];
+            if (!isset($pages[$item['url']]) && count($pages) >= REMOTE_PER_SELLER) {
+                continue;
+            }
+            $perHost[$host][$item['url']] = true;
             $jobs[] = ['id'=>$item['id'],'name'=>$item['name'],'url'=>$item['url'],'mode'=>$item['mode'],
                 'variant'=>$item['variant'] ?? '','scope'=>$item['scope'] ?? '','ready'=>$item['ready'] ?? '',
-                'sold'=>$item['sold'] ?? '','price_path'=>$item['price_path'] ?? '','warehouse'=>$item['warehouse'] ?? '','fingerprint'=>scan_fingerprint($item)];
+                'sold'=>$item['sold'] ?? '','price_path'=>$item['price_path'] ?? '','warehouse'=>$item['warehouse'] ?? '',
+                'fingerprint'=>scan_fingerprint($item)];
         }
         // One pause per seller covers the whole group, so the next group waits the usual 20 minutes.
         foreach (array_keys($perHost) as $host) {
