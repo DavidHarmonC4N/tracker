@@ -33,15 +33,13 @@ try {
             if (field($values,'website') === '') {
                 $row = listing_fields($values);
                 $ip = hash('sha256', $_SERVER['REMOTE_ADDR'] ?? '');
-                $added = change_state($dir, static function (&$state) use ($row,$ip) {
-                    $now = time();
-                    $state['submission_attempts'] = array_filter($state['submission_attempts'], static fn($hit) => $hit['since'] > $now - 3600);
-                    $key = isset($state['submission_attempts'][$ip]) || count($state['submission_attempts']) < 500 ? $ip : 'overflow';
-                    $hit = $state['submission_attempts'][$key] ?? ['since'=>$now,'count'=>0];
-                    if ($hit['count'] >= 5 || count($state['submissions']) >= 100) {
+                if (!rate_limit_hit($dir, 'submit', $ip, 5, 3600)) {
+                    throw new InvalidArgumentException('The review queue is busy. Please try again later.');
+                }
+                $added = change_state($dir, static function (&$state) use ($row) {
+                    if (count($state['submissions']) >= 100) {
                         throw new InvalidArgumentException('The review queue is busy. Please try again later.');
                     }
-                    $state['submission_attempts'][$key] = ['since'=>$hit['since'],'count'=>$hit['count']+1];
                     if (!has_listing_url($state['items'],$row['url']) && !has_listing_url($state['submissions'],$row['url'])) {
                         $id = bin2hex(random_bytes(12));
                         $state['submissions'][$id] = $row + ['id'=>$id];

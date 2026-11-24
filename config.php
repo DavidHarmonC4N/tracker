@@ -12,6 +12,9 @@ return [
     // Set a unique random key (at least 32 characters) before opening admin.php.
     // The key only works until the first administrator password is set.
     'setup_key' => '',
+    // Optional but recommended: the public address of this folder, for example https://example.com/offgrid/
+    // Used for links in owner alerts and the RSS feed. When empty, links use the request's Host header.
+    'base_url' => '',
     // Minimum listing refresh interval. Seller pacing and pauses can extend it.
     'interval_minutes' => 60,
     'batch_size' => 6,

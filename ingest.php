@@ -27,24 +27,18 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 }
 try {
     $dir = data_dir();
-    $ip = hash('sha256', 'ingest|' . ($_SERVER['REMOTE_ADDR'] ?? ''));
+    $ip = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? ''));
     $given = (string)($_SERVER['HTTP_X_OFFGRID_TOKEN'] ?? '');
-    $allowed = change_state($dir, static function (&$state) use ($ip, $given, $token) {
-        $now = time();
-        $state['attempts'] = array_filter($state['attempts'], static fn($hit) => $hit['since'] > $now - 900);
-        $hit = $state['attempts'][$ip] ?? ['since'=>$now,'count'=>0];
-        if ($hit['count'] >= 20) {
-            return 'limited';
-        }
-        if ($given !== '' && hash_equals($token, $given)) {
-            unset($state['attempts'][$ip]);
-            return 'ok';
-        }
-        if (isset($state['attempts'][$ip]) || count($state['attempts']) < 500) {
-            $state['attempts'][$ip] = ['since'=>$hit['since'],'count'=>$hit['count']+1];
-        }
-        return 'denied';
-    });
+    // Checked without touching tracker.json: a wrong guess only updates the small rate-limit file.
+    if (rate_limited($dir, 'ingest', $ip, 20, 900)) {
+        $allowed = 'limited';
+    } elseif ($given !== '' && hash_equals($token, $given)) {
+        rate_limit_clear($dir, 'ingest', $ip);
+        $allowed = 'ok';
+    } else {
+        rate_limit_hit($dir, 'ingest', $ip, 20, 900);
+        $allowed = 'denied';
+    }
     if ($allowed === 'limited') {
         reply(429, ['error'=>'Too many failed attempts. Try again later.']);
     }

@@ -111,26 +111,24 @@ try {
             }
             $ip = hash('sha256', $_SERVER['REMOTE_ADDR'] ?? '');
             $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
-            $accepted = change_state($dir, static function (&$fresh) use ($ip, $action, $password) {
-                $now = time();
-                $fresh['attempts'] = array_filter($fresh['attempts'], static fn($hit) => $hit['since'] > $now - 900);
-                $key = isset($fresh['attempts'][$ip]) || count($fresh['attempts']) < 500 ? $ip : 'overflow';
-                $hit = $fresh['attempts'][$key] ?? ['since'=>$now,'count'=>0];
-                if ($hit['count'] >= 8) {
-                    return false;
-                }
-                $fresh['attempts'][$key] = ['since'=>$hit['since'],'count'=>$hit['count']+1];
-                if ($action === 'setup' && !$fresh['password']
-                    && strlen($password) >= 12 && strlen($password) <= 72 && !str_contains($password, chr(0))
-                    && hash_equals(config()['setup_key'], field($_POST,'setup_key'))) {
+            // Counted in its own small file before any password work, so guesses never rewrite tracker.json.
+            $accepted = rate_limit_hit($dir, 'admin', $ip, 8, 900);
+            if ($accepted && $action === 'setup') {
+                $accepted = change_state($dir, static function (&$fresh) use ($password) {
+                    if ($fresh['password'] || strlen($password) < 12 || strlen($password) > 72 || str_contains($password, chr(0))
+                        || !hash_equals((string)config()['setup_key'], field($_POST,'setup_key'))) {
+                        return false;
+                    }
                     $fresh['password'] = password_hash($password, PASSWORD_DEFAULT);
-                } elseif ($action !== 'login' || !$fresh['password'] || strlen($password) > 72
-                    || !password_verify($password, $fresh['password'])) {
-                    return false;
-                }
-                unset($fresh['attempts'][$key]);
-                return true;
-            });
+                    return true;
+                });
+            } elseif ($accepted) {
+                $accepted = $action === 'login' && $state['password'] && strlen($password) <= 72
+                    && password_verify($password, $state['password']);
+            }
+            if ($accepted) {
+                rate_limit_clear($dir, 'admin', $ip);
+            }
             if (!$accepted) {
                 throw new InvalidArgumentException('Access denied. Check your credentials, or try again in 15 minutes.');
             }
