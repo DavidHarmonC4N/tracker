@@ -36,7 +36,15 @@ function data_dir(): string {
 }
 
 function seed(): array {
-    return with_roles(json_decode(file_get_contents(__DIR__ . '/seed.json'), true, 512, JSON_THROW_ON_ERROR));
+    $items = with_roles(json_decode(file_get_contents(__DIR__ . '/seed.json'), true, 512, JSON_THROW_ON_ERROR));
+    if (!ingest_enabled()) {
+        // Starter listings that ask for the U.S. runner fall back to the server cron when the runner is not set up.
+        foreach ($items as &$item) {
+            unset($item['checker']);
+        }
+        unset($item);
+    }
+    return $items;
 }
 
 function with_roles(array $items): array {
