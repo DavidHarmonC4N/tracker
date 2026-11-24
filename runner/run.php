@@ -35,13 +35,14 @@ function api(string $base, string $token, string $action, array $body): array {
     if ($code !== 200 || !is_array($data)) {
         throw new RuntimeException('Tracker API ' . $action . ' failed (HTTP ' . $code . ($error !== '' ? ', ' . $error : '')
             . (is_array($data) && isset($data['error']) ? ': ' . $data['error'] : '') . ').'
-            . (!is_array($data) ? ' The response did not come from ingest.php. First 200 characters: '
+            . (!is_array($data) || !isset($data['error']) ? ' The response did not come from ingest.php. First 200 characters: '
                 . substr(trim(preg_replace('/\s+/', ' ', strip_tags((string)$response))), 0, 200)
                 . ($seen ? ' [' . implode('; ', $seen) . ']' : '') : ''));
     }
     return $data;
 }
 
+echo "Offgrid runner v2 (sends User-Agent)\n";
 try {
     $base = rtrim((string)getenv('OFFGRID_URL'), '/') . '/';
     $token = (string)getenv('OFFGRID_TOKEN');
