@@ -5,6 +5,7 @@ define('OFFGRID_APP', true);
 require __DIR__ . '/includes/app.php';
 require __DIR__ . '/includes/scanner.php';
 require __DIR__ . '/includes/dispatch.php';
+require __DIR__ . '/includes/visits.php';
 common_headers();
 header('Cache-Control: no-store');
 header('X-Robots-Tag: noindex, nofollow');
@@ -492,6 +493,16 @@ $reading = $editor['result'] ?? [];
         <?= $row['note'] ? '<br>' . h($row['note']) : '' ?></li><?php endforeach; ?>
     </ul>
     <p class="dim">PHP <?= h(PHP_VERSION) ?> · cURL <?= h(function_exists('curl_version') ? curl_version()['version'] : 'missing') ?> · <?= h(function_exists('curl_version') ? curl_version()['ssl_version'] : '') ?></p>
+  </section>
+  <?php endif; ?>
+  <?php $visits = null; try { $visits = visits_touch($dir, false, '', ''); } catch (Throwable) {} ?>
+  <?php if ($visits && $visits['days']): ?>
+  <section class="panel" aria-labelledby="visits-heading">
+    <h2 id="visits-heading">Visitors</h2>
+    <p class="dim">Unique visitors per day (UTC). <?= h(number_format($visits['total'])) ?> since <?= h($visits['since']) ?>. Returning visitors count once per day.</p>
+    <ul class="event-list">
+      <?php foreach (array_slice($visits['days'], 0, 14, true) as $day => $row): ?><li><?= h($day) ?> · <strong><?= h($row['unique']) ?></strong> visitors · <?= h($row['views']) ?> page views</li><?php endforeach; ?>
+    </ul>
   </section>
   <?php endif; ?>
   <?php $recent = array_slice(array_reverse($state['events'] ?? []), 0, 10); ?>

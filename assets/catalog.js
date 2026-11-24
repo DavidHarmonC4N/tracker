@@ -357,3 +357,19 @@ if (!previewSource) {
   setInterval(() => { if (!document.hidden) refresh(); }, 60_000);
   setInterval(showLatest, 30_000);
 }
+
+// Anonymous visitor count. Skipped in preview mode. With Do Not Track on, the page only reads the counts.
+async function countVisit() {
+  if (previewSource) return;
+  try {
+    const dnt = navigator.doNotTrack === '1' || window.doNotTrack === '1';
+    const response = await fetch('visit.php', { method: dnt ? 'GET' : 'POST', cache: 'no-store' });
+    if (!response.ok) return;
+    const counts = await response.json();
+    if (!Number.isInteger(counts.today) || !Number.isInteger(counts.total)) return;
+    byId('visitors-today').textContent = counts.today.toLocaleString('en-US');
+    byId('visitors-total').textContent = counts.total.toLocaleString('en-US');
+    byId('visitors').hidden = false;
+  } catch (error) { /* the counter is optional */ }
+}
+countVisit();
