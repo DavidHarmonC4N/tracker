@@ -23,3 +23,11 @@ Options -Indexes
         Header always set Cross-Origin-Resource-Policy "cross-origin"
     </Files>
 </IfModule>
+
+# Stylesheets and scripts are loaded with a ?v= version in the page address, so they can be cached for 30 days.
+# When you change one of these files, change the ?v= value where the page loads it (index.html, submit.php, admin.php).
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|png)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>

@@ -70,7 +70,7 @@ try {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Submit a listing · Offgrid Comms Tracker</title>
-  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/styles.css?v=20261124-footer">
 </head>
 <body>
   <header class="mast"><div class="wrap mast-inner">

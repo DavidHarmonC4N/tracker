@@ -149,7 +149,7 @@ function card(row) {
     link.href = url.href;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    link.setAttribute('aria-label', 'View ' + row.name + ' at ' + row.seller + ' (new tab)');
+    link.setAttribute('aria-label', 'View listing: ' + row.name + ' at ' + row.seller + ' (new tab)');
   }
   end.append(price, link);
 
