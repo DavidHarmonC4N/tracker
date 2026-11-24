@@ -365,7 +365,7 @@ async function refresh() {
     byId('total').textContent = rows.length;
     byId('available').textContent = rows.filter((row) => displayStatus(row) === 'in_stock').length;
     byId('orderable').textContent = rows.filter((row) => displayStatus(row) === 'orderable').length;
-    byId('sellers').textContent = 'from ' + new Set(rows.map((row) => row.seller)).size + ' U.S. sellers';
+    byId('sellers').textContent = 'from ' + new Set(rows.map((row) => row.seller)).size + ' sellers';
     const readings = rows.map((row) => Date.parse(row.result.observed_at || '')).filter(Number.isFinite);
     latestReading = previewSource || !readings.length ? null : Math.max(...readings);
     showLatest();

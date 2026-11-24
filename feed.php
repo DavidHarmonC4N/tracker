@@ -40,7 +40,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <rss version="2.0"><channel>
 <title>Offgrid Comms Tracker: stock and price changes</title>
 <link><?= xml($site) ?></link>
-<description>Back-in-stock alerts, sell-outs and price changes for MeshCore and Meshtastic radios from U.S. sellers.</description>
+<description>Back-in-stock alerts, sell-outs and price changes for MeshCore and Meshtastic radios from U.S. and international sellers.</description>
 <?php foreach ($entries as $event): ?>
 <item>
 <title><?= xml(event_text($event)) ?></title>
