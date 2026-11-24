@@ -40,7 +40,8 @@ function save_item(array $post, ?array $existing): array {
     $row['result'] = $clearResult ? ['status'=>'unknown','price'=>null,'qty'=>null,'from_price'=>false,
         'observed_at'=>null,'source'=>'new','detail'=>'Waiting for a check'] : $existing['result'];
     $row['attempted_at'] = $clearResult ? null : $existing['attempted_at'];
-    $row['error'] = $clearResult ? null : $existing['error'];
+    // A manual-review listing is never scanned, so an old scan error would stay on it forever.
+    $row['error'] = $clearResult || $row['mode'] === 'manual' ? null : $existing['error'];
     if (isset($post['record'])) {
         $status = field($post,'status');
         $quantity = field($post,'qty');
