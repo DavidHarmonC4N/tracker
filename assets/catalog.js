@@ -15,7 +15,27 @@ const formatDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'nume
 const previewSource = byId('preview-data');
 let rows = [];
 let lastSignature = '';
-const filterIds = { q: 'search', firmware: 'firmware', stock: 'stock', role: 'role', kind: 'kind', sort: 'sort' };
+const filterIds = { q: 'search', firmware: 'firmware', role: 'role', kind: 'kind', sort: 'sort' };
+const tabs = [
+  { key: 'available', label: 'Available now', note: 'In stock or orderable' },
+  { key: 'in_stock', label: 'In stock' },
+  { key: 'orderable', label: 'Orderable' },
+  { key: 'preorder', label: 'Preorder' },
+  { key: 'unknown', label: 'Unverified' },
+  { key: 'out_of_stock', label: 'Out of stock' },
+  { key: 'all', label: 'All' }
+];
+const groupNotes = {
+  in_stock: 'The seller reports units on hand.',
+  orderable: 'The seller accepts orders. Shelf stock is not confirmed.',
+  preorder: 'Preorder or backorder.',
+  unknown: 'Awaiting a check, paused by the seller, or a reading older than 24 hours. Prices may be out of date.',
+  out_of_stock: 'The seller reports none available.'
+};
+let tab = 'available';
+let showUnverified = false;
+let restoreFocus = false;
+let latestReading = null;
 
 function readUrlFilters() {
   const params = new URLSearchParams(location.search);
@@ -26,6 +46,10 @@ function readUrlFilters() {
     control.value = value;
     if (control.value !== value && control.tagName === 'SELECT') control.selectedIndex = 0;
   }
+  // "stock" is the older name for the availability filter, kept so existing shared links still work.
+  const status = params.get('status') ?? params.get('stock');
+  if (status && tabs.some((item) => item.key === status)) tab = status;
+  showUnverified = params.get('unverified') === '1';
 }
 
 function writeUrlFilters() {
@@ -35,6 +59,8 @@ function writeUrlFilters() {
     const value = control.value.trim();
     if (value && !(key === 'sort' && value === 'availability')) params.set(key, value);
   }
+  if (tab !== 'available') params.set('status', tab);
+  if (showUnverified) params.set('unverified', '1');
   const query = params.toString();
   try {
     history.replaceState(null, '', location.pathname + (query ? '?' + query : '') + location.hash);
@@ -42,7 +68,8 @@ function writeUrlFilters() {
 }
 
 function clearFilters() {
-  byId('filters').reset();
+  // The page's reset button has id="reset", which shadows the form's own reset() method, so click it instead.
+  byId('reset').click();
 }
 
 function el(tag, className, value) {
@@ -127,38 +154,140 @@ function card(row) {
   return result;
 }
 
-function draw() {
-  const query = byId('search').value.trim().toLowerCase();
-  const firmware = byId('firmware').value;
-  const kind = byId('kind').value;
-  const role = byId('role').value;
-  const stock = byId('stock').value;
-  const sort = byId('sort').value;
-  const filtered = rows.filter((row) =>
-    (!firmware || row.firmware === firmware)
-    && (!kind || row.kind === kind)
-    && (!role || radioRole(row) === role)
-    && (!stock || displayStatus(row) === stock)
-    && [row.name, row.seller, row.location, row.note].join(' ').toLowerCase().includes(query)
-  );
-  filtered.sort((a, b) => {
+function matchesTab(key, status) {
+  return key === 'all' || (key === 'available' ? status === 'in_stock' || status === 'orderable' : status === key);
+}
+
+function buildTabs() {
+  const bar = byId('status-tabs');
+  bar.replaceChildren(...tabs.map((item) => {
+    const button = el('button', 'status-tab');
+    button.type = 'button';
+    button.dataset.tab = item.key;
+    if (item.note) button.title = item.note;
+    button.append(el('span', 'tab-label', item.label), el('span', 'tab-count', '0'));
+    button.addEventListener('click', () => {
+      tab = item.key;
+      showUnverified = false;
+      draw();
+    });
+    return button;
+  }));
+}
+
+function sortRows(list, sort) {
+  list.sort((a, b) => {
     if (sort === 'price') return (a.result.price ?? Infinity) - (b.result.price ?? Infinity) || a.name.localeCompare(b.name);
     if (sort === 'recent') return (b.result.observed_at || '').localeCompare(a.result.observed_at || '') || a.name.localeCompare(b.name);
     if (sort === 'name') return a.name.localeCompare(b.name);
     if (sort === 'role') return roleOrder.indexOf(radioRole(a)) - roleOrder.indexOf(radioRole(b)) || a.name.localeCompare(b.name);
     return priority.indexOf(displayStatus(a)) - priority.indexOf(displayStatus(b)) || a.name.localeCompare(b.name);
   });
-  byId('count').textContent = filtered.length + ' of ' + rows.length + ' listings';
+  return list;
+}
+
+function draw() {
+  const query = byId('search').value.trim().toLowerCase();
+  const firmware = byId('firmware').value;
+  const kind = byId('kind').value;
+  const role = byId('role').value;
+  const sort = byId('sort').value;
+  const base = rows.filter((row) =>
+    (!firmware || row.firmware === firmware)
+    && (!kind || row.kind === kind)
+    && (!role || radioRole(row) === role)
+    && [row.name, row.seller, row.location, row.note].join(' ').toLowerCase().includes(query)
+  );
+
+  // Tab counts follow the other filters, so each tab shows what a click would give you.
+  document.querySelectorAll('.status-tab').forEach((button) => {
+    const key = button.dataset.tab;
+    const total = base.filter((row) => matchesTab(key, displayStatus(row))).length;
+    button.querySelector('.tab-count').textContent = total;
+    button.setAttribute('aria-pressed', String(key === tab));
+    button.classList.toggle('active', key === tab);
+  });
+
+  const unverifiedRows = base.filter((row) => displayStatus(row) === 'unknown');
+  const inTab = base.filter((row) => matchesTab(tab, displayStatus(row)));
+  // Unverified listings stay out of the broad views until the visitor asks for them.
+  const hideable = tab === 'available' || tab === 'all';
+  const hiddenCount = hideable ? unverifiedRows.length : 0;
+  let shown = inTab;
+  if (hideable && tab === 'all' && !showUnverified) shown = inTab.filter((row) => displayStatus(row) !== 'unknown');
+  if (hideable && tab === 'available' && showUnverified) shown = inTab.concat(unverifiedRows);
+  sortRows(shown, sort);
+  const visibleCount = shown.length;
+  byId('count').textContent = visibleCount + ' of ' + rows.length + ' listings'
+    + (hideable && !showUnverified && hiddenCount ? ' · ' + hiddenCount + ' unverified hidden' : '');
   writeUrlFilters();
-  let empty;
-  if (!filtered.length) {
-    empty = el('div', 'panel empty', '');
+
+  const parts = [];
+  if (!shown.length) {
+    const empty = el('div', 'panel empty', '');
     const reset = el('button', 'text-button', 'Clear filters');
     reset.type = 'button';
     reset.addEventListener('click', clearFilters);
-    empty.append(document.createTextNode('No radios match these filters. '), reset);
+    const hint = tab === 'available' ? 'No available radios match. Try the All tab. ' : 'No radios match these filters. ';
+    empty.append(document.createTextNode(hint), reset);
+    parts.push(empty);
+  } else if (sort === 'availability' && hideable) {
+    for (const status of priority) {
+      const group = shown.filter((row) => displayStatus(row) === status);
+      if (!group.length) continue;
+      const section = el('section', 'group');
+      const heading = el('div', 'group-head');
+      heading.append(el('h3', '', lookup.status[status] + ' · ' + group.length), el('p', 'dim', groupNotes[status]));
+      const grid = el('div', 'catalog');
+      grid.append(...group.map(card));
+      section.append(heading, grid);
+      parts.push(section);
+    }
+  } else {
+    const grid = el('div', 'catalog');
+    grid.append(...shown.map(card));
+    parts.push(grid);
   }
-  byId('list').replaceChildren(...(filtered.length ? filtered.map(card) : [empty]));
+
+  if (hideable && (hiddenCount || showUnverified)) {
+    const toggle = el('button', 'unverified-toggle', showUnverified
+      ? 'Hide unverified listings'
+      : 'Show ' + hiddenCount + ' unverified listing' + (hiddenCount === 1 ? '' : 's'));
+    toggle.type = 'button';
+    toggle.id = 'unverified-toggle';
+    toggle.setAttribute('aria-expanded', String(showUnverified));
+    toggle.addEventListener('click', () => {
+      showUnverified = !showUnverified;
+      restoreFocus = true;
+      draw();
+    });
+    parts.push(toggle);
+  }
+  byId('list').replaceChildren(...parts);
+  if (restoreFocus) {
+    restoreFocus = false;
+    byId('unverified-toggle')?.focus();
+  }
+}
+
+function ago(time) {
+  const minutes = Math.floor((Date.now() - time) / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return minutes + ' min ago';
+  const hours = Math.floor(minutes / 60);
+  if (hours < 48) return hours + ' hr ago';
+  return Math.floor(hours / 24) + ' days ago';
+}
+
+function showLatest() {
+  const node = byId('last-run');
+  if (latestReading === null) {
+    node.textContent = 'Pending';
+    node.removeAttribute('title');
+  } else {
+    node.textContent = ago(latestReading);
+    node.title = formatDate.format(new Date(latestReading));
+  }
 }
 
 async function refresh() {
@@ -180,8 +309,11 @@ async function refresh() {
     rows = data.items;
     byId('total').textContent = rows.length;
     byId('available').textContent = rows.filter((row) => displayStatus(row) === 'in_stock').length;
-    byId('sellers').textContent = new Set(rows.map((row) => row.seller)).size;
-    byId('last-run').textContent = data.last_run ? formatDate.format(new Date(data.last_run)) : 'Pending';
+    byId('orderable').textContent = rows.filter((row) => displayStatus(row) === 'orderable').length;
+    byId('sellers').textContent = 'from ' + new Set(rows.map((row) => row.seller)).size + ' U.S. sellers';
+    const readings = rows.map((row) => Date.parse(row.result.observed_at || '')).filter(Number.isFinite);
+    latestReading = previewSource || !readings.length ? null : Math.max(...readings);
+    showLatest();
     byId('feed-state').textContent = previewSource ? 'Preview · Nov 24, 2026 snapshot'
       : data.last_run ? 'Shared catalog · refreshes automatically'
       : 'Live checks pending · research prices shown';
@@ -194,7 +326,15 @@ async function refresh() {
 
 byId('filters').addEventListener('submit', (event) => event.preventDefault());
 byId('filters').addEventListener('input', draw);
-byId('filters').addEventListener('reset', () => setTimeout(draw, 0));
+byId('filters').addEventListener('reset', () => {
+  tab = 'available';
+  showUnverified = false;
+  setTimeout(draw, 0);
+});
+buildTabs();
 readUrlFilters();
 refresh();
-if (!previewSource) setInterval(() => { if (!document.hidden) refresh(); }, 60_000);
+if (!previewSource) {
+  setInterval(() => { if (!document.hidden) refresh(); }, 60_000);
+  setInterval(showLatest, 30_000);
+}
