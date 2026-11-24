@@ -7,15 +7,15 @@
   <meta name="theme-color" content="#121511">
   <title>Offgrid Comms Tracker</title>
   <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
-  <link rel="stylesheet" href="assets/styles.css?v=20261124-visits">
-  <script src="assets/catalog.js?v=20261124-visits" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=20261124-footer">
+  <script src="assets/catalog.js?v=20261124-footer" defer></script>
 </head>
 <body>
   <a class="skip" href="#inventory">Skip to listings</a>
   <header class="mast">
     <div class="wrap mast-inner">
       <a class="brand" href="index.html"><span class="brand-icon" aria-hidden="true"><i></i></span> OFFGRID <span>COMMS</span></a>
-      <nav aria-label="Site navigation"><a href="#inventory">Catalog</a><a href="#offline-tools">Mesh tools</a><a class="quiet" href="submit.php" data-submit>Submit a listing</a><a href="admin.php" data-admin>Admin</a></nav>
+      <nav aria-label="Site navigation"><a href="#inventory">Catalog</a><a href="#offline-tools">Mesh tools</a><a class="quiet" href="submit.php" data-submit>Submit a listing</a><a class="quiet coffee" href="https://buymeacoffee.com/offgridcomms">Buy me a coffee</a><a href="admin.php" data-admin>Admin</a></nav>
     </div>
   </header>
   <main>
@@ -107,14 +107,29 @@
     </div>
   </main>
   <footer class="site-footer">
-    <div class="wrap footer-inner">
-      <div class="footer-about">
-        <p class="footer-title">Offgrid Comms Tracker</p>
+    <div class="wrap footer-grid">
+      <section class="footer-about" aria-labelledby="footer-about-title">
+        <h2 class="footer-head" id="footer-about-title">Offgrid Comms Tracker</h2>
         <p>I host this community tracker on my personal site at <a href="https://mesh.davidandlaura.net/">mesh.davidandlaura.net</a>. I receive no commissions or other compensation from seller links.</p>
+      </section>
+      <nav class="footer-col" aria-labelledby="footer-explore-title">
+        <h2 class="footer-head" id="footer-explore-title">Explore</h2>
+        <ul>
+          <li><a href="#inventory">Radio catalog</a></li>
+          <li><a href="#offline-tools">Mesh tools and links</a></li>
+          <li><a href="submit.php">Submit a listing</a></li>
+          <li><a href="feed.php">Stock alerts (RSS)</a></li>
+        </ul>
+      </nav>
+      <section class="footer-col" aria-labelledby="footer-support-title">
+        <h2 class="footer-head" id="footer-support-title">Support</h2>
+        <p>This tracker is free to use. If you find it helpful, you can chip in.</p>
+        <a class="quiet coffee" href="https://buymeacoffee.com/offgridcomms">Buy me a coffee</a>
+      </section>
+      <div class="footer-bottom">
+        <p class="footer-pricing">Prices are in USD before tax and shipping. Confirm stock and the selected variant with the seller. Sellers marked with an asterisk block automated checks, so their listings are checked by hand.</p>
+        <p class="visitors" id="visitors" hidden>Visitors: <strong id="visitors-today">0</strong> today · <strong id="visitors-total">0</strong> all time. Counted anonymously: no cookies, and no IP addresses are stored.</p>
       </div>
-      <a class="quiet" href="feed.php">Stock alerts (RSS)</a>
-      <p class="visitors" id="visitors" hidden>Visitors: <strong id="visitors-today">0</strong> today · <strong id="visitors-total">0</strong> all time. Counted anonymously: no cookies, and no IP addresses are stored.</p>
-      <p class="footer-pricing">Prices are in USD before tax and shipping. Confirm stock and the selected variant with the seller.</p>
     </div>
   </footer>
 </body>
