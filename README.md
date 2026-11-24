@@ -21,7 +21,7 @@ No external database, package installation, or paid stock API is required. The t
 
 ## Update an existing installation
 
-Upload the updated files over the current installation, including `submit.php`, `feed.php`, `ingest.php` and `includes/roles.json`. Keep your installed `config.php`, private folder, and existing cron job. Existing listings, stock readings, and the administrator password carry over. The update assigns primary uses to starter listings where known and leaves uncategorized listings editable in Admin.
+Upload the updated files over the current installation, including `submit.php`, `feed.php`, `ingest.php`, `includes/dispatch.php` and `includes/roles.json`. Keep your installed `config.php`, private folder, and existing cron job. Existing listings, stock readings, and the administrator password carry over. The update assigns primary uses to starter listings where known and leaves uncategorized listings editable in Admin.
 
 ## Add or change a watch
 
@@ -53,6 +53,15 @@ Set up:
 4. Upload the updated site files, including `ingest.php`. The `.github` and `runner` folders do not need to be on the host.
 5. In the repository **Actions** tab, enable workflows and use **Run workflow** once. The log lists each listing claimed and its result.
 6. In Admin, edit a listing and set **Checked by** to **U.S. runner**, or use **Move failing to U.S. runner** on the list to move listings that are failing or paused. The server cron then skips those listings.
+
+### Start the runner from your site (recommended)
+
+GitHub's own schedule can start late or skip runs. With a token, your site starts the workflow itself: whenever someone loads the catalog and U.S. runner listings are due, it asks GitHub to run the workflow, at most once every 9 minutes, and only when there is work. No cron job is needed on your host. The catalog response is sent first, so visitors never wait for it. If nobody visits the catalog, nothing starts until the next visit, and the GitHub schedule still runs as a backup.
+
+1. On GitHub open **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
+2. Set **Repository access** to **Only select repositories** and choose your tracker repository. Under **Permissions → Repository permissions** set **Actions** to **Read and write**. Leave everything else at no access. Choose an expiry date and copy the token.
+3. In your live `config.php` set `'github_token' => 'THE-TOKEN'`. Check that `github_repo` is `OWNER/REPOSITORY` and that `github_workflow` is the workflow file name (`check.yml`). Keep this token private: it can start workflows in that one repository and nothing else.
+4. In Admin, **Run U.S. checker now** starts a run immediately. If GitHub refuses a start, Admin shows a red message with the reason. A token that expires will show up there.
 
 Admin shows a warning if a U.S. runner listing exists and the runner has not checked in for 45 minutes. GitHub can delay scheduled runs, and it turns off scheduled workflows in a public repository after 60 days without repository activity, so check the Actions tab if the warning appears. The key is sent only in an `X-Offgrid-Token` header over HTTPS. Repeated wrong keys are blocked for 15 minutes.
 

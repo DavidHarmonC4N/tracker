@@ -485,30 +485,46 @@ function is_remote(array $item): bool {
     return ($item['checker'] ?? 'server') === 'remote';
 }
 
+/** Returns the seller host when this listing is due for the U.S. runner right now, or null. */
+function remote_ready(array $state, array $item, int $now): ?string {
+    $gap = max(30, (int)config()['interval_minutes']) * 60 - 60;
+    if (!is_remote($item) || $item['paused'] || $item['mode'] === 'manual'
+        || ($item['attempted_at'] && $now - strtotime($item['attempted_at']) < $gap)) {
+        return null;
+    }
+    try {
+        $host = seller_bucket(product_url($item['url'])['host']);
+    } catch (InvalidArgumentException) {
+        return null;
+    }
+    return max($state['cooldowns'][$host] ?? 0, $state['host_next_scan'][$host] ?? 0) > $now ? null : $host;
+}
+
+function has_remote_work(array $state): bool {
+    $now = time();
+    foreach ($state['items'] as $item) {
+        if (remote_ready($state, $item, $now) !== null) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /** Hands the U.S. runner its next listings: eligible, one per seller, with the same pacing as the server cron. */
 function claim_jobs(string $dir, int $limit): array {
     $jobs = [];
     change_state($dir, static function (&$state) use (&$jobs,$limit) {
         $now = time();
         $state['last_runner_run'] = iso_now();
-        $gap = max(30, (int)config()['interval_minutes']) * 60 - 60;
         $order = array_keys($state['items']);
         usort($order, static fn($a,$b) => strcmp($state['items'][$a]['attempted_at'] ?? '', $state['items'][$b]['attempted_at'] ?? ''));
         foreach ($order as $index) {
-            $item = $state['items'][$index];
             if (count($jobs) >= $limit) {
                 break;
             }
-            if (!is_remote($item) || $item['paused'] || $item['mode'] === 'manual'
-                || ($item['attempted_at'] && $now - strtotime($item['attempted_at']) < $gap)) {
-                continue;
-            }
-            try {
-                $host = seller_bucket(product_url($item['url'])['host']);
-            } catch (InvalidArgumentException) {
-                continue;
-            }
-            if (max($state['cooldowns'][$host] ?? 0, $state['host_next_scan'][$host] ?? 0) > $now) {
+            $item = $state['items'][$index];
+            $host = remote_ready($state, $item, $now);
+            if ($host === null) {
                 continue;
             }
             $state['host_next_scan'][$host] = $now + SELLER_SCAN_GAP;

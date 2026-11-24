@@ -4,6 +4,7 @@ declare(strict_types=1);
 define('OFFGRID_APP', true);
 require __DIR__ . '/includes/app.php';
 require __DIR__ . '/includes/scanner.php';
+require __DIR__ . '/includes/dispatch.php';
 common_headers();
 header('Cache-Control: no-store');
 header('X-Robots-Tag: noindex, nofollow');
@@ -173,6 +174,20 @@ try {
                 unset($row);
             });
             $_SESSION['notice'] = 'Seller pauses cleared. Every automatic listing is queued for the next scheduled runs.';
+            go();
+        }
+        if ($action === 'dispatch') {
+            $problem = github_dispatch();
+            change_state($dir, static function (&$fresh) use ($problem) {
+                $fresh['dispatch_error'] = $problem;
+                if ($problem === '') {
+                    $fresh['last_dispatch'] = time();
+                }
+            });
+            if ($problem !== '') {
+                throw new InvalidArgumentException('Could not start the U.S. runner. ' . $problem);
+            }
+            $_SESSION['notice'] = 'U.S. runner started on GitHub. Results appear in a minute or two.';
             go();
         }
         if ($action === 'route_failing') {
@@ -425,6 +440,7 @@ $reading = $editor['result'] ?? [];
   $failing = 0;
   $pausedSellers = 0;
   $remote = 0;
+  $serverAuto = 0;
   foreach ($state['items'] as $item) {
       $host = '';
       try { $host = seller_bucket(product_url($item['url'])['host']); } catch (Throwable) {}
@@ -446,6 +462,7 @@ $reading = $editor['result'] ?? [];
               : ($seen ? 'Checked ' . $seen : 'No reading yet');
       }
       if (is_remote($item) && !$item['paused']) { $detail .= ' · U.S. runner'; $remote++; }
+      elseif ($auto) { $serverAuto++; }
       $rows[] = ['item'=>$item,'rank'=>$rank,'tag'=>$tag,'detail'=>$detail];
   }
   usort($rows, static fn($a, $b) => $a['rank'] <=> $b['rank']);
@@ -455,9 +472,12 @@ $reading = $editor['result'] ?? [];
   <?php if ($remote && ($runnerAge === null || $runnerAge > 45)): ?>
     <p class="notice danger" role="alert"><?= $runnerAge === null ? 'The U.S. runner has not checked in yet. Finish the GitHub setup steps in the README.' : 'The U.S. runner last checked in ' . h($runnerAge >= 120 ? intdiv($runnerAge, 60) . ' hours' : $runnerAge . ' minutes') . ' ago. Check the Actions tab on GitHub.' ?></p>
   <?php endif; ?>
-  <?php if ($runAge === null): ?>
+  <?php if (!empty($state['dispatch_error'])): ?>
+    <p class="notice danger" role="alert">The last automatic start of the U.S. runner failed: <?= h($state['dispatch_error']) ?></p>
+  <?php endif; ?>
+  <?php if ($serverAuto && $runAge === null): ?>
     <p class="notice danger" role="alert">The scheduled checker has not run yet. Add the cron job from the README, then run <code>check.php</code> once to confirm it works.</p>
-  <?php elseif ($runAge > 30): ?>
+  <?php elseif ($serverAuto && $runAge > 30): ?>
     <p class="notice danger" role="alert">The scheduled checker last ran <?= h($runAge >= 120 ? intdiv($runAge, 60) . ' hours' : $runAge . ' minutes') ?> ago (<?= h(when($state['last_run'])) ?>). It should run every 10 minutes, so check the cron job.</p>
   <?php endif; ?>
   <?php if ($diagnosis): ?>
@@ -484,9 +504,10 @@ $reading = $editor['result'] ?? [];
   </section>
   <?php endif; ?>
   <div class="panel">
-    <div class="section-line"><div><h2>Watched listings</h2><p class="dim"><?= h(count($state['items'])) ?> listings · <?= $runAge === null ? 'Waiting for the first scheduled run' : 'Checker last ran ' . h(when($state['last_run'])) ?> · <?= h($failing) ?> need review · <?= h($pausedSellers) ?> seller-paused</p></div><div class="row-actions">
+    <div class="section-line"><div><h2>Watched listings</h2><p class="dim"><?= h(count($state['items'])) ?> listings · <?= !$serverAuto && $remote ? ($runnerAge === null ? 'Waiting for the U.S. runner' : 'U.S. runner last checked in ' . h(when($state['last_runner_run']))) : ($runAge === null ? 'Waiting for the first scheduled run' : 'Checker last ran ' . h(when($state['last_run']))) ?> · <?= h($failing) ?> need review · <?= h($pausedSellers) ?> seller-paused</p></div><div class="row-actions">
       <form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="diagnose">Run connection test</button></form>
       <?php if ($pausedSellers || $failing): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="clear_pauses" data-confirm="Clear all seller pauses and queue every automatic listing?">Clear seller pauses</button></form><?php endif; ?>
+      <?php if (github_trigger_enabled()): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="dispatch">Run U.S. checker now</button></form><?php endif; ?>
       <?php if (ingest_enabled() && ($failing || $pausedSellers)): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="route_failing" data-confirm="Move failing listings to the U.S. runner?">Move failing to U.S. runner</button></form><?php endif; ?>
       <?php if ($failing): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="queue_failing">Queue all failing</button></form><?php endif; ?>
       <a class="primary" href="?add=1">Add listing</a></div></div>

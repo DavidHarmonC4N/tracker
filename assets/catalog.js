@@ -315,7 +315,7 @@ async function refresh() {
     latestReading = previewSource || !readings.length ? null : Math.max(...readings);
     showLatest();
     byId('feed-state').textContent = previewSource ? 'Preview · Nov 24, 2026 snapshot'
-      : data.last_run ? 'Shared catalog · refreshes automatically'
+      : data.last_run || latestReading !== null ? 'Shared catalog · refreshes automatically'
       : 'Live checks pending · research prices shown';
     draw();
   } catch (error) {
