@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#121511">
   <title>Offgrid Comms Tracker</title>
   <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
-  <link rel="stylesheet" href="assets/styles.css?v=20261124-manual">
-  <script src="assets/catalog.js?v=20261124-manual" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=20261124-manual2">
+  <script src="assets/catalog.js?v=20261124-manual2" defer></script>
 </head>
 <body>
   <a class="skip" href="#inventory">Skip to listings</a>
@@ -60,13 +60,13 @@
         </form>
         <div class="result-line"><p id="count" aria-live="polite"></p><button class="text-button" id="reset" type="reset" form="filters">Clear filters</button></div>
         <div id="list" aria-label="Radio listings"></div>
-        <p class="etsy-note" id="etsy-note" hidden><span class="asterisk" aria-hidden="true">*</span> Etsy blocks automated stock checks. Listings marked with an asterisk are checked by hand, so their price and stock may be out of date. Confirm with the seller.</p>
+        <p class="manual-note" id="manual-note" hidden><span class="asterisk" aria-hidden="true">*</span> These sellers block automated stock checks. Listings marked with an asterisk are checked by hand, so their price and stock may be out of date. Confirm with the seller.</p>
         <noscript><p class="panel">Enable JavaScript to load and filter the catalog.</p></noscript>
         <details class="stock-notes">
           <summary>How stock checks work</summary>
           <p><strong>Stock check schedule.</strong> Checks run in batches every 10 minutes, with at least 20 minutes between scans of the same seller. A listing is eligible for another check after about an hour. Seller cooldowns and the queue can make that longer. “Latest stock reading” is the newest check across the whole catalog, and each radio card shows its own check time.</p>
           <p><strong>In stock</strong> is a seller’s stock report. <strong>Orderable</strong> means the seller accepts orders, but shelf stock is unconfirmed. <strong>Unverified</strong> includes listings awaiting a check, seller pauses, and older or inconclusive readings. Historical prices are marked.</p>
-          <p><strong>Manual review</strong> listings are ones whose seller does not allow automated checks, such as Etsy shops. Their price and stock are entered by hand, so they can lag the seller’s page. Use the Manual review tab to see them together.</p>
+          <p><strong>Manual review</strong> listings, marked with an asterisk, are from sellers that block automated checks, such as Etsy, DigiKey and Mouser. Their price and stock are entered by hand, so they can lag the seller’s page. Use the Manual review tab to see them together.</p>
           <p><strong>Both firmware options</strong> means the hardware supports either firmware by selection or flashing. “Only” reflects what is documented for the tracked listing. Check the seller’s selected variant, frequency, shipping, and final price before ordering.</p>
         </details>
       </section>

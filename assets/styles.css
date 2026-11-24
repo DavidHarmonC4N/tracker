@@ -172,5 +172,5 @@ details p { margin-top: .65rem; }
 .hero-support { margin: 1rem 0 0; font-size: .92rem; color: var(--dim); }
 .hero-support a { color: var(--green); text-underline-offset: .18em; }
 .asterisk { color: var(--amber); font-weight: 800; cursor: help; }
-.etsy-note { margin: 1rem 0 0; color: var(--dim); font-size: .88rem; max-width: 80ch; }
+.manual-note { margin: 1rem 0 0; color: var(--dim); font-size: .88rem; max-width: 80ch; }
 .tab-intro { margin: 0 0 1rem; color: var(--dim); font-size: .9rem; }

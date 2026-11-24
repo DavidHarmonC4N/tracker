@@ -117,10 +117,10 @@ function card(row) {
 
   const title = el('div');
   const sellerLine = el('p', 'seller', row.seller + (row.location ? ' · ' + row.location : ''));
-  if (isEtsy(row)) {
+  if (isManual(row)) {
     const star = el('span', 'asterisk', ' *');
-    star.title = 'Etsy blocks automated stock checks, so this listing is checked by hand.';
-    star.setAttribute('aria-label', '. Etsy blocks automated stock checks, so this listing is checked by hand.');
+    star.title = 'This seller blocks automated stock checks, so this listing is checked by hand.';
+    star.setAttribute('aria-label', '. This seller blocks automated stock checks, so this listing is checked by hand.');
     sellerLine.append(star);
   }
   title.append(el('h3', '', row.name), sellerLine);
@@ -162,18 +162,14 @@ function card(row) {
   return result;
 }
 
-function isEtsy(row) {
-  try {
-    const host = new URL(row.url).hostname.toLowerCase();
-    return host === 'etsy.com' || host.endsWith('.etsy.com');
-  } catch (error) {
-    return false;
-  }
+// Manual-review listings are the sellers that block or refuse automated checks (Etsy, DigiKey, Mouser and so on).
+function isManual(row) {
+  return Boolean(row.manual);
 }
 
 function matchesTab(key, row) {
   const status = displayStatus(row);
-  if (key === 'manual') return Boolean(row.manual);
+  if (key === 'manual') return isManual(row);
   return key === 'all' || (key === 'available' ? status === 'in_stock' || status === 'orderable' : status === key);
 }
 
@@ -243,7 +239,7 @@ function draw() {
 
   const parts = [];
   if (tab === 'manual') {
-    parts.push(el('p', 'tab-intro', 'These sellers do not allow automated checks, so their price and stock are entered by hand and may lag the seller’s page.'));
+    parts.push(el('p', 'tab-intro', 'These sellers block automated stock checks, so their price and stock are entered by hand and may lag the seller’s page.'));
   }
   if (!shown.length) {
     const empty = el('div', 'panel empty', '');
@@ -286,7 +282,7 @@ function draw() {
     parts.push(toggle);
   }
   byId('list').replaceChildren(...parts);
-  byId('etsy-note').hidden = !shown.some(isEtsy);
+  byId('manual-note').hidden = !shown.some(isManual);
   if (restoreFocus) {
     restoreFocus = false;
     byId('unverified-toggle')?.focus();
