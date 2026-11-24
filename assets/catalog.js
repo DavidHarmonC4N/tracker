@@ -25,6 +25,7 @@ const tabs = [
   { key: 'unknown', label: 'Unverified' },
   { key: 'out_of_stock', label: 'Out of stock' },
   { key: 'manual', label: 'Manual review', note: 'Checked by hand because the seller blocks automated checks' },
+  { key: 'seeed', label: 'Seeed Studio', note: 'Listings sold directly by Seeed Studio, one per warehouse' },
   { key: 'all', label: 'All' }
 ];
 const groupNotes = {
@@ -173,9 +174,19 @@ function isManual(row) {
   return Boolean(row.manual);
 }
 
+function isSeeed(row) {
+  try {
+    const host = new URL(row.url).hostname.toLowerCase();
+    return host === 'seeedstudio.com' || host.endsWith('.seeedstudio.com');
+  } catch (error) {
+    return false;
+  }
+}
+
 function matchesTab(key, row) {
   const status = displayStatus(row);
   if (key === 'manual') return isManual(row);
+  if (key === 'seeed') return isSeeed(row);
   return key === 'all' || (key === 'available' ? status === 'in_stock' || status === 'orderable' : status === key);
 }
 
@@ -249,6 +260,9 @@ function draw() {
   if (tab === 'manual') {
     parts.push(el('p', 'tab-intro', 'These sellers block automated stock checks, so their price and stock are entered by hand and may lag the seller’s page.'));
   }
+  if (tab === 'seeed') {
+    parts.push(el('p', 'tab-intro', 'Seeed Studio ships each product from U.S., EU and China warehouses. Price, shipping time, duties and fees differ by warehouse, so check the warehouse badge before you order.'));
+  }
   if (!shown.length) {
     const empty = el('div', 'panel empty', '');
     const reset = el('button', 'text-button', 'Clear filters');
@@ -264,6 +278,20 @@ function draw() {
       const section = el('section', 'group');
       const heading = el('div', 'group-head');
       heading.append(el('h3', '', lookup.status[status] + ' · ' + group.length), el('p', 'dim', groupNotes[status]));
+      const grid = el('div', 'catalog');
+      grid.append(...group.map(card));
+      section.append(heading, grid);
+      parts.push(section);
+    }
+  } else if (tab === 'seeed') {
+    // One section per warehouse, each in the chosen sort order.
+    for (const key of ['us', 'eu', 'cn', '']) {
+      const group = shown.filter((row) => (row.warehouse || '') === key);
+      if (!group.length) continue;
+      const label = lookup.warehouse[key] || 'Warehouse not specified';
+      const section = el('section', 'group');
+      const heading = el('div', 'group-head');
+      heading.append(el('h3', '', label + ' · ' + group.length));
       const grid = el('div', 'catalog');
       grid.append(...group.map(card));
       section.append(heading, grid);
