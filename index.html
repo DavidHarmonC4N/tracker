@@ -21,7 +21,7 @@
   <meta name="twitter:image" content="https://mesh.davidandlaura.net/assets/og-image.png">
   <title>Offgrid Comms Tracker</title>
   <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
-  <link rel="stylesheet" href="assets/styles.css?v=20261124-footer">
+  <link rel="stylesheet" href="assets/styles.css?v=20261124-badges">
   <script src="assets/catalog.js?v=20261124-seeed" defer></script>
 </head>
 <body>
@@ -97,6 +97,11 @@
         <div class="mesh-link-grid">
           <article class="panel mesh-link-card">
             <h3>MeshCore</h3>
+            <div class="app-badges">
+              <p class="app-label" id="meshcore-app-label">Official MeshCore app, by Liam Cottle</p>
+              <a class="badge-link" href="https://apps.apple.com/app/meshcore/id6742354151" target="_blank" rel="noopener noreferrer" aria-describedby="meshcore-app-label"><img src="assets/app-store-badge.svg" alt="Download MeshCore on the App Store" width="120" height="40"></a>
+              <a class="badge-link badge-play" href="https://play.google.com/store/apps/details?id=com.liamcottle.meshcore.android" target="_blank" rel="noopener noreferrer" aria-describedby="meshcore-app-label"><img src="assets/google-play-badge.png" alt="Get MeshCore on Google Play" width="155" height="60"></a>
+            </div>
             <ul>
               <li><a href="https://flasher.meshcore.io/">MeshCore firmware flasher</a></li>
               <li><a href="https://files.liamcottle.net/MeshCore/">MeshCore offline app installers</a></li>
@@ -143,6 +148,7 @@
       </section>
       <div class="footer-bottom">
         <p class="footer-pricing">Prices are in USD before tax and shipping. Confirm stock and the selected variant with the seller. Sellers marked with an asterisk block automated checks, so their listings are checked by hand.</p>
+        <p class="footer-legal">Google Play and the Google Play logo are trademarks of Google LLC. App Store is a service mark of Apple Inc. MeshCore is made by its own developers and is not affiliated with this tracker.</p>
         <p class="visitors" id="visitors" hidden>Visitors: <strong id="visitors-today">0</strong> today · <strong id="visitors-total">0</strong> all time. Counted anonymously: no cookies, and no IP addresses are stored.</p>
       </div>
     </div>

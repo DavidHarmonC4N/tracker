@@ -195,3 +195,12 @@ nav.footer-col { display: block; font-size: .87rem; color: var(--dim); }
 .warehouse-us { color: var(--green); border-color: #53693a; }
 .warehouse-eu { color: var(--amber); border-color: #655636; }
 .warehouse-cn { color: var(--red); border-color: #71453b; }
+
+/* Official MeshCore app store badges. Store badge artwork is used unmodified, as Apple and Google require. */
+.app-badges { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin: 0 0 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--edge); }
+.app-label { flex-basis: 100%; margin: 0; color: var(--dim); font-size: .85rem; }
+.badge-link { display: inline-flex; border-radius: 6px; }
+.badge-link img { display: block; height: 40px; width: auto; }
+.badge-play img { height: 60px; margin: -10px 0; }
+.badge-link:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+.footer-legal { margin: 0; font: .72rem/1.5 var(--mono); color: var(--dim); }
