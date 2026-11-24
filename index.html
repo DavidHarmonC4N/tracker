@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Compare prices and stock for MeshCore and Meshtastic radios from U.S. sellers.">
+  <meta name="theme-color" content="#121511">
+  <title>Offgrid Comms Tracker</title>
+  <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
+  <link rel="stylesheet" href="assets/styles.css?v=20261124-changes">
+  <script src="assets/catalog.js?v=20261124-changes" defer></script>
+</head>
+<body>
+  <a class="skip" href="#inventory">Skip to listings</a>
+  <header class="mast">
+    <div class="wrap mast-inner">
+      <a class="brand" href="index.html"><span class="brand-icon" aria-hidden="true"><i></i></span> OFFGRID <span>COMMS</span></a>
+      <nav aria-label="Site navigation"><a href="#inventory">Catalog</a><a href="#offline-tools">Mesh tools</a><a class="quiet" href="submit.php" data-submit>Submit a listing</a><a href="admin.php" data-admin>Admin</a></nav>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="wrap hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> U.S. RADIO INVENTORY</p>
+          <h1>OFFGRID COMMS<br><em>TRACKER</em></h1>
+          <p class="lede">Find MeshCore and Meshtastic radios from U.S. sellers. Compare stock, price, and the setup each radio needs.</p>
+          <div class="hero-actions">
+            <a class="primary" href="#inventory">Browse radios</a>
+            <a class="quiet" href="#notoryx-tools">MESH tools</a>
+          </div>
+        </div>
+        <div class="scope" aria-hidden="true">
+          <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
+          <div class="crosshair"></div><div class="sweep"></div><i></i><i></i><i></i>
+        </div>
+      </div>
+    </section>
+    <div class="wrap">
+      <p class="panel preview-submissions" id="preview-submissions">On the live site, this link opens a form to suggest a radio for admin approval.</p>
+      <dl class="summary" aria-label="Catalog snapshot">
+        <div><dt>Watched listings</dt><dd id="total">—</dd></div>
+        <div><dt>Reported in stock</dt><dd id="available" class="accent">—</dd></div>
+        <div><dt>U.S. sellers</dt><dd id="sellers">—</dd></div>
+        <div><dt>Last scheduled run</dt><dd id="last-run" class="small">—</dd></div>
+      </dl>
+      <p class="scan-timing"><strong>Stock check schedule</strong> The checker runs in batches every 10 minutes, with at least 20 minutes between listing scans at the same seller. A listing is eligible for another check after about an hour. Seller cooldowns and the queue can make that longer. The time above is the last run for the whole catalog. Each radio card shows its own check status.</p>
+      <section id="inventory" aria-labelledby="inventory-title">
+        <div class="section-line inventory-heading">
+          <div><p class="eyebrow">BUYER'S DIRECTORY</p><h2 id="inventory-title">Radio catalog</h2></div>
+          <p id="feed-state" class="feed-state" role="status">Loading listings…</p>
+        </div>
+        <form class="filters" id="filters">
+          <label class="search">Search<input type="search" id="search" placeholder="Radio, seller, or location"></label>
+          <label>Firmware<select id="firmware"><option value="">Any firmware</option><option value="meshcore">MeshCore only</option><option value="meshtastic">Meshtastic only</option><option value="both">Both firmware options</option></select></label>
+          <label>Availability<select id="stock"><option value="">Any status</option><option value="in_stock">In stock</option><option value="orderable">Orderable</option><option value="out_of_stock">Out of stock</option><option value="preorder">Preorder / backorder</option><option value="unknown">Unverified</option></select></label>
+          <label>Primary use<select id="role"><option value="">Any use</option><option value="companion">Companion</option><option value="tracker">Tracker</option><option value="repeater">Repeater</option><option value="solar_repeater">Solar repeater</option><option value="unspecified">Unspecified</option></select></label>
+          <label>Radio type<select id="kind"><option value="">Any type</option><option value="handheld">Handheld</option><option value="keyboard">Keyboard radio</option><option value="solar">Solar node</option><option value="base">Base station</option><option value="tracker">GPS tracker</option><option value="board">Board or kit</option><option value="other">Other</option></select></label>
+          <label>Sort by<select id="sort"><option value="availability">Availability</option><option value="price">Price, low to high</option><option value="recent">Recently checked</option><option value="name">Name, A to Z</option><option value="role">Primary use</option></select></label>
+        </form>
+        <div class="result-line"><p id="count" aria-live="polite"></p><button class="text-button" id="reset" type="reset" form="filters">Clear filters</button></div>
+        <div id="list" class="catalog" aria-label="Radio listings"></div>
+        <noscript><p class="panel">Enable JavaScript to load and filter the catalog.</p></noscript>
+        <details class="stock-notes">
+          <summary>How to read stock and firmware</summary>
+          <p><strong>In stock</strong> is a seller’s stock report. <strong>Orderable</strong> means the seller accepts orders, but shelf stock is unconfirmed. <strong>Unverified</strong> includes listings awaiting a check, seller pauses, and older or inconclusive readings. Historical prices are marked.</p>
+          <p><strong>Both firmware options</strong> means the hardware supports either firmware by selection or flashing. “Only” reflects what is documented for the tracked listing. Check the seller’s selected variant, frequency, shipping, and final price before ordering.</p>
+        </details>
+      </section>
+      <section class="mesh-tools" id="offline-tools" aria-labelledby="offline-tools-title">
+        <h2 id="offline-tools-title">Mesh tools and links</h2>
+        <article class="panel resource-panel" id="notoryx-tools">
+          <div>
+            <h3>NOTORYX for offline use</h3>
+            <p>NOTORYX Forge is a desktop test build for configuring and flashing supported MeshCore and Meshtastic radios without internet. NOTORYX messaging apps use a paired radio when internet and cell service are down. Download and test what you need before an outage.</p>
+          </div>
+          <a class="retailer" href="https://meshmayhem.org/notoryx/">Explore NOTORYX tools</a>
+        </article>
+        <div class="mesh-link-grid">
+          <article class="panel mesh-link-card">
+            <h3>MeshCore</h3>
+            <ul>
+              <li><a href="https://flasher.meshcore.io/">MeshCore firmware flasher</a></li>
+              <li><a href="https://files.liamcottle.net/MeshCore/">MeshCore offline app installers</a></li>
+              <li><a href="https://docs.meshcore.io/">MeshCore documentation</a></li>
+            </ul>
+          </article>
+          <article class="panel mesh-link-card">
+            <h3>Meshtastic</h3>
+            <ul>
+              <li><a href="https://flasher.meshtastic.org/">Meshtastic firmware flasher</a></li>
+              <li><a href="https://meshtastic.org/downloads/">Meshtastic app and firmware downloads</a></li>
+              <li><a href="https://meshtastic.org/docs/getting-started/">Meshtastic getting started guide</a></li>
+            </ul>
+          </article>
+          <article class="panel mesh-link-card">
+            <h3>Reticulum</h3>
+            <ul>
+              <li><a href="https://github.com/liamcottle/reticulum-meshchat">Reticulum MeshChat on GitHub</a></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div class="footer-about">
+        <p class="footer-title">Offgrid Comms Tracker</p>
+        <p>I host this community tracker on my personal site at <a href="https://mesh.davidandlaura.net/">mesh.davidandlaura.net</a>. I receive no commissions or other compensation from seller links.</p>
+      </div>
+      <a class="quiet" href="feed.php">Stock alerts (RSS)</a>
+      <a class="quiet footer-support" href="https://buymeacoffee.com/offgridcomms">Buy me a coffee</a>
+      <p class="footer-pricing">Prices are in USD before tax and shipping. Confirm stock and the selected variant with the seller.</p>
+    </div>
+  </footer>
+</body>
+</html>

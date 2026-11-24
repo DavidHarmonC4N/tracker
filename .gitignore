@@ -1,0 +1,4 @@
+# Never commit your live settings or data.
+offgrid-private/
+*.local
+tracker.json

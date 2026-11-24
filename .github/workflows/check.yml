@@ -1,0 +1,32 @@
+name: U.S. stock checker
+
+on:
+  schedule:
+    # Every 10 minutes. GitHub may delay scheduled runs. Private repositories get 2,000 free minutes per month,
+    # so use */30 there; public repositories are free.
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: offgrid-check
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, dom
+          tools: none
+      - name: Check claimed listings
+        env:
+          OFFGRID_URL: ${{ secrets.OFFGRID_URL }}
+          OFFGRID_TOKEN: ${{ secrets.OFFGRID_TOKEN }}
+        run: php runner/run.php
