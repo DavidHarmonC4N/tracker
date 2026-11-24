@@ -263,6 +263,40 @@ function schema_entries(array $schema): Generator {
     }
 }
 
+/** Maps a seller's warehouse name ("Germany Warehouse", "United States Warehouse") to a WAREHOUSES key. */
+function warehouse_key(string $name): ?string {
+    $name = strtolower($name);
+    return match (true) {
+        (bool)preg_match('/\b(?:china|shenzhen|cn)\b/', $name) => 'cn',
+        (bool)preg_match('/\b(?:germany|munich|europe|eu)\b/', $name) => 'eu',
+        (bool)preg_match('/\b(?:united states|usa|us|u\.s\.)\b/', $name) => 'us',
+        default => null,
+    };
+}
+
+/** For a listing tied to a warehouse, picks that warehouse's offer from an AggregateOffer that names its warehouses. */
+function warehouse_offer(array $offer, string $warehouse): ?array {
+    if ($warehouse === '' || !is_array($offer['offers'] ?? null) || !array_is_list($offer['offers'])) {
+        return null;
+    }
+    $named = false;
+    foreach ($offer['offers'] as $sub) {
+        $place = is_array($sub) ? ($sub['availableAtOrFrom']['name'] ?? $sub['name'] ?? null) : null;
+        $key = is_string($place) ? warehouse_key($place) : null;
+        if ($key === null) {
+            continue;
+        }
+        $named = true;
+        if ($key === $warehouse) {
+            return $sub + ['url'=>$offer['url'] ?? null];
+        }
+    }
+    if ($named) {
+        throw new ScanFailure('The seller page does not list this warehouse. Review the listing in Admin.');
+    }
+    return null;
+}
+
 function structured_offer(DOMXPath $xpath, array $item): ?array {
     if ($item['variant'] !== '' || preg_match('/(?:\?|&)variant=/', $item['url'])) {
         return null; // An unscoped product offer cannot verify a selected option.
@@ -287,7 +321,7 @@ function structured_offer(DOMXPath $xpath, array $item): ?array {
     if (count($offers) !== 1 || !is_array($offers[0])) {
         return null;
     }
-    $offer = $offers[0];
+    $offer = warehouse_offer($offers[0], $item['warehouse'] ?? '') ?? $offers[0];
     $aggregate = in_array('AggregateOffer', (array)($offer['@type'] ?? []), true);
     $offerHost = parse_url(is_string($offer['url'] ?? null) ? $offer['url'] : '', PHP_URL_HOST);
     if ($offerHost && strcasecmp($offerHost, product_url($item['url'])['host']) !== 0) {
@@ -419,8 +453,12 @@ function announce_events(array $events, string $url): void {
 }
 
 function scan_fingerprint(array $item): string {
-    return substr(hash('sha256', json_encode([$item['url'],$item['mode'],$item['variant'] ?? '',$item['scope'] ?? '',
-        $item['ready'] ?? '',$item['sold'] ?? '',$item['price_path'] ?? ''])), 0, 24);
+    $parts = [$item['url'],$item['mode'],$item['variant'] ?? '',$item['scope'] ?? '',
+        $item['ready'] ?? '',$item['sold'] ?? '',$item['price_path'] ?? ''];
+    if (($item['warehouse'] ?? '') !== '') {
+        $parts[] = $item['warehouse']; // Added only when set, so existing listings keep their fingerprints.
+    }
+    return substr(hash('sha256', json_encode($parts)), 0, 24);
 }
 
 /** Saves one scan outcome. Discards it if the listing was edited or removed while the scan ran. */
@@ -532,7 +570,7 @@ function claim_jobs(string $dir, int $limit): array {
             $perHost[$host] = ($perHost[$host] ?? 0) + 1;
             $jobs[] = ['id'=>$item['id'],'name'=>$item['name'],'url'=>$item['url'],'mode'=>$item['mode'],
                 'variant'=>$item['variant'] ?? '','scope'=>$item['scope'] ?? '','ready'=>$item['ready'] ?? '',
-                'sold'=>$item['sold'] ?? '','price_path'=>$item['price_path'] ?? '','fingerprint'=>scan_fingerprint($item)];
+                'sold'=>$item['sold'] ?? '','price_path'=>$item['price_path'] ?? '','warehouse'=>$item['warehouse'] ?? '','fingerprint'=>scan_fingerprint($item)];
         }
         // One pause per seller covers the whole group, so the next group waits the usual 20 minutes.
         foreach (array_keys($perHost) as $host) {

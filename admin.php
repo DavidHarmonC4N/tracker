@@ -36,8 +36,8 @@ function save_item(array $post, ?array $existing): array {
     }
     $row['paused'] = isset($post['paused']);
     $clearResult = !$existing;
-    foreach (['url','variant','scope','ready','sold','price_path'] as $field) {
-        $clearResult = $clearResult || $existing[$field] !== $row[$field];
+    foreach (['url','variant','scope','ready','sold','price_path','warehouse'] as $field) {
+        $clearResult = $clearResult || ($existing[$field] ?? '') !== $row[$field];
     }
     $row['result'] = $clearResult ? ['status'=>'unknown','price'=>null,'qty'=>null,'from_price'=>false,
         'observed_at'=>null,'source'=>'new','detail'=>'Waiting for a check'] : $existing['result'];

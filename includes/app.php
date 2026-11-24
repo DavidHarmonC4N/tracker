@@ -47,14 +47,33 @@ function with_roles(array $items): array {
     return $items;
 }
 
+/** Starter listings added after launch carry "late". Existing installs get each one once, so deleting it sticks. */
+function add_late_seed(array $state): array {
+    $have = array_flip(array_column($state['items'], 'id'));
+    $seeded = array_flip($state['seeded'] ?? []);
+    foreach (seed() as $item) {
+        if (empty($item['late']) || isset($seeded[$item['id']])) {
+            continue;
+        }
+        $seeded[$item['id']] = true;
+        if (!isset($have[$item['id']])) {
+            $state['items'][] = $item;
+        }
+    }
+    $state['seeded'] = array_keys($seeded);
+    return $state;
+}
+
 function load_state(string $dir): array {
     $path = $dir . '/tracker.json';
     if (!is_file($path)) {
         return ['password'=>null,'items'=>seed(),'attempts'=>[],'last_run'=>null,'cooldowns'=>[],'host_next_scan'=>[],
-            'submissions'=>[],'submission_attempts'=>[],'events'=>[],'last_runner_run'=>null];
+            'submissions'=>[],'submission_attempts'=>[],'events'=>[],'last_runner_run'=>null,
+            'seeded'=>array_column(array_filter(seed(), static fn($i) => !empty($i['late'])), 'id')];
     }
     $state = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
     $state['items'] = with_roles($state['items']);
+    $state = add_late_seed($state);
     $cooldowns = [];
     foreach ($state['cooldowns'] ?? [] as $host=>$until) {
         $key = seller_bucket($host);
