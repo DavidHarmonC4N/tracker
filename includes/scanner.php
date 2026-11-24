@@ -377,6 +377,7 @@ function scan_item(array $item, string $dir): array {
 }
 
 const EVENT_LIMIT = 200;
+const REMOTE_PER_SELLER = 3;
 
 /** Compares a fresh reading with the previous live reading. Research snapshots never produce events. */
 function detect_events(array $row, array $new): array {
@@ -510,7 +511,7 @@ function has_remote_work(array $state): bool {
     return false;
 }
 
-/** Hands the U.S. runner its next listings: eligible, one per seller, with the same pacing as the server cron. */
+/** Hands the U.S. runner its next listings: eligible, up to REMOTE_PER_SELLER per seller, with the same pacing as the server cron. */
 function claim_jobs(string $dir, int $limit): array {
     $jobs = [];
     change_state($dir, static function (&$state) use (&$jobs,$limit) {
@@ -518,19 +519,24 @@ function claim_jobs(string $dir, int $limit): array {
         $state['last_runner_run'] = iso_now();
         $order = array_keys($state['items']);
         usort($order, static fn($a,$b) => strcmp($state['items'][$a]['attempted_at'] ?? '', $state['items'][$b]['attempted_at'] ?? ''));
+        $perHost = [];
         foreach ($order as $index) {
             if (count($jobs) >= $limit) {
                 break;
             }
             $item = $state['items'][$index];
             $host = remote_ready($state, $item, $now);
-            if ($host === null) {
+            if ($host === null || ($perHost[$host] ?? 0) >= REMOTE_PER_SELLER) {
                 continue;
             }
-            $state['host_next_scan'][$host] = $now + SELLER_SCAN_GAP;
+            $perHost[$host] = ($perHost[$host] ?? 0) + 1;
             $jobs[] = ['id'=>$item['id'],'name'=>$item['name'],'url'=>$item['url'],'mode'=>$item['mode'],
                 'variant'=>$item['variant'] ?? '','scope'=>$item['scope'] ?? '','ready'=>$item['ready'] ?? '',
                 'sold'=>$item['sold'] ?? '','price_path'=>$item['price_path'] ?? '','fingerprint'=>scan_fingerprint($item)];
+        }
+        // One pause per seller covers the whole group, so the next group waits the usual 20 minutes.
+        foreach (array_keys($perHost) as $host) {
+            $state['host_next_scan'][$host] = $now + SELLER_SCAN_GAP;
         }
     });
     return $jobs;

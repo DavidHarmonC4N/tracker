@@ -61,7 +61,7 @@ try {
     }
     $action = (string)($_GET['action'] ?? '');
     if ($action === 'jobs') {
-        $limit = max(1, min(10, (int)($input['limit'] ?? 6)));
+        $limit = max(1, min(10, (int)($input['limit'] ?? 10)));
         reply(200, ['jobs'=>claim_jobs($dir, $limit)]);
     }
     if ($action === 'results') {

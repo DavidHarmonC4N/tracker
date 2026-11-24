@@ -43,7 +43,7 @@ The public page distinguishes **Awaiting first stock check**, **Seller paused au
 
 Some stores rate-limit or block checks from certain hosting servers, for example servers outside the U.S. The U.S. runner scans from GitHub's U.S. servers instead and reports back to your site. GitHub's addresses are datacenter addresses too, so a store that blocks all datacenters may still refuse them. Use **Manual review** for those sellers.
 
-How it works: every 10 minutes a GitHub workflow runs `runner/run.php`. It asks `ingest.php` for the listings assigned to it, scans them with the same code the server uses (same robots.txt rules, pacing, and seller pauses), and posts the readings back. The site checks every result before storing it and ignores any listing you edited while the scan ran.
+How it works: every 10 minutes a GitHub workflow runs `runner/run.php`. It asks `ingest.php` for the listings assigned to it, scans them with the same code the server uses (same robots.txt rules and seller pauses), and posts the readings back. Each run takes up to 3 listings per seller and 10 in total, spaced at least 2 seconds apart at the same seller, then leaves that seller alone for 20 minutes. The site checks every result before storing it and ignores any listing you edited while the scan ran.
 
 Set up:
 
