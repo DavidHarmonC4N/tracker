@@ -3,6 +3,7 @@
 const lookup = {
   firmware: { meshcore: 'MeshCore only', meshtastic: 'Meshtastic only', both: 'Both firmware options' },
   kind: { handheld: 'Handheld', keyboard: 'Keyboard radio', solar: 'Solar node', base: 'Base station', tracker: 'GPS tracker', board: 'Board or kit', other: 'Other' },
+  warehouse: { us: 'U.S. warehouse', eu: 'EU warehouse', cn: 'China warehouse' },
   role: { companion: 'Companion', tracker: 'Tracker', repeater: 'Repeater', solar_repeater: 'Solar repeater', unspecified: 'Unspecified' },
   setup: { meshcore: 'MeshCore installed', meshtastic: 'Meshtastic installed', choice: 'Choose or request firmware', flash: 'Install MeshCore yourself', unknown: 'See listing for setup' },
   status: { in_stock: 'In stock', orderable: 'Orderable', out_of_stock: 'Out of stock', preorder: 'Preorder / backorder', unknown: 'Unverified' }
@@ -15,7 +16,7 @@ const formatDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'nume
 const previewSource = byId('preview-data');
 let rows = [];
 let lastSignature = '';
-const filterIds = { q: 'search', firmware: 'firmware', role: 'role', kind: 'kind', sort: 'sort' };
+const filterIds = { q: 'search', firmware: 'firmware', role: 'role', kind: 'kind', warehouse: 'warehouse', sort: 'sort' };
 const tabs = [
   { key: 'available', label: 'Available now', note: 'In stock or orderable' },
   { key: 'in_stock', label: 'In stock' },
@@ -124,6 +125,11 @@ function card(row) {
     sellerLine.append(star);
   }
   title.append(el('h3', '', row.name), sellerLine);
+  if (lookup.warehouse[row.warehouse]) {
+    const ship = el('span', 'warehouse warehouse-' + row.warehouse, lookup.warehouse[row.warehouse]);
+    ship.title = 'Ships from the seller’s ' + lookup.warehouse[row.warehouse].replace(' warehouse', '') + ' warehouse. Shipping time, duties and fees depend on the warehouse.';
+    title.append(ship);
+  }
 
   const firmware = el('div');
   firmware.append(el('p', 'firmware-label', lookup.firmware[row.firmware]), el('p', 'setup-label', lookup.setup[row.setup]));
@@ -206,11 +212,13 @@ function draw() {
   const firmware = byId('firmware').value;
   const kind = byId('kind').value;
   const role = byId('role').value;
+  const warehouse = byId('warehouse').value;
   const sort = byId('sort').value;
   const base = rows.filter((row) =>
     (!firmware || row.firmware === firmware)
     && (!kind || row.kind === kind)
     && (!role || radioRole(row) === role)
+    && (!warehouse || row.warehouse === warehouse)
     && [row.name, row.seller, row.location, row.note].join(' ').toLowerCase().includes(query)
   );
 

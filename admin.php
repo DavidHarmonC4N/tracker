@@ -36,8 +36,8 @@ function save_item(array $post, ?array $existing): array {
     }
     $row['paused'] = isset($post['paused']);
     $clearResult = !$existing;
-    foreach (['url','variant','scope','ready','sold','price_path'] as $field) {
-        $clearResult = $clearResult || $existing[$field] !== $row[$field];
+    foreach (['url','variant','scope','ready','sold','price_path','warehouse'] as $field) {
+        $clearResult = $clearResult || ($existing[$field] ?? '') !== $row[$field];
     }
     $row['result'] = $clearResult ? ['status'=>'unknown','price'=>null,'qty'=>null,'from_price'=>false,
         'observed_at'=>null,'source'=>'new','detail'=>'Waiting for a check'] : $existing['result'];
@@ -369,6 +369,7 @@ $reading = $editor['result'] ?? [];
       input_box('url','HTTPS product link',$values,'url','required maxlength="1500"');
       select_box('firmware','Firmware support',FIRMWARE,$values);
       select_box('kind','Radio type',KINDS,$values);
+      select_box('warehouse','Ships from',WAREHOUSES,$values);
       select_box('role','Primary use',ROLES,$values);
       select_box('setup','Setup needed',SETUP,$values);
       select_box('mode','Check method',MODES,$values);

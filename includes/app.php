@@ -11,6 +11,7 @@ const KINDS = ['handheld'=>'Handheld','keyboard'=>'Keyboard radio','solar'=>'Sol
 const ROLES = ['companion'=>'Companion','tracker'=>'Tracker','repeater'=>'Repeater','solar_repeater'=>'Solar repeater','unspecified'=>'Unspecified'];
 const SETUP = ['meshcore'=>'MeshCore installed','meshtastic'=>'Meshtastic installed','choice'=>'Choose or request firmware','flash'=>'Install MeshCore yourself','unknown'=>'See listing'];
 const STATUSES = ['in_stock'=>'In stock','orderable'=>'Orderable','out_of_stock'=>'Out of stock','preorder'=>'Preorder / backorder','unknown'=>'Unverified'];
+const WAREHOUSES = [''=>'Not specified','us'=>'U.S. warehouse','eu'=>'EU warehouse','cn'=>'China warehouse'];
 const CHECKERS = ['server'=>'This server (cron)','remote'=>'U.S. runner (GitHub Actions)'];
 const MODES = ['auto'=>'Automatic (Shopify or structured data)','page'=>'Product page','manual'=>'Manual review only'];
 
@@ -46,14 +47,33 @@ function with_roles(array $items): array {
     return $items;
 }
 
+/** Starter listings added after launch carry "late". Existing installs get each one once, so deleting it sticks. */
+function add_late_seed(array $state): array {
+    $have = array_flip(array_column($state['items'], 'id'));
+    $seeded = array_flip($state['seeded'] ?? []);
+    foreach (seed() as $item) {
+        if (empty($item['late']) || isset($seeded[$item['id']])) {
+            continue;
+        }
+        $seeded[$item['id']] = true;
+        if (!isset($have[$item['id']])) {
+            $state['items'][] = $item;
+        }
+    }
+    $state['seeded'] = array_keys($seeded);
+    return $state;
+}
+
 function load_state(string $dir): array {
     $path = $dir . '/tracker.json';
     if (!is_file($path)) {
         return ['password'=>null,'items'=>seed(),'attempts'=>[],'last_run'=>null,'cooldowns'=>[],'host_next_scan'=>[],
-            'submissions'=>[],'submission_attempts'=>[],'events'=>[],'last_runner_run'=>null];
+            'submissions'=>[],'submission_attempts'=>[],'events'=>[],'last_runner_run'=>null,
+            'seeded'=>array_column(array_filter(seed(), static fn($i) => !empty($i['late'])), 'id')];
     }
     $state = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
     $state['items'] = with_roles($state['items']);
+    $state = add_late_seed($state);
     $cooldowns = [];
     foreach ($state['cooldowns'] ?? [] as $host=>$until) {
         $key = seller_bucket($host);
@@ -148,6 +168,10 @@ function listing_fields(array $post, string $defaultRole = 'unspecified'): array
             throw new InvalidArgumentException('Choose a valid ' . ($key === 'kind' ? 'radio type' : $key) . '.');
         }
     }
+    $row['warehouse'] = field($post,'warehouse');
+    if (!isset(WAREHOUSES[$row['warehouse']])) {
+        throw new InvalidArgumentException('Choose a valid warehouse.');
+    }
     foreach (['name'=>120,'seller'=>80,'location'=>70,'note'=>500] as $key=>$limit) {
         $row[$key] = field($post,$key);
         if (strlen($row[$key]) > $limit || (in_array($key,['name','seller'],true) && $row[$key] === '')) {
@@ -201,6 +225,7 @@ function endpoint_result(): array {
         $public = array_intersect_key($item, array_flip([
             'id','seller','location','name','url','firmware','setup','kind','role','note','result','attempted_at',
         ]));
+        $public['warehouse'] = isset(WAREHOUSES[$item['warehouse'] ?? '']) ? ($item['warehouse'] ?? '') : '';
         $public['manual'] = $item['mode'] === 'manual';
         $public['check_failed'] = !empty($item['error']);
         $change = $latest[$item['id']] ?? null;
