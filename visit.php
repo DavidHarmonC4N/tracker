@@ -16,8 +16,15 @@ try {
         echo '{"today":0,"total":0}';
         exit;
     }
-    $counts = visits_touch(data_dir(), ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST',
-        (string)($_SERVER['REMOTE_ADDR'] ?? ''), (string)($_SERVER['HTTP_USER_AGENT'] ?? ''));
+    $dir = data_dir();
+    $ip = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+    $record = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST';
+    // Recording rewrites the counts file, so one address can only record so many page views per hour.
+    // Reading the counts is always allowed.
+    if ($record && !rate_limit_hit($dir, 'visit', hash('sha256', $ip), 120, 3600)) {
+        $record = false;
+    }
+    $counts = visits_touch($dir, $record, $ip, (string)($_SERVER['HTTP_USER_AGENT'] ?? ''));
     echo json_encode(['today'=>$counts['today'],'total'=>$counts['total']]);
 } catch (Throwable $failure) {
     error_log('Offgrid visits: ' . $failure->getMessage());

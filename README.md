@@ -23,6 +23,15 @@ No external database, package installation, or paid stock API is required. The t
 
 Upload the updated files over the current installation, including `submit.php`, `feed.php`, `ingest.php`, `includes/dispatch.php` and `includes/roles.json`. Keep your installed `config.php`, private folder, and existing cron job. Existing listings, stock readings, and the administrator password carry over. The update assigns primary uses to starter listings where known and leaves uncategorized listings editable in Admin.
 
+## Security notes
+
+- **Set `base_url` in `config.php`** to the public address of the folder, for example `https://YOUR-DOMAIN/offgrid/`. Owner alerts and the RSS feed then use it. If it is empty, links are built from the request's Host header, which a visitor can forge.
+- **Security headers** (Content-Security-Policy, X-Frame-Options, Referrer-Policy, Permissions-Policy, the Cross-Origin policies and a one-year Strict-Transport-Security) are set in `.htaccess` so the static page and assets get them too. They need `mod_headers`, which Apache and LiteSpeed include. HSTS applies to this host name only, so make sure the site works over HTTPS before you upload it.
+- **Rate limits** for sign-in, the runner key, submissions and the visitor counter are kept in `ratelimit.json` in the private folder, separate from `tracker.json`. It holds hashed addresses only, is capped at 2,000 entries and can be deleted at any time.
+- **Cached assets:** `.htaccess` lets browsers keep stylesheets, scripts and images for 30 days. When you change `assets/styles.css`, `assets/catalog.js` or `assets/admin.js`, change the `?v=` value where the page loads it (`index.html`, `submit.php`, `admin.php`) so visitors get the new file.
+- **`/.well-known/security.txt`** tells researchers where to report problems. Edit its `Contact` line (it points to this repository's private vulnerability reporting, which you must enable under the repository's Security settings, or replace it with an email address) and renew `Expires` each year. The share-preview tags in `index.html` and the card image `assets/og-image.png` use `https://mesh.davidandlaura.net/`; change those if the site moves.
+- Open ports and software versions on the server itself, such as database, FTP and mail ports, are set by your host, not by this tracker. Ask your host to close what you don't use.
+
 ## Add or change a watch
 
 Sign in to **Admin** and choose **Add listing**. Enter the radio, seller, product link, firmware, and type. Save it. The checker picks up new items on the next scheduled run. Edit a listing to change the link, log a manual price or count, queue another check, hide it, or delete it.

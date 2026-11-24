@@ -36,6 +36,10 @@ function data_dir(): string {
 }
 
 function seed(): array {
+    static $cached; // Built once per request: load_state() needs the starter list on every call.
+    if ($cached !== null) {
+        return $cached;
+    }
     $items = with_roles(json_decode(file_get_contents(__DIR__ . '/seed.json'), true, 512, JSON_THROW_ON_ERROR));
     if (!ingest_enabled()) {
         // Starter listings that ask for the U.S. runner fall back to the server cron when the runner is not set up.
@@ -44,7 +48,7 @@ function seed(): array {
         }
         unset($item);
     }
-    return $items;
+    return $cached = $items;
 }
 
 function with_roles(array $items): array {
@@ -282,6 +286,17 @@ function event_text(array $event): string {
 }
 
 function base_url(): string {
+    // A fixed address from config.php wins, so a forged Host header cannot change links in alerts or the feed.
+    $fixed = (string)(config()['base_url'] ?? '');
+    if ($fixed !== '') {
+        $parts = parse_url($fixed);
+        if (($parts['scheme'] ?? '') === 'https' && !empty($parts['host']) && !isset($parts['user'], $parts['query'], $parts['fragment'])
+            && preg_match('/^[a-z0-9.-]+$/Di', $parts['host'])) {
+            return 'https://' . strtolower($parts['host']) . (isset($parts['port']) && $parts['port'] !== 443 ? ':' . $parts['port'] : '')
+                . rtrim($parts['path'] ?? '', '/') . '/';
+        }
+        error_log('Offgrid: base_url in config.php must be a plain https:// address. Falling back to the request host.');
+    }
     $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443;
     $host = strtolower((string)($_SERVER['HTTP_HOST'] ?? ''));
     if (!preg_match('/^[a-z0-9.-]+(?::\d{1,5})?$/D', $host)) {
@@ -318,6 +333,85 @@ function notify(string $subject, string $body): void {
         }
     } catch (Throwable $failure) {
         error_log('Offgrid notify: ' . $failure->getMessage());
+    }
+}
+
+/**
+ * Per-visitor rate limits kept in their own small file, so failed logins and token guesses never rewrite or lock
+ * tracker.json. When the table is full the oldest entries are dropped, so one crowd of addresses cannot push
+ * everyone else into a shared bucket and lock the administrator out.
+ */
+const RATE_LIMIT_MAX_ENTRIES = 2000;
+
+function rate_limit_read(string $dir, string $name, int $window): int {
+    $file = $dir . '/ratelimit.json';
+    $data = is_file($file) ? json_decode((string)file_get_contents($file), true) : null;
+    $hit = is_array($data) ? ($data[$name] ?? null) : null;
+    return is_array($hit) && ($hit['since'] ?? 0) > time() - $window ? (int)($hit['count'] ?? 0) : 0;
+}
+
+/** True when this visitor has already used up $limit attempts in the window. Read-only. */
+function rate_limited(string $dir, string $bucket, string $visitor, int $limit, int $window): bool {
+    return rate_limit_read($dir, $bucket . '|' . $visitor, $window) >= $limit;
+}
+
+/** Counts one attempt. Returns false, without counting, when the visitor is already over the limit. */
+function rate_limit_hit(string $dir, string $bucket, string $visitor, int $limit, int $window): bool {
+    $name = $bucket . '|' . $visitor;
+    return rate_limit_update($dir, static function (array &$data) use ($name, $limit, $window): bool {
+        $now = time();
+        $hit = $data[$name] ?? null;
+        if (!is_array($hit) || ($hit['since'] ?? 0) <= $now - $window) {
+            $hit = ['since'=>$now,'count'=>0];
+        }
+        if ($hit['count'] >= $limit) {
+            return false;
+        }
+        $data[$name] = ['since'=>$hit['since'],'count'=>$hit['count'] + 1];
+        return true;
+    });
+}
+
+function rate_limit_clear(string $dir, string $bucket, string $visitor): void {
+    $name = $bucket . '|' . $visitor;
+    if (rate_limit_read($dir, $name, 86400) === 0) {
+        return; // Nothing recorded, so there is nothing to write.
+    }
+    rate_limit_update($dir, static function (array &$data) use ($name): bool {
+        unset($data[$name]);
+        return true;
+    });
+}
+
+function rate_limit_update(string $dir, callable $change): bool {
+    $lock = fopen($dir . '/ratelimit.lock', 'c');
+    if (!$lock || !flock($lock, LOCK_EX)) {
+        throw new RuntimeException('Could not lock the rate limits.');
+    }
+    try {
+        $file = $dir . '/ratelimit.json';
+        $data = is_file($file) ? json_decode((string)file_get_contents($file), true) : null;
+        $now = time();
+        // No window is longer than a day, so older entries are never useful.
+        $data = array_filter(is_array($data) ? $data : [], static fn($hit) => is_array($hit) && ($hit['since'] ?? 0) > $now - 86400);
+        $result = $change($data);
+        if (count($data) > RATE_LIMIT_MAX_ENTRIES) {
+            uasort($data, static fn($a, $b) => $b['since'] <=> $a['since']);
+            $data = array_slice($data, 0, RATE_LIMIT_MAX_ENTRIES, true);
+        }
+        $temp = tempnam($dir, 'rate-');
+        if ($temp === false) {
+            throw new RuntimeException('Could not create a data file.');
+        }
+        chmod($temp, 0600);
+        $json = json_encode($data, JSON_THROW_ON_ERROR);
+        if (file_put_contents($temp, $json) !== strlen($json) || !rename($temp, $file)) {
+            @unlink($temp);
+            throw new RuntimeException('Could not save the rate limits.');
+        }
+        return $result;
+    } finally {
+        fclose($lock);
     }
 }
 
