@@ -12,12 +12,20 @@ require __DIR__ . '/../includes/app.php';
 require __DIR__ . '/../includes/scanner.php';
 
 function api(string $base, string $token, string $action, array $body): array {
+    $seen = [];
     $curl = curl_init($base . 'ingest.php?action=' . $action);
     curl_setopt_array($curl, [
         CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>json_encode($body, JSON_THROW_ON_ERROR), CURLOPT_RETURNTRANSFER=>true,
         CURLOPT_TIMEOUT=>30, CURLOPT_CONNECTTIMEOUT=>10, CURLOPT_FOLLOWLOCATION=>false,
         CURLOPT_PROTOCOLS=>getenv('OFFGRID_ALLOW_HTTP') === '1' ? (CURLPROTO_HTTP | CURLPROTO_HTTPS) : CURLPROTO_HTTPS,
-        CURLOPT_HTTPHEADER=>['Content-Type: application/json', 'X-Offgrid-Token: ' . $token],
+        CURLOPT_USERAGENT=>'OffgridCommsTracker-Runner/1.0 (+GitHub Actions)',
+        CURLOPT_HTTPHEADER=>['Content-Type: application/json', 'Accept: application/json', 'X-Offgrid-Token: ' . $token],
+        CURLOPT_HEADERFUNCTION=>static function ($c, string $line) use (&$seen): int {
+            if (preg_match('/^(server|cf-ray|x-[a-z-]*(?:waf|block|firewall|sucuri|imunify)[a-z-]*|content-type):\s*(.+)$/i', trim($line), $m)) {
+                $seen[] = strtolower($m[1]) . ': ' . substr($m[2], 0, 60);
+            }
+            return strlen($line);
+        },
     ]);
     $response = curl_exec($curl);
     $code = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
@@ -26,7 +34,10 @@ function api(string $base, string $token, string $action, array $body): array {
     $data = is_string($response) ? json_decode($response, true) : null;
     if ($code !== 200 || !is_array($data)) {
         throw new RuntimeException('Tracker API ' . $action . ' failed (HTTP ' . $code . ($error !== '' ? ', ' . $error : '')
-            . (is_array($data) && isset($data['error']) ? ': ' . $data['error'] : '') . ').');
+            . (is_array($data) && isset($data['error']) ? ': ' . $data['error'] : '') . ').'
+            . (!is_array($data) ? ' The response did not come from ingest.php. First 200 characters: '
+                . substr(trim(preg_replace('/\s+/', ' ', strip_tags((string)$response))), 0, 200)
+                . ($seen ? ' [' . implode('; ', $seen) . ']' : '') : ''));
     }
     return $data;
 }
