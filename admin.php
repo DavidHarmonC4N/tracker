@@ -369,6 +369,7 @@ $reading = $editor['result'] ?? [];
       input_box('url','HTTPS product link',$values,'url','required maxlength="1500"');
       select_box('firmware','Firmware support',FIRMWARE,$values);
       select_box('kind','Radio type',KINDS,$values);
+      select_box('warehouse','Ships from',WAREHOUSES,$values);
       select_box('role','Primary use',ROLES,$values);
       select_box('setup','Setup needed',SETUP,$values);
       select_box('mode','Check method',MODES,$values);

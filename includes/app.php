@@ -11,6 +11,7 @@ const KINDS = ['handheld'=>'Handheld','keyboard'=>'Keyboard radio','solar'=>'Sol
 const ROLES = ['companion'=>'Companion','tracker'=>'Tracker','repeater'=>'Repeater','solar_repeater'=>'Solar repeater','unspecified'=>'Unspecified'];
 const SETUP = ['meshcore'=>'MeshCore installed','meshtastic'=>'Meshtastic installed','choice'=>'Choose or request firmware','flash'=>'Install MeshCore yourself','unknown'=>'See listing'];
 const STATUSES = ['in_stock'=>'In stock','orderable'=>'Orderable','out_of_stock'=>'Out of stock','preorder'=>'Preorder / backorder','unknown'=>'Unverified'];
+const WAREHOUSES = [''=>'Not specified','us'=>'U.S. warehouse','eu'=>'EU warehouse','cn'=>'China warehouse'];
 const CHECKERS = ['server'=>'This server (cron)','remote'=>'U.S. runner (GitHub Actions)'];
 const MODES = ['auto'=>'Automatic (Shopify or structured data)','page'=>'Product page','manual'=>'Manual review only'];
 
@@ -148,6 +149,10 @@ function listing_fields(array $post, string $defaultRole = 'unspecified'): array
             throw new InvalidArgumentException('Choose a valid ' . ($key === 'kind' ? 'radio type' : $key) . '.');
         }
     }
+    $row['warehouse'] = field($post,'warehouse');
+    if (!isset(WAREHOUSES[$row['warehouse']])) {
+        throw new InvalidArgumentException('Choose a valid warehouse.');
+    }
     foreach (['name'=>120,'seller'=>80,'location'=>70,'note'=>500] as $key=>$limit) {
         $row[$key] = field($post,$key);
         if (strlen($row[$key]) > $limit || (in_array($key,['name','seller'],true) && $row[$key] === '')) {
@@ -201,6 +206,7 @@ function endpoint_result(): array {
         $public = array_intersect_key($item, array_flip([
             'id','seller','location','name','url','firmware','setup','kind','role','note','result','attempted_at',
         ]));
+        $public['warehouse'] = isset(WAREHOUSES[$item['warehouse'] ?? '']) ? ($item['warehouse'] ?? '') : '';
         $public['manual'] = $item['mode'] === 'manual';
         $public['check_failed'] = !empty($item['error']);
         $change = $latest[$item['id']] ?? null;
