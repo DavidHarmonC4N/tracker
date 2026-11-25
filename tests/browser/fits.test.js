@@ -29,7 +29,9 @@ run(async (t) => {
   t.ok('a radio with no external port says its antenna is built in', /built in/.test(await none.textContent('section[aria-labelledby="fits"]')) && (await list(none)).length === 0);
 
   const unknown = await open('rok-tdeck');
-  t.ok('a radio whose port is not known has no fits section and no port row', (await unknown.$('section[aria-labelledby="fits"]')) === null && !/Antenna port/.test(await unknown.textContent('.facts-list')));
+  const note = await unknown.textContent('section[aria-labelledby="fits"]');
+  t.ok('a radio whose port is not known says so, lists nothing, and has no port row', /do not know this radio's antenna port yet/.test(note) && (await list(unknown)).filter((n) => !/browse antennas/.test(n)).length === 0 && !/Antenna port/.test(await unknown.textContent('.facts-list')));
+  t.ok('the note explains why and links to the antenna catalog', /only list a match when the seller or the maker states the port/.test(note) && (await unknown.$eval('section[aria-labelledby="fits"] a', (a) => a.getAttribute('href'))) === './?cat=antennas#inventory');
 
   const ant = await open('atl-ant-gizont-rp');
   t.ok('an RP-SMA antenna page lists radios with an RP-SMA port', /Radios this antenna fits/.test(await ant.textContent('section[aria-labelledby="fits"] h2')) && (await list(ant)).some((n) => /ThinkNode M5/.test(n)));

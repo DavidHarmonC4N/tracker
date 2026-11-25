@@ -158,10 +158,13 @@ $feedIds = implode(',', array_map(static fn($offer) => rawurlencode((string)$off
       </dl>
     </section>
 
-    <?php if ($fitting || (!$isAntenna && ($group['antenna_port'] ?? '') === 'none')): ?>
+    <?php $portUnknown = !$isAntenna && ($group['antenna_port'] ?? '') === ''; ?>
+    <?php if ($fitting || $portUnknown || (!$isAntenna && ($group['antenna_port'] ?? '') === 'none')): ?>
     <section class="panel guide-step" aria-labelledby="fits">
       <h2 id="fits"><?= $isAntenna ? 'Radios this antenna fits' : 'Antennas that fit' ?></h2>
-      <?php if (!$fitting): ?>
+      <?php if ($portUnknown): ?>
+        <p class="dim">We do not know this radio's antenna port yet, so we cannot say which antennas fit it. We only list a match when the seller or the maker states the port, because a wrong connector means an antenna that cannot be attached. Check the connector on the seller's page, then <a href="./?cat=antennas#inventory">browse antennas by connector</a>.</p>
+      <?php elseif (!$fitting): ?>
         <p class="dim">This radio has no external antenna port. Its antenna is built in.</p>
       <?php else: ?>
         <p class="dim"><?php if ($isAntenna): ?>Radios with a <?= h(antenna_connector_label($group)) ?> antenna port, as stated by their sellers. Check your own radio before you order.<?php elseif (($group['antenna_port'] ?? '') === 'ufl'): ?>This radio has a U.FL (IPEX) port. Add a U.FL to SMA pigtail cable, then an SMA antenna fits.<?php else: ?>Antennas for U.S. use whose connector matches this radio's <?= h(ANTENNA_PORTS[$group['antenna_port']]) ?> port, as stated by their sellers. Check the connector before you order.<?php endif; ?></p>
