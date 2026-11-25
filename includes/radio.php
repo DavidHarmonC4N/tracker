@@ -49,6 +49,17 @@ function radio_groups(array $items): array {
     return $groups;
 }
 
+/** [listing id => id of the radio's lead listing]. The lead listing names the radio's alert topic, so every warehouse shares one topic. */
+function radio_lead_ids(array $items): array {
+    $map = [];
+    foreach (radio_groups($items) as $group) {
+        foreach ($group['offers'] as $offer) {
+            $map[(string)$offer['id']] = (string)$group['offers'][0]['id'];
+        }
+    }
+    return $map;
+}
+
 /** [listing id => page address] for every listing, used by the catalog so cards and lists can link to the page. */
 function radio_page_map(array $groups): array {
     $map = [];

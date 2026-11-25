@@ -484,3 +484,11 @@ p.footer-head { display: block; }
 .rwide tbody th[scope="row"] { min-width: 16rem; text-wrap: balance; }
 .guide h1, .guide h2 { text-wrap: balance; }
 .guide p, .guide li, .rtable small { text-wrap: pretty; }
+
+/* Notify me block on a radio page */
+.notify .topic-line { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 1rem 0 .8rem; padding: .6rem .8rem; background: var(--panel-deep); border: 1px dashed var(--edge); }
+.notify .topic-line code { font: .9rem var(--mono); color: var(--green); overflow-wrap: anywhere; }
+.notify-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.notify-steps { margin: .9rem 0 0; padding-left: 1.2rem; }
+.notify-note { margin-top: .8rem; font-size: .88rem; }
+.notify-actions .btnlink { margin-top: 0; }

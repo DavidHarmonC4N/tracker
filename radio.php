@@ -65,6 +65,9 @@ $graph = ['@context'=>'https://schema.org', '@type'=>'WebPage', 'name'=>$title, 
             ['@type'=>'ListItem', 'position'=>3, 'name'=>$group['name'], 'item'=>$canonical]]]] : [])
     + ($modified ? ['dateModified'=>gmdate('c', $modified)] : []);
 $phoneAlerts = ntfy_public_base() !== '' ? ntfy_radio_topic(ntfy_public_base(), (string)$group['offers'][0]['id']) : '';
+$topicName = $phoneAlerts !== '' ? basename((string)parse_url($phoneAlerts, PHP_URL_PATH)) : '';
+$topicHost = $phoneAlerts !== '' ? (string)parse_url($phoneAlerts, PHP_URL_HOST) : '';
+$feedIds = implode(',', array_map(static fn($offer) => rawurlencode((string)$offer['id']), $group['offers']));
 ?><!doctype html>
 <html lang="en">
 <head>
@@ -120,6 +123,22 @@ $phoneAlerts = ntfy_public_base() !== '' ? ntfy_radio_topic(ntfy_public_base(), 
       <p class="dim"><?= h(RADIO_STATUS_NOTE[$summary['status']]) ?> Confirm stock and the selected variant with the seller before you order. Prices are in USD before tax and shipping.</p>
     </section>
 
+    <?php if ($phoneAlerts !== ''): ?>
+    <section class="panel guide-step notify" aria-labelledby="notify">
+      <h2 id="notify">Get notified about this radio</h2>
+      <p class="dim">A free phone alert when this radio comes back in stock or its price drops. No account, no email.</p>
+      <div class="topic-line"><span class="dim">Topic</span> <code id="notify-topic"><?= h($topicName) ?></code> <button type="button" class="quiet" id="notify-copy" hidden>Copy</button><span class="copy-status" id="notify-status" role="status"></span></div>
+      <div class="notify-actions">
+        <a class="primary btnlink" href="ntfy://<?= h($topicHost . '/' . $topicName) ?>">Open in ntfy app</a>
+        <a class="quiet btnlink" href="feed.php?ids=<?= h($feedIds) ?>">Add by RSS</a>
+        <a class="quiet btnlink" href="alerts.html">How alerts work</a>
+      </div>
+      <ol class="notify-steps dim"><li>Install the free ntfy app (App Store, Google Play or F-Droid).</li><li>Tap Open in ntfy app, or tap + in the app and type the topic above.</li></ol>
+      <p class="dim notify-note">Anyone who knows the topic can read it, so it carries only public facts: price, stock and a link. You can mute or unsubscribe in the app at any time.</p>
+    </section>
+    <script src="assets/notify.js?v=<?= (int)@filemtime(__DIR__ . '/assets/notify.js') ?>" defer></script>
+    <?php endif; ?>
+
     <section class="panel guide-step" aria-labelledby="facts">
       <h2 id="facts">About this radio</h2>
       <dl class="facts-list">
@@ -147,7 +166,7 @@ $phoneAlerts = ntfy_public_base() !== '' ? ntfy_radio_topic(ntfy_public_base(), 
           <?php foreach ($changes as $row): ?><tr><th scope="row" class="nw"><time datetime="<?= h(gmdate('c', $row['t'])) ?>"><?= h(gmdate('M j, Y H:i', $row['t'])) ?> UTC</time></th><td class="nw"><?= h($row['label']) ?></td><td class="num"><?= $row['price'] !== null ? h(money($row['price'])) : '·' ?></td><td class="nw"><?= h(RADIO_STATUS_LABEL[$row['status']] ?? 'Unverified') ?></td></tr><?php endforeach; ?>
           </tbody></table></div>
       <?php endif; ?>
-      <p class="dim"><a href="prices.html">Compare the price history of several radios</a><?= $phoneAlerts !== '' ? ' · <a href="alerts.html?radio=' . h(rawurlencode((string)$group['offers'][0]['id'])) . '">Get a phone alert for this radio</a>' : '' ?> · <a href="./?q=<?= h(rawurlencode($group['name'])) ?>#inventory">Find it in the interactive catalog</a></p>
+      <p class="dim"><a href="prices.html">Compare the price history of several radios</a> · <a href="./?q=<?= h(rawurlencode($group['name'])) ?>#inventory">Find it in the interactive catalog</a></p>
     </section>
 
     <?php if ($similar): ?>

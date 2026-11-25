@@ -283,3 +283,9 @@ A staging copy lets you try a branch on the real server before it goes live. It 
 - **Stable addresses.** The last eight characters are a code made from the product link; the name part is only for readers. If a listing is renamed, the old address answers with a 301 to the new one. An unknown or malformed address is a 404 that is not indexed.
 - **Where they are linked:** from each catalog card ("Details and price history"), from the plain list at `radios.php`, from the breadcrumb, and from the sitemap, which lists every radio page with its latest check time.
 - **No Product or Offer markup on purpose.** The offers belong to other sellers, and Google's merchant rules expect that markup only where the item is sold. The pages carry `WebPage` and `BreadcrumbList` data.
+
+### Notify me block
+
+When `notify_public_topic` is set, every radio page shows a "Get notified about this radio" block: the radio's ntfy topic with a Copy button, an Open in ntfy app link, an RSS link limited to that radio, and a short how-to. It is plain HTML and works without JavaScript (only Copy needs `assets/notify.js`). With no public topic the block is not on the page.
+
+There is one topic per radio page, not per listing. The lead listing (U.S. warehouse first) names it (`includes/radio.php`, `radio_lead_ids()`), so a radio sold from several warehouses has one topic, and a single-listing radio keeps the topic it already had.

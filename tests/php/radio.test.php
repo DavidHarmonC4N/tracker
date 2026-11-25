@@ -79,4 +79,11 @@ check('the change table is capped', count(radio_change_rows($tracker, ['t-us'=>a
 $similar = radio_similar($groups, $tracker, $now);
 check('similar radios are the same type, never the radio itself', $similar && array_unique(array_column(array_column($similar, 'group'), 'kind')) === ['tracker'] && !in_array($tracker['hash'], array_column(array_column($similar, 'group'), 'hash'), true));
 check('similar radios are capped', count(radio_similar(array_merge($groups, array_map(static fn($i) => ['hash'=>'h' . $i, 'kind'=>'tracker', 'name'=>'N' . $i, 'offers'=>[$offer('x' . $i, '', 100)]], range(1, 20))), $tracker, $now, 5)) === 5);
+
+// one alert topic per radio: every warehouse listing shares the lead listing's topic
+$leads = radio_lead_ids($items);
+check('every warehouse listing of a radio shares one lead listing', $leads['t-eu'] === $leads['t-us'] && $leads['t-cn'] === $leads['t-us'] && $leads['t-tracked'] === $leads['t-us']);
+check('the lead is the U.S. listing', $leads['t-us'] === $tracker['offers'][0]['id']);
+check('a single-listing radio is its own lead, so its existing topic does not change', $leads['heltec'] === 'heltec' && $leads['other-tracker'] === 'other-tracker');
+check('different radios get different topics', ntfy_radio_topic('https://ntfy.sh/x', $leads['t-eu']) !== ntfy_radio_topic('https://ntfy.sh/x', $leads['heltec']));
 finish();

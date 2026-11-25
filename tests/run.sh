@@ -15,6 +15,7 @@ WHAT="${1:-all}"
 FILTER="${2:-}"
 PUBLIC_PORT="${PUBLIC_PORT:-8071}"
 ADMIN_PORT="${ADMIN_PORT:-8072}"
+ALERTS_PORT="${ALERTS_PORT:-8073}"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/offgrid-tests.XXXXXX")"
 PIDS=()
 STATUS=0
@@ -94,13 +95,16 @@ if src.count(needle) != 1:
 open(path, "w").write(src.replace(needle, "static fn($u) => [200, (string)file_get_contents('" + fixture + "')]"))
 PY
   serve "$WORK/public" "$PUBLIC_PORT" || { STATUS=1; return; }
+  # Alerts site: a public ntfy topic is set, so radio pages show the Notify me block.
+  make_site alerts "" false "'notify_public_topic' => 'https://ntfy.sh/offgrid-test-public',"
+  serve "$WORK/alerts" "$ALERTS_PORT" || { STATUS=1; return; }
   serve "$WORK/admin" "$ADMIN_PORT" -d "sendmail_path=cat > $MAIL_CAPTURE" || { STATUS=1; return; }
   local modules="$ROOT/tests/node_modules"
   [ -d "$modules" ] && export NODE_PATH="$modules${NODE_PATH:+:$NODE_PATH}"
   for f in "$ROOT"/tests/browser/*.test.js; do
     [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]] && continue
     echo "-- $(basename "$f")"
-    SITE_URL="http://127.0.0.1:$PUBLIC_PORT/" ADMIN_URL="http://127.0.0.1:$ADMIN_PORT/admin.php" ROOT_DIR="$ROOT" node "$f" || STATUS=1
+    SITE_URL="http://127.0.0.1:$PUBLIC_PORT/" ADMIN_URL="http://127.0.0.1:$ADMIN_PORT/admin.php" ALERTS_URL="http://127.0.0.1:$ALERTS_PORT/" ROOT_DIR="$ROOT" node "$f" || STATUS=1
   done
 }
 

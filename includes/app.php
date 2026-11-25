@@ -308,8 +308,10 @@ function endpoint_result(): array {
         $items[] = $public;
     }
     $pages = radio_page_map(radio_groups($items));
+    $leads = radio_lead_ids($items);
     foreach ($items as &$entry) {
         $entry['page'] = $pages[$entry['id']] ?? '';
+        $entry['topic'] = ntfy_radio_topic($publicTopic, $leads[$entry['id']] ?? (string)$entry['id']);
     }
     unset($entry);
     return ['items'=>$items,'configured'=>$configured,'staging'=>is_staging(),'public_topic'=>$publicTopic,'last_run'=>$state['last_run'],
@@ -461,8 +463,14 @@ function notify_public_flush(array $events, array $urls): array {
     $results[] = ['channel'=>'public topic', 'ok'=>$first['ok'], 'message'=>$first['message']];
     $failed = '';
     $posted = 0;
+    $leads = [];
+    try {
+        $leads = radio_lead_ids(config()['data_dir'] !== '' ? load_state(data_dir())['items'] : []);
+    } catch (Throwable $unknown) {
+        error_log('Offgrid notify: radio topics fall back to one per listing: ' . $unknown->getMessage());
+    }
     foreach (array_slice($events, 0, 25) as $i => $event) {
-        $one = ntfy_publish(ntfy_radio_topic($base, (string)$event['id']), ucfirst(event_text($event)), event_text($event) . $note,
+        $one = ntfy_publish(ntfy_radio_topic($base, $leads[(string)$event['id']] ?? (string)$event['id']), ucfirst(event_text($event)), event_text($event) . $note,
             ['priority'=>$event['type'] === 'back_in_stock' ? 4 : 3, 'tags'=>NTFY_TAGS[$event['type']] ?? NTFY_TAGS['info'], 'click'=>$urls[$i]]);
         $one['ok'] ? $posted++ : ($failed = $failed ?: $one['message']);
     }
