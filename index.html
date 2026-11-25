@@ -22,15 +22,15 @@
   <meta name="twitter:image" content="https://mesh.davidandlaura.net/assets/og-image.png?v=20261124-inventory">
   <title>Offgrid Comms Tracker</title>
   <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
-  <link rel="stylesheet" href="assets/styles.css?v=20261126-albatross2">
-  <script src="assets/catalog.js?v=20261126-albatross2" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=20261126-prices">
+  <script src="assets/catalog.js?v=20261126-prices" defer></script>
 </head>
 <body>
   <a class="skip" href="#inventory">Skip to listings</a>
   <header class="mast">
     <div class="wrap mast-inner">
       <a class="brand" href="index.html"><span class="brand-icon" aria-hidden="true"><i></i></span> OFFGRID <span>COMMS</span></a>
-      <nav aria-label="Site navigation"><a href="#inventory">Catalog</a><a href="#offline-tools">Mesh tools</a><a class="quiet" href="submit.php" data-submit>Submit a listing</a><a class="quiet coffee" href="https://buymeacoffee.com/offgridcomms">Buy me a coffee</a><a href="admin.php" data-admin>Admin</a></nav>
+      <nav aria-label="Site navigation"><a href="#inventory">Catalog</a><a href="prices.html">Price history</a><a href="#offline-tools">Mesh tools</a><a class="quiet" href="submit.php" data-submit>Submit a listing</a><a  class="quiet coffee" href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">Buy me a coffee<span class="sr"> (opens in a new tab)</span></a><a href="admin.php" data-admin>Admin</a></nav>
     </div>
   </header>
   <main>
@@ -44,7 +44,7 @@
             <a class="primary" href="#inventory">Browse radios</a>
             <a class="quiet" href="#notoryx-tools">MESH tools</a>
           </div>
-          <p class="hero-support">If you find this helpful, <a href="https://buymeacoffee.com/offgridcomms">buy me a coffee</a>.</p>
+          <p class="hero-support">If you find this helpful, <a  href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">buy me a coffee<span class="sr"> (opens in a new tab)</span></a>.</p>
         </div>
         <div class="scope" aria-hidden="true">
           <svg viewBox="0 0 320 320" focusable="false">
@@ -100,6 +100,9 @@
               <span class="qlabel" id="quick-label">Quick filters</span>
               <button type="button" class="chip" data-chip="seeed" aria-pressed="false" aria-describedby="quick-label">Seeed Studio</button>
               <button type="button" class="chip" data-chip="manual" aria-pressed="false" aria-describedby="quick-label">Checked by hand</button>
+              <button type="button" class="chip" data-chip="lowest" aria-pressed="false" aria-describedby="quick-label">Lowest seen</button>
+              <button type="button" class="chip" data-chip="limited" aria-pressed="false" aria-describedby="quick-label">Limited stock</button>
+              <span class="pricebox" role="group" aria-label="Price range in dollars"><span class="plabel">Price $</span><input type="number" id="pmin" min="0" max="9999" step="1" inputmode="numeric" placeholder="Min" aria-label="Minimum price in dollars"><span aria-hidden="true">to</span><input type="number" id="pmax" min="0" max="9999" step="1" inputmode="numeric" placeholder="Max" aria-label="Maximum price in dollars"></span>
               <span class="sep" id="chip-sep" aria-hidden="true" hidden></span>
               <div class="active-chips" id="active-chips" role="group" aria-label="Active filters" tabindex="-1"></div>
               <button class="text-button clear-all" id="reset" type="reset" hidden>Clear all</button>
@@ -126,7 +129,7 @@
             <h3>NOTORYX for offline use</h3>
             <p>NOTORYX Forge is a desktop test build for configuring and flashing supported MeshCore and Meshtastic radios without internet. NOTORYX messaging apps use a paired radio when internet and cell service are down. Download and test what you need before an outage.</p>
           </div>
-          <a class="retailer" href="https://meshmayhem.org/notoryx/">Explore NOTORYX tools</a>
+          <a  class="retailer" href="https://meshmayhem.org/notoryx/" target="_blank" rel="noopener noreferrer">Explore NOTORYX tools<span class="sr"> (opens in a new tab)</span></a>
         </article>
         <div class="mesh-link-grid">
           <article class="panel mesh-link-card">
@@ -137,25 +140,25 @@
               <a class="badge-link badge-play" href="https://play.google.com/store/apps/details?id=com.liamcottle.meshcore.android" target="_blank" rel="noopener noreferrer" aria-describedby="meshcore-app-label"><img src="assets/google-play-badge.png" alt="Get MeshCore on Google Play" width="155" height="60"></a>
             </div>
             <ul>
-              <li><a href="https://flasher.meshcore.io/">MeshCore firmware flasher</a></li>
-              <li><a href="https://files.liamcottle.net/MeshCore/">MeshCore offline app installers</a></li>
-              <li><a href="https://docs.meshcore.io/">MeshCore documentation</a></li>
+              <li><a  href="https://flasher.meshcore.io/" target="_blank" rel="noopener noreferrer">MeshCore firmware flasher<span class="sr"> (opens in a new tab)</span></a></li>
+              <li><a  href="https://files.liamcottle.net/MeshCore/" target="_blank" rel="noopener noreferrer">MeshCore offline app installers<span class="sr"> (opens in a new tab)</span></a></li>
+              <li><a  href="https://docs.meshcore.io/" target="_blank" rel="noopener noreferrer">MeshCore documentation<span class="sr"> (opens in a new tab)</span></a></li>
             </ul>
           </article>
           <article class="panel mesh-link-card">
             <h3>Meshtastic</h3>
             <ul>
-              <li><a href="https://flasher.meshtastic.org/">Meshtastic firmware flasher</a></li>
-              <li><a href="https://meshtastic.org/downloads/">Meshtastic app and firmware downloads</a></li>
-              <li><a href="https://meshtastic.org/docs/getting-started/">Meshtastic getting started guide</a></li>
+              <li><a  href="https://flasher.meshtastic.org/" target="_blank" rel="noopener noreferrer">Meshtastic firmware flasher<span class="sr"> (opens in a new tab)</span></a></li>
+              <li><a  href="https://meshtastic.org/downloads/" target="_blank" rel="noopener noreferrer">Meshtastic app and firmware downloads<span class="sr"> (opens in a new tab)</span></a></li>
+              <li><a  href="https://meshtastic.org/docs/getting-started/" target="_blank" rel="noopener noreferrer">Meshtastic getting started guide<span class="sr"> (opens in a new tab)</span></a></li>
             </ul>
           </article>
           <article class="panel mesh-link-card">
             <h3>Reticulum</h3>
             <p class="credit">Reticulum MeshChat is by Liam Cottle. The Reticulum network stack is by Mark Qvist.</p>
             <ul>
-              <li><a href="https://github.com/liamcottle/reticulum-meshchat">Reticulum MeshChat on GitHub (Liam Cottle)</a></li>
-              <li><a href="https://github.com/markqvist/Reticulum">Reticulum network stack on GitHub (Mark Qvist)</a></li>
+              <li><a  href="https://github.com/liamcottle/reticulum-meshchat" target="_blank" rel="noopener noreferrer">Reticulum MeshChat on GitHub (Liam Cottle)<span class="sr"> (opens in a new tab)</span></a></li>
+              <li><a  href="https://github.com/markqvist/Reticulum" target="_blank" rel="noopener noreferrer">Reticulum network stack on GitHub (Mark Qvist)<span class="sr"> (opens in a new tab)</span></a></li>
             </ul>
           </article>
         </div>
@@ -172,6 +175,7 @@
         <h2 class="footer-head" id="footer-explore-title">Explore</h2>
         <ul>
           <li><a href="#inventory">Radio catalog</a></li>
+          <li><a href="prices.html">Price history</a></li>
           <li><a href="#offline-tools">Mesh tools and links</a></li>
           <li><a href="submit.php">Submit a listing</a></li>
           <li><a href="feed.php">Stock alerts (RSS)</a></li>
@@ -180,15 +184,15 @@
       <section class="footer-col" aria-labelledby="footer-support-title">
         <h2 class="footer-head" id="footer-support-title">Support</h2>
         <p>This tracker is free to use. If you find it helpful, you can chip in.</p>
-        <a class="quiet coffee" href="https://buymeacoffee.com/offgridcomms">Buy me a coffee</a>
+        <a  class="quiet coffee" href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">Buy me a coffee<span class="sr"> (opens in a new tab)</span></a>
       </section>
       <details class="wn" id="whats-new">
-        <summary><span class="ver">v1.6</span><span class="code">Albatross</span><span class="sum">What’s new</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <summary><span class="ver">v1.7</span><span class="code">Falcon</span><span class="sum">What’s new</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
         <div class="body">
-        <div class="rel"><h3><span class="ver">v1.6</span><span class="code">Albatross</span><span class="newtag">New</span></h3><ul><li>Roll up any section to hide it: fold In stock, Orderable, Out of stock and the Seeed warehouse groups, with Collapse all and Expand all</li><li>Out of stock and Unverified start folded, and your choices are remembered on your device</li><li>The page refreshes the moment you return to the tab, and My picks shows the latest stock reading</li><li>RAK WisMesh Tag (Navy) added from Rokland</li></ul></div>
+        <div class="rel"><h3><span class="ver">v1.7</span><span class="code">Falcon</span><span class="newtag">New</span></h3><ul><li>Price history page: step charts of how prices have moved for your picks or for everything in stock</li><li>Price range filter, plus Lowest seen and Limited stock quick filters</li><li>Cards show Lowest seen, Limited stock and recent price drops</li><li>Links that leave this site now open in a new tab</li></ul></div>
+        <div class="rel"><h3><span class="ver">v1.6</span><span class="code">Albatross</span></h3><ul><li>Roll up any section to hide it: fold In stock, Orderable, Out of stock and the Seeed warehouse groups, with Collapse all and Expand all</li><li>Out of stock and Unverified start folded, and your choices are remembered on your device</li><li>The page refreshes the moment you return to the tab, and My picks shows the latest stock reading</li><li>RAK WisMesh Tag (Navy) added from Rokland</li></ul></div>
         <div class="rel"><h3><span class="ver">v1.5</span><span class="code">Peregrine</span></h3><ul><li>Star any radio to add it to My picks, saved on your device only</li><li>See what changed since you last looked: back in stock, sold out, price moves</li><li>Copy a link to your picks, or get a personal RSS feed</li></ul></div>
-        <div class="rel"><h3><span class="ver">v1.4</span><span class="code">Condor</span></h3><ul><li>One-row availability tabs and quick filters for Seeed Studio and Checked by hand</li><li>Radio type icons, signal-strength bars and warehouse flags on every card</li><li>Active-filter chips and a Filters button on phones</li></ul></div>
-          <p class="more">Earlier: v1.3 Merlin (Seeed warehouses, T-Deck, visitor counter) · v1.2 Harrier (U.S. checker and automatic deploys) · v1.1 Osprey (change history and RSS) · v1.0 Kestrel (first public catalog)</p>
+          <p class="more">Earlier: v1.4 Condor (one-row tabs, quick filters, icons and flags) · v1.3 Merlin (Seeed warehouses, T-Deck, visitor counter) · v1.2 Harrier (U.S. checker and automatic deploys) · v1.1 Osprey (change history and RSS) · v1.0 Kestrel (first public catalog)</p>
           <p class="more">Versions: the Antenna series is v1.x. Each release is named for a bird. The next major series starts at v2.0, named Beacon.</p>
         </div>
       </details>
@@ -196,7 +200,7 @@
         <p class="footer-pricing">Prices are in USD before tax and shipping. Confirm stock and the selected variant with the seller. Sellers marked with an asterisk block automated checks, so their listings are checked by hand.</p>
         <p class="footer-legal">Google Play and the Google Play logo are trademarks of Google LLC. App Store is a service mark of Apple Inc. MeshCore is made by its own developers and is not affiliated with this tracker.</p>
         <p class="visitors" id="visitors" hidden>Visitors: <strong id="visitors-today">0</strong> today · <strong id="visitors-total">0</strong> all time. Counted anonymously: no cookies, and no IP addresses are stored.</p>
-        <p class="stamp">v1.6 “Albatross” · Antenna series · 73 de <span class="call">KY4DEH</span></p>
+        <p class="stamp">v1.7 “Falcon” · Antenna series · 73 de <span class="call">KY4DEH</span></p>
       </div>
     </div>
   </footer>

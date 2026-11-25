@@ -305,6 +305,7 @@ try {
                 }
                 if ($action === 'delete') {
                     array_splice($fresh['items'],$index,1);
+                    unset($fresh['history'][$id]);
                 } elseif ($action === 'queue') {
                     if ($row['paused'] || $row['mode'] === 'manual') {
                         throw new InvalidArgumentException('Enable automatic checks for this listing first.');
@@ -319,6 +320,9 @@ try {
                         $eventUrl = $saved['url'];
                     }
                     $fresh['items'][$index] = $saved;
+                    if (isset($_POST['record'])) {
+                        record_history($fresh, $saved['id'], $saved['result']);
+                    }
                 }
                 return;
             }
@@ -336,6 +340,7 @@ try {
                 // The administrator saw this reading a moment ago, so the card is right from the start.
                 $new['result'] = $fromReading['result'];
                 $new['attempted_at'] = iso_now();
+                record_history($fresh, $new['id'], $new['result']);
             }
             $fresh['items'][] = $new;
         });

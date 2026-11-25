@@ -38,7 +38,7 @@ let showUnverified = false;
 let restoreFocus = false;
 let latestReading = null;
 // Quick filters. They combine with the availability tab and the filters.
-const chips = { seeed: false, manual: false };
+const chips = { seeed: false, manual: false, lowest: false, limited: false };
 const selectFilters = [['role', 'Use'], ['firmware', 'Firmware'], ['warehouse', 'Ships from'], ['kind', 'Radio type']];
 
 // Small line icons for the radio type. They are decoration: the text label next to them says the same thing.
@@ -216,6 +216,11 @@ function drawPicks() {
     feed.rel = 'noopener';
     feed.title = 'Stock and price changes for these radios only. Add the address to any feed reader.';
     actions.append(link, feed);
+    if (!sharedIds) {
+      const history = el('a', 'sbtn', 'Price history');
+      history.href = 'prices.html?scope=picks';
+      actions.append(history);
+    }
     if (sharedIds) {
       const add = el('button', 'sbtn', 'Add all to my picks');
       add.type = 'button';
@@ -297,6 +302,12 @@ function readUrlFilters() {
   if (status && tabs.some((item) => item.key === status)) tab = status;
   chips.seeed = params.get('seller') === 'seeed';
   chips.manual = params.get('hand') === '1';
+  chips.lowest = params.get('lowest') === '1';
+  chips.limited = params.get('limited') === '1';
+  for (const [key, id] of [['min', 'pmin'], ['max', 'pmax']]) {
+    const value = params.get(key);
+    byId(id).value = value !== null && /^\d{1,4}$/.test(value) ? value : '';
+  }
   // Links from when Seeed Studio and Manual review were tabs.
   if (status === 'seeed' || status === 'manual') {
     chips[status] = true;
@@ -324,6 +335,10 @@ function writeUrlFilters() {
   if (tab !== 'available') params.set('status', tab);
   if (chips.seeed) params.set('seller', 'seeed');
   if (chips.manual) params.set('hand', '1');
+  if (chips.lowest) params.set('lowest', '1');
+  if (chips.limited) params.set('limited', '1');
+  if (byId('pmin').value) params.set('min', byId('pmin').value);
+  if (byId('pmax').value) params.set('max', byId('pmax').value);
   if (showUnverified) params.set('unverified', '1');
   const query = params.toString();
   try {
@@ -426,7 +441,9 @@ function card(row) {
   const price = el('div', 'price');
   if (Number.isInteger(reading.price)) {
     const lastPrice = !previewSource && (reading.price_previous || status === 'unknown' || row.check_failed);
+    const drop = lastPrice ? null : recentDrop(row);
     if (lastPrice) price.append(el('small', '', 'Last reported price'));
+    else if (drop) price.append(el('small', '', 'was ' + formatMoney.format(drop.from / 100)));
     price.append(document.createTextNode((reading.from_price ? 'From ' : '') + formatMoney.format(reading.price / 100)));
   } else {
     price.textContent = 'See seller';
@@ -451,6 +468,15 @@ function card(row) {
   const head = el('div', 'titlerow');
   head.append(title, starButton(row));
   result.append(first, head, facts);
+  const marks = el('div', 'badges');
+  if (lowestSeen(row)) marks.append(el('span', 'badge low', 'Lowest seen'));
+  if (isLimited(row)) marks.append(el('span', 'badge ltd', 'Limited · ' + row.result.qty + ' left'));
+  const fall = recentDrop(row);
+  if (fall) {
+    const when = fall.days === 0 ? 'today' : fall.days === 1 ? '1 day ago' : fall.days + ' days ago';
+    marks.append(el('span', 'badge mute', 'Dropped ' + formatMoney.format((fall.from - row.result.price) / 100) + ' · ' + when));
+  }
+  if (marks.children.length) result.append(marks);
   const badge = changeBadge(row, status);
   if (badge) result.append(badge);
   if (row.note) result.append(el('p', 'note', row.note));
@@ -472,8 +498,43 @@ function isSeeed(row) {
   }
 }
 
+// "Lowest seen": at the lowest price this tracker has recorded, and the price has moved at least once.
+function lowestSeen(row) {
+  return !previewSource && Number.isInteger(row.low) && Number.isInteger(row.high) && row.high > row.low
+    && Number.isInteger(row.result.price) && row.result.price === row.low && displayStatus(row) !== 'unknown';
+}
+
+// "Limited": the seller reports a small count, five or fewer.
+function isLimited(row) {
+  return displayStatus(row) === 'in_stock' && Number.isInteger(row.result.qty) && row.result.qty > 0 && row.result.qty <= 5;
+}
+
+// A price drop in the last 30 days, from the recorded history.
+function recentDrop(row) {
+  const was = row.was;
+  if (previewSource || !was || !Number.isInteger(row.result.price) || was.price <= row.result.price) return null;
+  const days = (Date.now() - Date.parse(was.t)) / 86400000;
+  return Number.isFinite(days) && days <= 30 ? { from: was.price, days: Math.max(0, Math.round(days)) } : null;
+}
+
+function priceBounds() {
+  const read = (id) => {
+    const value = byId(id).value.trim();
+    return /^\d{1,4}$/.test(value) ? Number(value) * 100 : null;
+  };
+  return { min: read('pmin'), max: read('pmax') };
+}
+
+function matchesPrice(row) {
+  const { min, max } = priceBounds();
+  if (min === null && max === null) return true;
+  const price = row.result.price;
+  return Number.isInteger(price) && (min === null || price >= min) && (max === null || price <= max);
+}
+
 function matchesChips(row) {
-  return (!chips.seeed || isSeeed(row)) && (!chips.manual || isManual(row));
+  return (!chips.seeed || isSeeed(row)) && (!chips.manual || isManual(row))
+    && (!chips.lowest || lowestSeen(row)) && (!chips.limited || isLimited(row)) && matchesPrice(row);
 }
 
 function matchesTab(key, row) {
@@ -689,6 +750,11 @@ function activeFilters() {
   const list = [];
   const query = byId('search').value.trim();
   if (query) list.push({ label: 'Search: ' + query, clear: () => { byId('search').value = ''; } });
+  const { min, max } = priceBounds();
+  if (min !== null || max !== null) {
+    const label = 'Price: ' + (min !== null ? '$' + min / 100 : 'any') + ' to ' + (max !== null ? '$' + max / 100 : 'any');
+    list.push({ label, clear: () => { byId('pmin').value = ''; byId('pmax').value = ''; } });
+  }
   for (const [id, name] of selectFilters) {
     const control = byId(id);
     if (control.value) list.push({ label: name + ': ' + control.options[control.selectedIndex].text, clear: () => { control.value = ''; }, select: true });
@@ -719,7 +785,7 @@ function renderToolbarState() {
     return button;
   }));
   byId('chip-sep').hidden = active.length === 0;
-  byId('reset').hidden = !(active.length || chips.seeed || chips.manual || tab !== 'available');
+  byId('reset').hidden = !(active.length || Object.values(chips).some(Boolean) || tab !== 'available');
 }
 
 function ago(time) {
@@ -780,8 +846,7 @@ byId('filters').addEventListener('submit', (event) => event.preventDefault());
 byId('filters').addEventListener('input', draw);
 byId('filters').addEventListener('reset', () => {
   tab = 'available';
-  chips.seeed = false;
-  chips.manual = false;
+  for (const key of Object.keys(chips)) chips[key] = false;
   showUnverified = false;
   setTimeout(draw, 0);
 });
@@ -790,7 +855,7 @@ document.querySelectorAll('[data-chip]').forEach((button) => {
     const key = button.dataset.chip;
     chips[key] = !chips[key];
     // "Available now" would hide most of a seller's listings, so a chip opens the full list.
-    if (chips[key] && tab === 'available') tab = 'all';
+    if (chips[key] && tab === 'available' && (key === 'seeed' || key === 'manual')) tab = 'all';
     showUnverified = false;
     draw();
   });

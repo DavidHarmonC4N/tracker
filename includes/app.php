@@ -80,7 +80,7 @@ function load_state(string $dir): array {
     $path = $dir . '/tracker.json';
     if (!is_file($path)) {
         return ['password'=>null,'items'=>seed(),'attempts'=>[],'last_run'=>null,'cooldowns'=>[],'host_next_scan'=>[],
-            'submissions'=>[],'submission_attempts'=>[],'events'=>[],'last_runner_run'=>null,
+            'submissions'=>[],'submission_attempts'=>[],'events'=>[],'history'=>[],'last_runner_run'=>null,
             'seeded'=>array_column(array_filter(seed(), static fn($i) => !empty($i['late'])), 'id')];
     }
     $state = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
@@ -92,7 +92,46 @@ function load_state(string $dir): array {
         $cooldowns[$key] = max($cooldowns[$key] ?? 0, (int)$until);
     }
     $state['cooldowns'] = $cooldowns;
-    return $state + ['submissions'=>[],'submission_attempts'=>[],'host_next_scan'=>[],'events'=>[],'last_runner_run'=>null];
+    return $state + ['submissions'=>[],'submission_attempts'=>[],'host_next_scan'=>[],'events'=>[],'history'=>[],'last_runner_run'=>null];
+}
+
+const HISTORY_POINTS = 120;
+
+/**
+ * Price history: one point [unix time, price in cents or null, status] each time a listing's price or stock status
+ * differs from its last point. Unverified and unobserved readings are not recorded.
+ */
+function record_history(array &$state, string $id, array $result): void {
+    $status = $result['status'] ?? 'unknown';
+    if (empty($result['observed_at']) || $status === 'unknown' || !isset(STATUSES[$status])) {
+        return;
+    }
+    $price = is_int($result['price'] ?? null) ? $result['price'] : null;
+    $list = $state['history'][$id] ?? [];
+    $last = $list ? end($list) : null;
+    if ($last && $last[1] === $price && $last[2] === $status) {
+        return;
+    }
+    $list[] = [strtotime((string)$result['observed_at']) ?: time(), $price, $status];
+    $state['history'][$id] = array_slice($list, -HISTORY_POINTS);
+}
+
+/** Lowest and highest recorded price, and the last price change, for one listing's history. */
+function history_summary(array $points): array {
+    $prices = array_values(array_filter(array_column($points, 1), 'is_int'));
+    $out = ['low'=>$prices ? min($prices) : null, 'high'=>$prices ? max($prices) : null, 'was'=>null];
+    $priced = array_values(array_filter($points, static fn($p) => is_int($p[1])));
+    if (count($priced) >= 2) {
+        $now = $priced[count($priced) - 1][1];
+        $start = count($priced) - 1;
+        while ($start > 0 && $priced[$start - 1][1] === $now) {
+            $start--;
+        }
+        if ($start > 0) {
+            $out['was'] = ['price'=>$priced[$start - 1][1], 't'=>gmdate('c', (int)$priced[$start][0])];
+        }
+    }
+    return $out;
 }
 
 function change_state(string $dir, callable $change): mixed {
@@ -251,6 +290,10 @@ function endpoint_result(): array {
         $public['change'] = $change && in_array($change['type'], ['back_in_stock','price_drop'], true)
             && strtotime($change['t']) > $now - 7 * 86400
             ? array_intersect_key($change, array_flip(['type','t','from','to'])) : null;
+        $summary = history_summary($state['history'][$item['id']] ?? []);
+        $public['low'] = $summary['low'];
+        $public['high'] = $summary['high'];
+        $public['was'] = $summary['was'];
         $public['seller_paused'] = !$public['manual'] && ($state['cooldowns'][$host] ?? 0) > $now;
         $items[] = $public;
     }

@@ -277,7 +277,7 @@ nav.footer-col { display: block; font-size: .87rem; color: var(--dim); }
 .picks-btn b { background: var(--green); color: #192111; border-radius: 999px; padding: 0 .45rem; font-weight: 800; }
 .picks-btn:hover { background: #20281b; }
 .picks-btn[aria-pressed="true"] { background: #29371f; border-color: var(--green); color: var(--green); }
-.picks-mode #status-tabs, .picks-mode .filter-row, .picks-mode .result-line, .picks-mode [data-chip], .picks-mode #chip-sep, .picks-mode #active-chips, .picks-mode #reset, .picks-mode .qlabel { display: none !important; }
+.picks-mode .pricebox, .picks-mode #status-tabs, .picks-mode .filter-row, .picks-mode .result-line, .picks-mode [data-chip], .picks-mode #chip-sep, .picks-mode #active-chips, .picks-mode #reset, .picks-mode .qlabel { display: none !important; }
 .dashhead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: .8rem 1.4rem; padding-bottom: .8rem; margin-bottom: .9rem; border-bottom: 1px solid var(--edge); }
 .dashhead h2 { margin: 0; font-size: 1.7rem; line-height: 1.1; }
 .dashhead p { margin: .3rem 0 0; color: var(--dim); font: .88rem var(--mono); }
@@ -361,3 +361,49 @@ nav.footer-col { display: block; font-size: .87rem; color: var(--dim); }
 .why { font: .74rem/1.35 var(--mono); color: #8d987f; font-weight: 400; }
 .why i { color: var(--green); font-style: normal; }
 @media (max-width: 620px) { .var { grid-template-columns: auto 1fr; } .var .p, .var .stk { grid-column: 2; justify-self: start; } }
+
+/* Price filter and card badges */
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.pricebox { display: inline-flex; align-items: center; gap: .45rem; min-height: 36px; padding: .15rem .7rem; border: 1px solid #627447; border-radius: 999px; color: var(--green); font: 600 .78rem var(--mono); letter-spacing: .04em; }
+.pricebox:focus-within { border-color: var(--green); outline: 2px solid var(--green); outline-offset: 2px; }
+.pricebox .plabel { text-transform: uppercase; }
+.pricebox input { width: 4.2rem; min-height: 28px; padding: .1rem .3rem; border: 0; border-bottom: 1px solid #455437; border-radius: 0; background: transparent; color: var(--text); font: 650 .85rem var(--mono); text-align: center; -moz-appearance: textfield; appearance: textfield; }
+.pricebox input:focus { outline: none; border-bottom-color: var(--green); }
+.pricebox input::-webkit-outer-spin-button, .pricebox input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.badges { display: flex; flex-wrap: wrap; gap: .4rem; }
+.badge { font: 800 .7rem var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: .15rem .55rem; border-radius: 4px; border: 1px solid; }
+.badge.low { color: var(--green); border-color: var(--green); background: #1b2616; }
+.badge.ltd { color: var(--amber); border-color: #655636; background: #37301d; }
+.badge.mute { color: var(--dim); border-color: var(--edge); }
+
+/* Price history page */
+.pagehead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: .8rem 1.5rem; margin: 1.6rem 0 1rem; }
+.pagehead h1 { margin: 0; font-size: 2rem; line-height: 1.1; }
+.pagehead p { margin: .3rem 0 0; }
+.pcontrols { display: flex; flex-wrap: wrap; gap: .7rem; }
+.seg2 { display: inline-flex; border: 1px solid #627447; border-radius: 8px; overflow: hidden; }
+.seg2 button { min-height: 40px; padding: 0 .9rem; border: 0; border-left: 1px solid #3d4a33; border-radius: 0; background: transparent; color: var(--dim); font: 700 .78rem var(--mono); letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
+.seg2 button:first-child { border-left: 0; }
+.seg2 button:hover { background: #20281b; }
+.seg2 button[aria-pressed="true"] { background: #29371f; color: var(--green); }
+.cbox { padding: 1rem; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
+.cbox svg { display: block; max-width: 100%; height: auto; }
+.emptyc { display: grid; place-items: center; min-height: 210px; border: 1px dashed #455437; border-radius: 8px; color: var(--dim); text-align: center; padding: 1.2rem; }
+.emptyc strong { color: var(--text); }
+.btnlink { display: inline-block; margin-top: .9rem; padding: .7rem 1.1rem; border-radius: 6px; text-decoration: none; }
+.ptable { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .92rem; }
+.ptable th { font: 700 .72rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--edge); }
+.ptable td { padding: .55rem .6rem; border-bottom: 1px solid var(--edge); vertical-align: middle; }
+.ptable .num { font: 700 .95rem var(--mono); white-space: nowrap; }
+.pick { display: inline-flex; align-items: center; gap: .6rem; padding: 0; border: 0; background: transparent; color: var(--text); font: inherit; text-align: left; text-transform: none; letter-spacing: 0; cursor: pointer; }
+.pick:hover b { color: var(--green); }
+.pick[aria-pressed="false"] b { font-weight: 500; color: var(--dim); }
+.pick .dot { display: inline-block; width: 11px; height: 11px; flex: none; border-radius: 50%; }
+.ptable .ext { display: block; margin-left: 1.3rem; color: var(--dim); font: .76rem var(--mono); }
+.ptable .ext:hover { color: var(--green); }
+nav a[aria-current="page"] { color: var(--green); }
+@media (max-width: 620px) { .ptable .wide { display: none; } .pagehead h1 { font-size: 1.6rem; } }
+#tablewrap { overflow-x: auto; }
+.ptable .marks { display: block; margin: .35rem 0 0 1.3rem; }
+@media (max-width: 620px) { .ptable th, .ptable td { padding: .5rem .35rem; } .ptable .num { font-size: .88rem; } }
+.cbox + .note2 { margin-top: 1rem; }

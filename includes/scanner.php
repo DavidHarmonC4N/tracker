@@ -523,6 +523,7 @@ function store_scan(string $dir, string $id, string $fingerprint, string $host, 
                 }
                 $events = detect_events($row, $new);
                 $row['result'] = $new;
+                record_history($fresh, $id, $new);
             }
             break;
         }
