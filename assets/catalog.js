@@ -68,6 +68,219 @@ function statusBars(status) {
   return node;
 }
 
+// My picks: a watchlist kept only in this browser (localStorage). No account, no cookie, nothing sent to the server.
+const PICKS_KEY = 'offgrid.picks.v1';
+const STAR_PATH = '<path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z"/>';
+const ID_PATTERN = /^[a-z0-9_-]{1,60}$/;
+let picks = loadPicks();
+let picksView = false;
+let sharedIds = null;
+const baseline = {};
+for (const [id, pick] of Object.entries(picks)) baseline[id] = { price: pick.seenPrice ?? pick.price, status: pick.seenStatus ?? pick.status };
+
+function loadPicks() {
+  try {
+    const value = JSON.parse(localStorage.getItem(PICKS_KEY) || '{}');
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+    return Object.fromEntries(Object.entries(value).filter(([id, pick]) => ID_PATTERN.test(id) && pick && typeof pick === 'object'));
+  } catch (error) {
+    return {};
+  }
+}
+
+function savePicks() {
+  try { localStorage.setItem(PICKS_KEY, JSON.stringify(picks)); } catch (error) { /* picks then last for this visit only */ }
+}
+
+function snapshot(row) {
+  return { price: Number.isInteger(row.result.price) ? row.result.price : null, status: displayStatus(row) };
+}
+
+function togglePick(row) {
+  if (picks[row.id]) {
+    delete picks[row.id];
+  } else {
+    const now = snapshot(row);
+    picks[row.id] = { added: Date.now(), price: now.price, status: now.status, seenPrice: now.price, seenStatus: now.status };
+    baseline[row.id] = now;
+  }
+  savePicks();
+  syncPickButtons();
+  if (picksView) draw();
+}
+
+function syncPickButtons() {
+  const count = Object.keys(picks).length;
+  byId('picks-n').textContent = count;
+  byId('picks-btn').setAttribute('aria-pressed', String(picksView));
+  document.querySelectorAll('.star[data-pick]').forEach((button) => {
+    const on = Boolean(picks[button.dataset.pick]);
+    button.setAttribute('aria-pressed', String(on));
+    const label = (on ? 'Stop watching ' : 'Watch ') + button.dataset.name;
+    button.setAttribute('aria-label', label);
+    button.title = on ? 'Stop watching' : 'Watch this radio';
+  });
+}
+
+function starButton(row) {
+  const button = el('button', 'star');
+  button.type = 'button';
+  button.dataset.pick = row.id;
+  button.dataset.name = row.name;
+  button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + STAR_PATH + '</svg>';
+  button.addEventListener('click', () => togglePick(row));
+  return button;
+}
+
+// What changed since the visitor last opened My picks (or since they added the radio).
+function pickChanges(row, before) {
+  const now = snapshot(row);
+  const list = [];
+  const available = (status) => status === 'in_stock' || status === 'orderable';
+  if (before.status === 'out_of_stock' && available(now.status)) list.push(['up', 'Back in stock since you last looked']);
+  else if (available(before.status) && now.status === 'out_of_stock') list.push(['out', 'Sold out since you last looked']);
+  if (Number.isInteger(before.price) && Number.isInteger(now.price) && before.price !== now.price) {
+    const diff = formatMoney.format(Math.abs(now.price - before.price) / 100);
+    list.push(now.price < before.price ? ['down', 'Price dropped ' + diff + ' since you last looked'] : ['rise', 'Price rose ' + diff + ' since you last looked']);
+  }
+  return list;
+}
+
+function pickCard(row) {
+  const node = card(row);
+  node.querySelector('.change-badge')?.remove();
+  const pick = picks[row.id];
+  if (pick && !sharedIds) {
+    const notes = pickChanges(row, baseline[row.id] || snapshot(row)).map(([kind, text]) => el('p', 'change ' + kind, text));
+    if (notes.length) node.querySelector('.card-top').after(...notes);
+    const added = 'Added ' + formatDay.format(new Date(pick.added)) + (Number.isInteger(pick.price) ? ' at ' + formatMoney.format(pick.price / 100) : '');
+    node.querySelector('.facts').after(el('p', 'hist', added));
+  }
+  return node;
+}
+
+function goneCard(id) {
+  const node = el('article', 'card gone');
+  const title = el('div');
+  title.append(el('h3', '', 'No longer in the catalog'), el('p', 'seller', 'The owner removed this radio or paused its listing.'));
+  const head = el('div', 'titlerow');
+  const remove = el('button', 'sbtn quiet2', 'Remove');
+  remove.type = 'button';
+  remove.addEventListener('click', () => { delete picks[id]; delete baseline[id]; savePicks(); syncPickButtons(); draw(); });
+  head.append(title);
+  node.append(head, remove);
+  return node;
+}
+
+function absoluteUrl(path) {
+  return new URL(path, location.href).href;
+}
+
+function pickIds() {
+  return (sharedIds || Object.keys(picks));
+}
+
+function drawPicks() {
+  document.body.classList.add('picks-mode');
+  byId('manual-note').hidden = true;
+  byId('count').textContent = '';
+  const ids = pickIds();
+  const byKey = new Map(rows.map((row) => [row.id, row]));
+  const parts = [];
+  const head = el('div', 'dashhead');
+  const titleBox = el('div');
+  titleBox.append(el('h2', '', sharedIds ? 'Shared picks' : 'My picks'));
+  const actions = el('div', 'dashact');
+  const tools = el('div', 'dash');
+  const status = el('p', 'copy-status');
+  status.setAttribute('role', 'status');
+
+  const present = ids.map((id) => byKey.get(id)).filter(Boolean);
+  const changed = sharedIds ? 0 : present.filter((row) => pickChanges(row, baseline[row.id] || snapshot(row)).length).length;
+  titleBox.append(el('p', '', ids.length + (ids.length === 1 ? ' radio' : ' radios') + (changed ? ' · ' + changed + ' changed since you last looked' : '')));
+  head.append(titleBox, actions);
+
+  if (ids.length) {
+    const link = el('button', 'sbtn', 'Copy my link');
+    link.type = 'button';
+    link.addEventListener('click', async () => {
+      const url = absoluteUrl(location.pathname + '?picks=' + ids.join(','));
+      try { await navigator.clipboard.writeText(url); status.textContent = 'Link copied. Open it on any device to see these picks.'; }
+      catch (error) { status.textContent = 'Copy this link: ' + url; }
+    });
+    const feed = el('a', 'sbtn', 'My RSS feed');
+    feed.href = 'feed.php?ids=' + ids.join(',');
+    feed.target = '_blank';
+    feed.rel = 'noopener';
+    feed.title = 'Stock and price changes for these radios only. Add the address to any feed reader.';
+    actions.append(link, feed);
+    if (sharedIds) {
+      const add = el('button', 'sbtn', 'Add all to my picks');
+      add.type = 'button';
+      add.addEventListener('click', () => {
+        for (const row of present) if (!picks[row.id]) togglePick(row);
+        sharedIds = null;
+        draw();
+      });
+      const mine = el('button', 'sbtn quiet2', 'View my picks');
+      mine.type = 'button';
+      mine.addEventListener('click', () => { sharedIds = null; draw(); });
+      actions.append(add, mine);
+    } else {
+      const clear = el('button', 'sbtn quiet2', 'Clear all');
+      clear.type = 'button';
+      clear.addEventListener('click', () => {
+        if (!window.confirm('Remove all ' + ids.length + ' radios from My picks?')) return;
+        picks = {};
+        for (const key of Object.keys(baseline)) delete baseline[key];
+        savePicks();
+        syncPickButtons();
+        draw();
+      });
+      actions.append(clear);
+    }
+  }
+  parts.push(head);
+  parts.push(el('p', 'note2', sharedIds
+    ? 'Someone shared this list with you. Star a radio to add it to your own picks.'
+    : 'Your picks are saved in this browser only. No account, no cookies. Use Copy my link to open them on another device or send them to a friend.'));
+  parts.push(status);
+
+  if (!ids.length) {
+    const empty = el('div', 'panel empty');
+    empty.append(el('strong', '', 'Nothing starred yet'), document.createElement('br'),
+      document.createTextNode('Tap the star on any radio to keep an eye on it. Your picks stay on this device.'));
+    const browse = el('button', 'primary', 'Browse radios');
+    browse.type = 'button';
+    browse.addEventListener('click', () => { picksView = false; sharedIds = null; draw(); });
+    const wrap = el('div', 'empty-action');
+    wrap.append(browse);
+    empty.append(wrap);
+    parts.push(empty);
+  } else if (rows.length) {
+    const order = (row) => (sharedIds ? 0 : pickChanges(row, baseline[row.id] || snapshot(row)).length ? 0 : 1);
+    present.sort((a, b) => order(a) - order(b) || priority.indexOf(displayStatus(a)) - priority.indexOf(displayStatus(b)) || a.name.localeCompare(b.name));
+    const grid = el('div', 'catalog');
+    grid.append(...present.map(pickCard));
+    if (!sharedIds) grid.append(...ids.filter((id) => !byKey.has(id)).map(goneCard));
+    parts.push(grid);
+    byId('manual-note').hidden = !present.some(isManual);
+    if (!sharedIds) {
+      // Remember what the visitor has now seen, so next time only newer changes are flagged.
+      let dirty = false;
+      for (const row of present) {
+        const now = snapshot(row);
+        const pick = picks[row.id];
+        if (pick && (pick.seenPrice !== now.price || pick.seenStatus !== now.status)) { pick.seenPrice = now.price; pick.seenStatus = now.status; dirty = true; }
+      }
+      if (dirty) savePicks();
+    }
+  }
+  byId('list').replaceChildren(...parts);
+  syncPickButtons();
+  writeUrlFilters();
+}
+
 function readUrlFilters() {
   const params = new URLSearchParams(location.search);
   for (const [key, id] of Object.entries(filterIds)) {
@@ -88,10 +301,19 @@ function readUrlFilters() {
     tab = 'all';
   }
   showUnverified = params.get('unverified') === '1';
+  const shared = (params.get('picks') || '').split(',').filter((id) => ID_PATTERN.test(id)).slice(0, 100);
+  if (shared.length) { sharedIds = [...new Set(shared)]; picksView = true; }
+  else if (params.get('view') === 'picks') picksView = true;
 }
 
 function writeUrlFilters() {
   const params = new URLSearchParams();
+  if (picksView) {
+    if (sharedIds) params.set('picks', sharedIds.join(','));
+    else params.set('view', 'picks');
+    try { history.replaceState(null, '', location.pathname + '?' + params.toString() + location.hash); } catch (error) { /* convenience only */ }
+    return;
+  }
   for (const [key, id] of Object.entries(filterIds)) {
     const control = byId(id);
     const value = control.value.trim();
@@ -224,7 +446,9 @@ function card(row) {
   else if (reading.observed_at && status === 'unknown' && reading.status !== 'unknown') detail = 'Stock reading is more than 24 hours old';
   else if (reading.observed_at) detail = (reading.source === 'manual' ? 'Manually checked ' : 'Checked ') + formatDate.format(new Date(reading.observed_at));
   if (row.manual) detail += ' · manual watch';
-  result.append(first, title, facts);
+  const head = el('div', 'titlerow');
+  head.append(title, starButton(row));
+  result.append(first, head, facts);
   const badge = changeBadge(row, status);
   if (badge) result.append(badge);
   if (row.note) result.append(el('p', 'note', row.note));
@@ -284,6 +508,8 @@ function sortRows(list, sort) {
 }
 
 function draw() {
+  document.body.classList.toggle('picks-mode', picksView);
+  if (picksView) { drawPicks(); return; }
   const query = byId('search').value.trim().toLowerCase();
   const firmware = byId('firmware').value;
   const kind = byId('kind').value;
@@ -390,6 +616,7 @@ function draw() {
     parts.push(toggle);
   }
   byId('list').replaceChildren(...parts);
+  syncPickButtons();
   byId('manual-note').hidden = !shown.some(isManual);
   if (restoreFocus) {
     restoreFocus = false;
@@ -506,6 +733,12 @@ document.querySelectorAll('[data-chip]').forEach((button) => {
     showUnverified = false;
     draw();
   });
+});
+byId('picks-btn').addEventListener('click', () => {
+  picksView = !picksView;
+  if (!picksView) sharedIds = null;
+  draw();
+  if (picksView) byId('inventory').scrollIntoView({ block: 'start' });
 });
 byId('filters-toggle').addEventListener('click', () => {
   const panel = byId('filter-selects');

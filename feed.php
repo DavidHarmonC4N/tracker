@@ -12,13 +12,23 @@ function xml(string $value): string {
     return htmlspecialchars(preg_replace('/[\x00-\x08\x0b\x0c\x0e-\x1f]/', '', $value), ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+// Optional ?ids=a,b,c limits the feed to a visitor's picks. Ids are checked before use.
+$wanted = null;
+if (isset($_GET['ids']) && is_string($_GET['ids'])) {
+    $wanted = [];
+    foreach (array_slice(explode(',', $_GET['ids']), 0, 100) as $id) {
+        if (preg_match('/^[a-z0-9_-]{1,60}$/', $id)) {
+            $wanted[$id] = true;
+        }
+    }
+}
 $entries = [];
 try {
     if (config()['data_dir'] !== '') {
         $state = load_state(data_dir());
         $visible = [];
         foreach ($state['items'] as $item) {
-            if (!$item['paused']) {
+            if (!$item['paused'] && ($wanted === null || isset($wanted[$item['id']]))) {
                 $visible[$item['id']] = $item['url'];
             }
         }
@@ -38,7 +48,7 @@ $site = base_url() . 'index.html';
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
 <rss version="2.0"><channel>
-<title>Offgrid Comms Tracker: stock and price changes</title>
+<title><?= $wanted === null ? 'Offgrid Comms Tracker: stock and price changes' : 'My picks: Offgrid Comms Tracker' ?></title>
 <link><?= xml($site) ?></link>
 <description>Back-in-stock alerts, sell-outs and price changes for MeshCore and Meshtastic radios from U.S. and international sellers.</description>
 <?php foreach ($entries as $event): ?>

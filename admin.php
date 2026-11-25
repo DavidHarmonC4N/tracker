@@ -475,11 +475,6 @@ $reading = $editor['result'] ?? [];
   <?php if (!empty($state['dispatch_error'])): ?>
     <p class="notice danger" role="alert">The last automatic start of the U.S. runner failed: <?= h($state['dispatch_error']) ?></p>
   <?php endif; ?>
-  <?php if ($serverAuto && $runAge === null): ?>
-    <p class="notice danger" role="alert">The scheduled checker has not run yet. Add the cron job from the README, then run <code>check.php</code> once to confirm it works.</p>
-  <?php elseif ($serverAuto && $runAge > 30): ?>
-    <p class="notice danger" role="alert">The scheduled checker last ran <?= h($runAge >= 120 ? intdiv($runAge, 60) . ' hours' : $runAge . ' minutes') ?> ago (<?= h(when($state['last_run'])) ?>). It should run every 10 minutes, so check the cron job.</p>
-  <?php endif; ?>
   <?php if ($diagnosis): ?>
   <section class="panel" aria-labelledby="diag-heading">
     <h2 id="diag-heading">Connection test</h2>
