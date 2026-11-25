@@ -48,6 +48,30 @@ The job works through the oldest eligible checks in batches. It starts at most o
 
 The public page distinguishes **Awaiting first stock check**, **Seller paused automated checks**, and listings that need review under the **Unverified** stock status. The last available price is retained and labeled. Check the per-listing activity in Admin when a source needs attention.
 
+## Automatic deploy from GitHub
+
+`.github/workflows/deploy.yml` can send the files on `main` to your host by FTP, so changes go live without a manual upload. It does nothing until you add the settings below, and it never touches `config.php`, `.htaccess` or your private data folder.
+
+What it does on every push to `main` (or when you start it by hand):
+
+1. Stops if any PHP or JavaScript file has a syntax error.
+2. Uploads only the files that changed since the last deploy.
+3. Checks the live site: the home page, stylesheet, script, catalog and Admin must load, and `config.php` must not be readable. If a check fails, the run turns red and you get GitHub's failure email. To undo a bad change, revert the commit on `main` and the previous version deploys again.
+
+Set up:
+
+1. In your hosting panel create a **separate FTP account** limited to the folder that holds `index.html` and `admin.php`. Do not use your main hosting login. That keeps it away from your private data folder. Use a long random password.
+2. In the GitHub repository open **Settings → Secrets and variables → Actions** and add these repository secrets:
+   - `DEPLOY_HOST`: the FTP server name from your host.
+   - `DEPLOY_USER` and `DEPLOY_PASSWORD`: the FTP account.
+   - `DEPLOY_DIR`: the folder to upload into, from that account's point of view, ending in a slash. If the account is already limited to the site folder this is `/`.
+   - `DEPLOY_PROTOCOL` (optional): `ftps` (the default), `ftp`, or `ftps-legacy` if your host needs it.
+   - `OFFGRID_URL` is already set for the runner and is reused for the live check.
+3. Open the **Actions** tab, choose **Deploy to host**, and use **Run workflow** with *Only list what would upload* ticked. The log shows what would be sent. Run it again with the box unticked to do the first real upload.
+4. Optional: in **Settings → Environments → production**, add yourself as a required reviewer. Each deploy then waits for you to approve it.
+
+Never put passwords in the repository or in chat. They belong in the secrets list only. Changes to `config.php` and `.htaccess` are still made by hand on the host.
+
 ## U.S. checker (GitHub Actions)
 
 Some stores rate-limit or block checks from certain hosting servers, for example servers outside the U.S. The U.S. runner scans from GitHub's U.S. servers instead and reports back to your site. GitHub's addresses are datacenter addresses too, so a store that blocks all datacenters may still refuse them. Use **Manual review** for those sellers.

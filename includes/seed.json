@@ -1928,5 +1928,37 @@
     },
     "attempted_at": null,
     "error": null
+  },
+  {
+    "id": "rok-tdeck",
+    "seller": "Rokland",
+    "location": "Florida",
+    "name": "LILYGO T-Deck · 915 MHz",
+    "url": "https://store.rokland.com/products/lilygo-t-deck-portable-microcontroller-programmer-lora-915-mhz-h642",
+    "firmware": "both",
+    "setup": "flash",
+    "kind": "keyboard",
+    "role": "companion",
+    "note": "Keyboard and touchscreen. Ships without firmware, so flash Meshtastic or MeshCore yourself. Price shown is the Base model; assembled versions cost more.",
+    "mode": "auto",
+    "checker": "remote",
+    "variant": "",
+    "scope": "",
+    "ready": "",
+    "sold": "",
+    "price_path": "",
+    "paused": false,
+    "late": true,
+    "result": {
+      "status": "orderable",
+      "price": 6797,
+      "qty": null,
+      "from_price": true,
+      "observed_at": null,
+      "source": "research",
+      "detail": "Research snapshot · Nov 25, 2026"
+    },
+    "attempted_at": null,
+    "error": null
   }
 ]

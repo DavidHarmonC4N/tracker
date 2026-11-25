@@ -1,0 +1,100 @@
+name: Deploy to host
+
+# Sends the files on main to the web host by FTP. Nothing runs until the DEPLOY_* secrets exist (see README).
+# config.php, .htaccess and the private data folder are never touched.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - '.github/workflows/check.yml'
+      - 'runner/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only list what would upload (no files are changed)'
+        type: boolean
+        default: true
+
+concurrency:
+  group: deploy-host
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Add required reviewers to this environment in the repository settings to approve each deploy by hand.
+    environment: production
+    steps:
+      - name: Check settings
+        id: cfg
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER_NAME: ${{ secrets.DEPLOY_USER }}
+          PASS: ${{ secrets.DEPLOY_PASSWORD }}
+          DIR: ${{ secrets.DEPLOY_DIR }}
+          SITE: ${{ secrets.OFFGRID_URL }}
+        run: |
+          missing=""
+          [ -n "$HOST" ] || missing="$missing DEPLOY_HOST"
+          [ -n "$USER_NAME" ] || missing="$missing DEPLOY_USER"
+          [ -n "$PASS" ] || missing="$missing DEPLOY_PASSWORD"
+          [ -n "$DIR" ] || missing="$missing DEPLOY_DIR"
+          [ -n "$SITE" ] || missing="$missing OFFGRID_URL"
+          if [ -n "$missing" ]; then
+            echo "::notice::Deploy is not set up yet. Missing secrets:$missing. See the README section 'Automatic deploy from GitHub'."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ok == 'true'
+
+      - uses: shivammathur/setup-php@v2
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          php-version: '8.3'
+          tools: none
+
+      - name: Stop on broken PHP or JavaScript
+        if: steps.cfg.outputs.ok == 'true'
+        run: |
+          status=0
+          while IFS= read -r f; do php -l "$f" > /dev/null || status=1; done < <(git ls-files '*.php')
+          for f in assets/*.js; do node --check "$f" || status=1; done
+          exit $status
+
+      - name: Upload changed files
+        if: steps.cfg.outputs.ok == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          protocol: ${{ secrets.DEPLOY_PROTOCOL || 'ftps' }}
+          server-dir: ${{ secrets.DEPLOY_DIR }}
+          dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          # Apache hides files that start with .ht, so the state file is not downloadable.
+          state-name: .ht-deploy-state.json
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            runner/**
+            README.md
+            config.php
+            .htaccess
+            .htaccess.hardened
+            .gitignore
+
+      - name: Check the live site
+        if: steps.cfg.outputs.ok == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+        env:
+          SITE: ${{ secrets.OFFGRID_URL }}
+        run: bash .github/scripts/smoke.sh "$SITE"
