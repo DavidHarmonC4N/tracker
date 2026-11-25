@@ -22,10 +22,8 @@ const tabs = [
   { key: 'in_stock', label: 'In stock' },
   { key: 'orderable', label: 'Orderable' },
   { key: 'preorder', label: 'Preorder' },
-  { key: 'unknown', label: 'Unverified' },
   { key: 'out_of_stock', label: 'Out of stock' },
-  { key: 'manual', label: 'Manual review', note: 'Checked by hand because the seller blocks automated checks' },
-  { key: 'seeed', label: 'Seeed Studio', note: 'Listings sold directly by Seeed Studio, one per warehouse' },
+  { key: 'unknown', label: 'Unverified' },
   { key: 'all', label: 'All' }
 ];
 const groupNotes = {
@@ -39,6 +37,36 @@ let tab = 'available';
 let showUnverified = false;
 let restoreFocus = false;
 let latestReading = null;
+// Quick filters. They combine with the availability tab and the filters.
+const chips = { seeed: false, manual: false };
+const selectFilters = [['role', 'Use'], ['firmware', 'Firmware'], ['warehouse', 'Ships from'], ['kind', 'Radio type']];
+
+// Small line icons for the radio type. They are decoration: the text label next to them says the same thing.
+const ICONS = {
+  handheld: '<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><rect x="9.2" y="5.2" width="5.6" height="6" rx=".8"/><circle cx="12" cy="16.6" r="1.2"/>',
+  keyboard: '<rect x="2.5" y="8" width="19" height="12" rx="2"/><path d="M6 11.5h1M9.5 11.5h1M13 11.5h1M16.5 11.5h1M6 14.5h1M9.5 14.5h1M13 14.5h1M16.5 14.5h1M8 17.3h8M12 8V4M9.8 5.4a3.2 3.2 0 0 1 4.4 0"/>',
+  solar: '<path d="M3 20.5l3-9h12l3 9z"/><path d="M5 16h14M9.2 11.5l-1.1 9M14.8 11.5l1.1 9"/><circle cx="12" cy="4.6" r="1.8"/><path d="M12 1.2v.7M7.6 4.6h.7M15.7 4.6h.7"/>',
+  tracker: '<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M12 7a3.2 3.2 0 0 1 3.2 3.2c0 2.2-3.2 5.3-3.2 5.3s-3.2-3.1-3.2-5.3A3.2 3.2 0 0 1 12 7z"/><circle cx="12" cy="10.2" r="1.1"/>',
+  base: '<rect x="3" y="13" width="18" height="7.5" rx="1.8"/><path d="M7 16.8h2M12 13V5M9.2 7a4 4 0 0 1 5.6 0M7 4.6a7 7 0 0 1 10 0"/>',
+  board: '<rect x="5" y="5" width="14" height="14" rx="1.5"/><rect x="9" y="9" width="6" height="6"/><path d="M8 2v3M12 2v3M16 2v3M8 19v3M12 19v3M16 19v3M2 8h3M2 12h3M2 16h3M19 8h3M19 12h3M19 16h3"/>',
+  other: '<circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>'
+};
+const BARS = { in_stock: 4, orderable: 3, preorder: 2, unknown: 1, out_of_stock: 0 };
+
+function iconNode(kind) {
+  const node = el('span', 'ico');
+  node.setAttribute('aria-hidden', 'true');
+  // Static markup from the table above, never page data.
+  node.innerHTML = '<svg viewBox="0 0 24 24" focusable="false">' + (ICONS[kind] || ICONS.other) + '</svg>';
+  return node;
+}
+
+function statusBars(status) {
+  const node = el('span', 'bars');
+  node.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 4; i += 1) node.append(el('i', i < (BARS[status] ?? 0) ? 'on' : ''));
+  return node;
+}
 
 function readUrlFilters() {
   const params = new URLSearchParams(location.search);
@@ -52,6 +80,13 @@ function readUrlFilters() {
   // "stock" is the older name for the availability filter, kept so existing shared links still work.
   const status = params.get('status') ?? params.get('stock');
   if (status && tabs.some((item) => item.key === status)) tab = status;
+  chips.seeed = params.get('seller') === 'seeed';
+  chips.manual = params.get('hand') === '1';
+  // Links from when Seeed Studio and Manual review were tabs.
+  if (status === 'seeed' || status === 'manual') {
+    chips[status] = true;
+    tab = 'all';
+  }
   showUnverified = params.get('unverified') === '1';
 }
 
@@ -63,6 +98,8 @@ function writeUrlFilters() {
     if (value && !(key === 'sort' && value === 'availability')) params.set(key, value);
   }
   if (tab !== 'available') params.set('status', tab);
+  if (chips.seeed) params.set('seller', 'seeed');
+  if (chips.manual) params.set('hand', '1');
   if (showUnverified) params.set('unverified', '1');
   const query = params.toString();
   try {
@@ -108,6 +145,12 @@ function changeBadge(row, status) {
   return null;
 }
 
+function fact(text, className, title) {
+  const node = el('span', 'fact' + (className ? ' ' + className : ''), text);
+  if (title) node.title = title;
+  return node;
+}
+
 function card(row) {
   const status = displayStatus(row);
   const reading = row.result;
@@ -115,7 +158,11 @@ function card(row) {
   const first = el('div', 'card-top');
   const count = status === 'in_stock' && Number.isInteger(reading.qty) ? ' · ' + reading.qty + ' shown' : '';
   const role = radioRole(row);
-  first.append(el('span', 'card-kind', role === 'unspecified' ? lookup.kind[row.kind] : lookup.role[role]), el('span', 'tag ' + status, lookup.status[status] + count));
+  const kind = el('span', 'card-kind');
+  kind.append(iconNode(row.kind), document.createTextNode(role === 'unspecified' ? lookup.kind[row.kind] : lookup.role[role]));
+  const tag = el('span', 'tag ' + status);
+  tag.append(statusBars(status), document.createTextNode(lookup.status[status] + count));
+  first.append(kind, tag);
 
   const title = el('div');
   const sellerLine = el('p', 'seller', row.seller + (row.location ? ' · ' + row.location : ''));
@@ -126,14 +173,13 @@ function card(row) {
     sellerLine.append(star);
   }
   title.append(el('h3', '', row.name), sellerLine);
-  if (lookup.warehouse[row.warehouse]) {
-    const ship = el('span', 'warehouse warehouse-' + row.warehouse, lookup.warehouse[row.warehouse]);
-    ship.title = 'Ships from the seller’s ' + lookup.warehouse[row.warehouse].replace(' warehouse', '') + ' warehouse. Shipping time, duties and fees depend on the warehouse.';
-    title.append(ship);
-  }
 
-  const firmware = el('div');
-  firmware.append(el('p', 'firmware-label', lookup.firmware[row.firmware]), el('p', 'setup-label', lookup.setup[row.setup]));
+  const facts = el('p', 'facts');
+  facts.append(fact(lookup.firmware[row.firmware]), fact(lookup.setup[row.setup]));
+  if (lookup.warehouse[row.warehouse]) {
+    facts.append(fact(lookup.warehouse[row.warehouse], row.warehouse,
+      'Ships from the seller’s ' + lookup.warehouse[row.warehouse].replace(' warehouse', '') + ' warehouse. Shipping time, duties and fees depend on the warehouse.'));
+  }
 
   const end = el('div', 'card-foot');
   const price = el('div', 'price');
@@ -161,7 +207,7 @@ function card(row) {
   else if (reading.observed_at && status === 'unknown' && reading.status !== 'unknown') detail = 'Stock reading is more than 24 hours old';
   else if (reading.observed_at) detail = (reading.source === 'manual' ? 'Manually checked ' : 'Checked ') + formatDate.format(new Date(reading.observed_at));
   if (row.manual) detail += ' · manual watch';
-  result.append(first, title, firmware);
+  result.append(first, title, facts);
   const badge = changeBadge(row, status);
   if (badge) result.append(badge);
   if (row.note) result.append(el('p', 'note', row.note));
@@ -183,10 +229,12 @@ function isSeeed(row) {
   }
 }
 
+function matchesChips(row) {
+  return (!chips.seeed || isSeeed(row)) && (!chips.manual || isManual(row));
+}
+
 function matchesTab(key, row) {
   const status = displayStatus(row);
-  if (key === 'manual') return isManual(row);
-  if (key === 'seeed') return isSeeed(row);
   return key === 'all' || (key === 'available' ? status === 'in_stock' || status === 'orderable' : status === key);
 }
 
@@ -230,6 +278,7 @@ function draw() {
     && (!kind || row.kind === kind)
     && (!role || radioRole(row) === role)
     && (!warehouse || row.warehouse === warehouse)
+    && matchesChips(row)
     && [row.name, row.seller, row.location, row.note].join(' ').toLowerCase().includes(query)
   );
 
@@ -256,11 +305,13 @@ function draw() {
     + (hideable && !showUnverified && hiddenCount ? ' · ' + hiddenCount + ' unverified hidden' : '');
   writeUrlFilters();
 
+  renderToolbarState();
+
   const parts = [];
-  if (tab === 'manual') {
+  if (chips.manual) {
     parts.push(el('p', 'tab-intro', 'These sellers block automated stock checks, so their price and stock are entered by hand and may lag the seller’s page.'));
   }
-  if (tab === 'seeed') {
+  if (chips.seeed) {
     parts.push(el('p', 'tab-intro', 'Seeed Studio ships each product from U.S., EU and China warehouses. Price, shipping time, duties and fees differ by warehouse, so check the warehouse badge before you order.'));
   }
   if (!shown.length) {
@@ -271,7 +322,7 @@ function draw() {
     const hint = tab === 'available' ? 'No available radios match. Try the All tab. ' : 'No radios match these filters. ';
     empty.append(document.createTextNode(hint), reset);
     parts.push(empty);
-  } else if (sort === 'availability' && hideable) {
+  } else if (!chips.seeed && sort === 'availability' && hideable) {
     for (const status of priority) {
       const group = shown.filter((row) => displayStatus(row) === status);
       if (!group.length) continue;
@@ -283,7 +334,7 @@ function draw() {
       section.append(heading, grid);
       parts.push(section);
     }
-  } else if (tab === 'seeed') {
+  } else if (chips.seeed) {
     // One section per warehouse, each in the chosen sort order.
     for (const key of ['us', 'eu', 'cn', '']) {
       const group = shown.filter((row) => (row.warehouse || '') === key);
@@ -323,6 +374,43 @@ function draw() {
     restoreFocus = false;
     byId('unverified-toggle')?.focus();
   }
+}
+
+function activeFilters() {
+  const list = [];
+  const query = byId('search').value.trim();
+  if (query) list.push({ label: 'Search: ' + query, clear: () => { byId('search').value = ''; } });
+  for (const [id, name] of selectFilters) {
+    const control = byId(id);
+    if (control.value) list.push({ label: name + ': ' + control.options[control.selectedIndex].text, clear: () => { control.value = ''; }, select: true });
+  }
+  return list;
+}
+
+// Chips, the "Filters" count, the active-filter chips and the Clear all button.
+function renderToolbarState() {
+  document.querySelectorAll('[data-chip]').forEach((button) => {
+    button.setAttribute('aria-pressed', String(Boolean(chips[button.dataset.chip])));
+  });
+  const active = activeFilters();
+  const selects = active.filter((item) => item.select).length;
+  const counter = byId('filters-n');
+  counter.textContent = selects;
+  counter.hidden = selects === 0;
+  byId('active-chips').replaceChildren(...active.map((item) => {
+    const button = el('button', 'chip x', item.label);
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Remove filter: ' + item.label);
+    button.addEventListener('click', () => {
+      item.clear();
+      draw();
+      // Keep keyboard users in the toolbar: the remaining chips if any, otherwise the search box.
+      (byId('active-chips').children.length ? byId('active-chips') : byId('search')).focus();
+    });
+    return button;
+  }));
+  byId('chip-sep').hidden = active.length === 0;
+  byId('reset').hidden = !(active.length || chips.seeed || chips.manual || tab !== 'available');
 }
 
 function ago(time) {
@@ -383,8 +471,26 @@ byId('filters').addEventListener('submit', (event) => event.preventDefault());
 byId('filters').addEventListener('input', draw);
 byId('filters').addEventListener('reset', () => {
   tab = 'available';
+  chips.seeed = false;
+  chips.manual = false;
   showUnverified = false;
   setTimeout(draw, 0);
+});
+document.querySelectorAll('[data-chip]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const key = button.dataset.chip;
+    chips[key] = !chips[key];
+    // "Available now" would hide most of a seller's listings, so a chip opens the full list.
+    if (chips[key] && tab === 'available') tab = 'all';
+    showUnverified = false;
+    draw();
+  });
+});
+byId('filters-toggle').addEventListener('click', () => {
+  const panel = byId('filter-selects');
+  const open = !panel.classList.contains('open');
+  panel.classList.toggle('open', open);
+  byId('filters-toggle').setAttribute('aria-expanded', String(open));
 });
 buildTabs();
 readUrlFilters();
