@@ -197,7 +197,9 @@ function drawPicks() {
 
   const present = ids.map((id) => byKey.get(id)).filter(Boolean);
   const changed = sharedIds ? 0 : present.filter((row) => pickChanges(row, baseline[row.id] || snapshot(row)).length).length;
-  titleBox.append(el('p', '', ids.length + (ids.length === 1 ? ' radio' : ' radios') + (changed ? ' · ' + changed + ' changed since you last looked' : '')));
+  titleBox.append(el('p', '', ids.length + (ids.length === 1 ? ' radio' : ' radios')
+    + (changed ? ' · ' + changed + ' changed since you last looked' : '')
+    + (latestReading !== null ? ' · latest stock reading ' + formatDate.format(new Date(latestReading)) : '')));
   head.append(titleBox, actions);
 
   if (ids.length) {
@@ -751,6 +753,9 @@ readUrlFilters();
 refresh();
 if (!previewSource) {
   setInterval(() => { if (!document.hidden) refresh(); }, 60_000);
+  // Coming back to the tab (or the network) should not wait for the next tick.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+  window.addEventListener('online', refresh);
   setInterval(showLatest, 30_000);
 }
 
