@@ -55,11 +55,12 @@ try {
     }
     $action = (string)($_GET['action'] ?? '');
     if ($action === 'jobs') {
-        $limit = max(1, min(30, (int)($input['limit'] ?? 24)));
+        $limit = max(1, min(60, (int)($input['limit'] ?? 24)));
         reply(200, ['jobs'=>claim_jobs($dir, $limit)]);
     }
     if ($action === 'results') {
-        reply(200, accept_results($dir, is_array($input['results'] ?? null) ? $input['results'] : []));
+        reply(200, accept_results($dir, is_array($input['results'] ?? null) ? $input['results'] : [],
+            is_array($input['bulk_hosts'] ?? null) ? $input['bulk_hosts'] : [], is_array($input['bulk_failed'] ?? null) ? $input['bulk_failed'] : []));
     }
     reply(400, ['error'=>'Unknown action.']);
 } catch (Throwable $failure) {

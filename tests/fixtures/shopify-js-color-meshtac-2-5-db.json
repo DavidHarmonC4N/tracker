@@ -1,0 +1,199 @@
+{
+ "id": 8051958251603,
+ "title": "Color MESHTAC\u2122 2.5 dBi SMA Male 915 MHz soft flexible whip antenna for Meshtastic and LoRa",
+ "handle": "color-meshtac-2-5-dbi-sma-male-915-mhz-soft-flexible-whip-antenna-for-meshtastic-and-lora",
+ "published_at": "2026-08-14T10:08:18-04:00",
+ "created_at": "2026-08-14T09:26:46-04:00",
+ "vendor": "Rokland",
+ "type": "LoRa Antennas",
+ "tags": [
+  "915MHz",
+  "915MHz-antenna",
+  "antennas",
+  "LilyGo",
+  "Meshtastic",
+  "SMA"
+ ],
+ "price": 1297,
+ "price_min": 1297,
+ "price_max": 1297,
+ "available": true,
+ "price_varies": false,
+ "compare_at_price": null,
+ "compare_at_price_min": 0,
+ "compare_at_price_max": 0,
+ "compare_at_price_varies": false,
+ "variants": [
+  {
+   "id": 45963864342611,
+   "title": "Red",
+   "option1": "Red",
+   "option2": null,
+   "option3": null,
+   "sku": null,
+   "requires_shipping": true,
+   "taxable": true,
+   "available": true,
+   "name": "Color MESHTAC\u2122 2.5 dBi SMA Male 915 MHz soft flexible whip antenna for Meshtastic and LoRa - Red",
+   "public_title": "Red",
+   "options": [
+    "Red"
+   ],
+   "price": 1297,
+   "weight": 57,
+   "compare_at_price": null,
+   "inventory_quantity": 24,
+   "inventory_management": "shopify",
+   "inventory_policy": "deny",
+   "barcode": null,
+   "quantity_rule": {
+    "min": 1,
+    "max": null,
+    "increment": 1
+   },
+   "quantity_price_breaks": [],
+   "requires_selling_plan": false,
+   "selling_plan_allocations": []
+  },
+  {
+   "id": 45963864375379,
+   "title": "White",
+   "option1": "White",
+   "option2": null,
+   "option3": null,
+   "sku": null,
+   "requires_shipping": true,
+   "taxable": true,
+   "available": true,
+   "name": "Color MESHTAC\u2122 2.5 dBi SMA Male 915 MHz soft flexible whip antenna for Meshtastic and LoRa - White",
+   "public_title": "White",
+   "options": [
+    "White"
+   ],
+   "price": 1297,
+   "weight": 57,
+   "compare_at_price": null,
+   "inventory_quantity": 83,
+   "inventory_management": "shopify",
+   "inventory_policy": "deny",
+   "barcode": null,
+   "quantity_rule": {
+    "min": 1,
+    "max": null,
+    "increment": 1
+   },
+   "quantity_price_breaks": [],
+   "requires_selling_plan": false,
+   "selling_plan_allocations": []
+  },
+  {
+   "id": 45963864408147,
+   "title": "Green",
+   "option1": "Green",
+   "option2": null,
+   "option3": null,
+   "sku": null,
+   "requires_shipping": true,
+   "taxable": true,
+   "available": true,
+   "name": "Color MESHTAC\u2122 2.5 dBi SMA Male 915 MHz soft flexible whip antenna for Meshtastic and LoRa - Green",
+   "public_title": "Green",
+   "options": [
+    "Green"
+   ],
+   "price": 1297,
+   "weight": 57,
+   "compare_at_price": null,
+   "inventory_quantity": 85,
+   "inventory_management": "shopify",
+   "inventory_policy": "deny",
+   "barcode": null,
+   "quantity_rule": {
+    "min": 1,
+    "max": null,
+    "increment": 1
+   },
+   "quantity_price_breaks": [],
+   "requires_selling_plan": false,
+   "selling_plan_allocations": []
+  },
+  {
+   "id": 45963864440915,
+   "title": "Yellow",
+   "option1": "Yellow",
+   "option2": null,
+   "option3": null,
+   "sku": null,
+   "requires_shipping": true,
+   "taxable": true,
+   "available": true,
+   "name": "Color MESHTAC\u2122 2.5 dBi SMA Male 915 MHz soft flexible whip antenna for Meshtastic and LoRa - Yellow",
+   "public_title": "Yellow",
+   "options": [
+    "Yellow"
+   ],
+   "price": 1297,
+   "weight": 57,
+   "compare_at_price": null,
+   "inventory_quantity": 160,
+   "inventory_management": "shopify",
+   "inventory_policy": "deny",
+   "barcode": null,
+   "quantity_rule": {
+    "min": 1,
+    "max": null,
+    "increment": 1
+   },
+   "quantity_price_breaks": [],
+   "requires_selling_plan": false,
+   "selling_plan_allocations": []
+  },
+  {
+   "id": 68141158727763,
+   "title": "Black",
+   "option1": "Black",
+   "option2": null,
+   "option3": null,
+   "sku": null,
+   "requires_shipping": true,
+   "taxable": true,
+   "available": false,
+   "name": "Color MESHTAC\u2122 2.5 dBi SMA Male 915 MHz soft flexible whip antenna for Meshtastic and LoRa - Black",
+   "public_title": "Black",
+   "options": [
+    "Black"
+   ],
+   "price": 1297,
+   "weight": 57,
+   "compare_at_price": null,
+   "inventory_quantity": 0,
+   "inventory_management": "shopify",
+   "inventory_policy": "deny",
+   "barcode": null,
+   "quantity_rule": {
+    "min": 1,
+    "max": null,
+    "increment": 1
+   },
+   "quantity_price_breaks": [],
+   "requires_selling_plan": false,
+   "selling_plan_allocations": []
+  }
+ ],
+ "options": [
+  {
+   "name": "Style",
+   "position": 1,
+   "values": [
+    "Red",
+    "White",
+    "Green",
+    "Yellow",
+    "Black"
+   ]
+  }
+ ],
+ "url": "/products/color-meshtac-2-5-dbi-sma-male-915-mhz-soft-flexible-whip-antenna-for-meshtastic-and-lora",
+ "requires_selling_plan": false,
+ "selling_plan_groups": []
+}

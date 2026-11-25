@@ -430,9 +430,83 @@ function page_result(string $body, array $item): ?array {
     return $status === 'unknown' && $price === null ? null : result($status, $price, 'Seller product page', $qty);
 }
 
-function scan_item(array $item, string $dir): array {
+const BULK_MIN_PAGES = 3;   // a store with fewer product pages than this in one run is cheaper to read page by page
+const BULK_PAGE_SIZE = 100; // products per feed page (250 can pass the 4 MB read limit)
+const BULK_MAX_PAGES = 8;
+const BULK_HOST_DAYS = 14;  // how long the server trusts "this store's feed works" without the runner confirming it
+
+/** The product handle in a Shopify-style product link, or null. */
+function shopify_handle(string $url): ?string {
+    try {
+        $path = product_url($url)['path'];
+    } catch (InvalidArgumentException) {
+        return null;
+    }
+    return preg_match('~/products/([a-z0-9][a-z0-9._-]*)/?$~iD', $path, $m) ? strtolower($m[1]) : null;
+}
+
+/** Converts a product from /products.json into the shape of /products/<handle>.js, so shopify_result() reads both. */
+function shopify_feed_to_product(array $p): ?array {
+    if (!is_string($p['title'] ?? null) || !is_array($p['variants'] ?? null)) {
+        return null;
+    }
+    $variants = [];
+    foreach ($p['variants'] as $v) {
+        if (!is_array($v) || !is_int($v['id'] ?? null) || !is_bool($v['available'] ?? null) || !is_numeric($v['price'] ?? null)) {
+            continue;
+        }
+        $options = array_values(array_filter([$v['option1'] ?? null, $v['option2'] ?? null, $v['option3'] ?? null], 'is_string'));
+        $title = (string)($v['title'] ?? '');
+        $variants[] = ['id'=>$v['id'], 'title'=>$title, 'public_title'=>strcasecmp($title, 'Default Title') === 0 ? null : $title,
+            'options'=>$options, 'price'=>(int)round((float)$v['price'] * 100), 'available'=>$v['available']];
+    }
+    return $variants ? ['title'=>$p['title'], 'variants'=>$variants] : null;
+}
+
+/**
+ * Reads a store's /products.json, page by page, until every wanted handle is found. $fetch takes a URL and returns [status, body].
+ * Returns [handle => product in .js shape]. An empty list means the store has no readable feed, so the caller reads page by page.
+ */
+function shopify_bulk_lookup(string $host, array $handles, callable $fetch): array {
+    $want = array_fill_keys($handles, true);
+    $found = [];
+    for ($page = 1; $page <= BULK_MAX_PAGES && count($found) < count($want); $page++) {
+        try {
+            [$status, $body] = $fetch('https://' . $host . '/products.json?limit=' . BULK_PAGE_SIZE . '&page=' . $page);
+        } catch (ScanFailure) {
+            break;
+        }
+        $data = $status === 200 ? json_decode($body, true) : null;
+        if (!is_array($data) || !is_array($data['products'] ?? null)) {
+            break;
+        }
+        foreach ($data['products'] as $product) {
+            $handle = is_array($product) && is_string($product['handle'] ?? null) ? strtolower($product['handle']) : '';
+            if (isset($want[$handle]) && !isset($found[$handle]) && ($converted = shopify_feed_to_product($product))) {
+                $found[$handle] = $converted;
+            }
+        }
+        if (count($data['products']) < BULK_PAGE_SIZE) {
+            break;
+        }
+    }
+    return $found;
+}
+
+/** True when the runner has recently shown that this store's feed can be read in bulk. */
+function bulk_host_fresh(array $state, string $host, int $now): bool {
+    return ($state['bulk_hosts'][$host] ?? 0) > $now - BULK_HOST_DAYS * 86400;
+}
+
+/** $bulk is [handle => product] from shopify_bulk_lookup(), or null to read each page. */
+function scan_item(array $item, string $dir, ?array $bulk = null): array {
     $url = $item['url'];
     $parsed = product_url($url);
+    if ($bulk !== null && $item['mode'] === 'auto' && ($handle = shopify_handle($url)) !== null && isset($bulk[$handle])) {
+        if ($found = shopify_result(json_encode($bulk[$handle], JSON_THROW_ON_ERROR), $item)) {
+            return $found;
+        }
+    }
     if ($item['mode'] === 'auto' && preg_match('~^(.*?/products/[a-z0-9][a-z0-9._-]*)/?$~iD', $parsed['path'], $path)) {
         [$status, $body] = guarded_fetch('https://' . strtolower($parsed['host']) . $path[1] . '.js', $dir);
         if ($status === 200 && ($found = shopify_result($body, $item))) {
@@ -609,7 +683,9 @@ function claim_jobs(string $dir, int $limit): array {
             // The cap counts distinct pages, not listings: listings that share a page (one per warehouse, for
             // example) are fetched once by the runner, so they all go out together.
             $pages = $perHost[$host] ?? [];
-            if (!isset($pages[$item['url']]) && count($pages) >= REMOTE_PER_SELLER) {
+            // A store whose product feed the runner can read in bulk is claimed whole: one feed read covers every page.
+            $cap = bulk_host_fresh($state, $host, $now) ? 60 : REMOTE_PER_SELLER;
+            if (!isset($pages[$item['url']]) && count($pages) >= $cap) {
                 continue;
             }
             $perHost[$host][$item['url']] = true;
@@ -631,14 +707,14 @@ function clean_text(mixed $value, int $limit): string {
 }
 
 /** Validates and stores results posted by the U.S. runner. Returns counts for the runner's log. */
-function accept_results(string $dir, array $results): array {
+function accept_results(string $dir, array $results, array $bulkHosts = [], array $bulkFailed = []): array {
     $summary = ['stored'=>0,'ignored'=>0];
     $state = load_state($dir);
     $byId = [];
     foreach ($state['items'] as $item) {
         $byId[$item['id']] = $item;
     }
-    foreach (array_slice($results, 0, 20) as $r) {
+    foreach (array_slice($results, 0, 60) as $r) {
         $item = is_array($r) ? ($byId[$r['id'] ?? ''] ?? null) : null;
         if (!$item || !is_remote($item) || $item['paused'] || $item['mode'] === 'manual'
             || !is_string($r['fingerprint'] ?? null) || !hash_equals(scan_fingerprint($item), $r['fingerprint'])) {
@@ -666,6 +742,26 @@ function accept_results(string $dir, array $results): array {
         }
         store_scan($dir, $item['id'], $r['fingerprint'], $host, $new, $message, $cooldownUntil);
         $summary['stored']++;
+    }
+    $known = [];
+    foreach ($state['items'] as $item) {
+        try {
+            $known[seller_bucket(product_url($item['url'])['host'])] = true;
+        } catch (InvalidArgumentException) {
+            continue;
+        }
+    }
+    $up = array_values(array_filter(array_slice($bulkHosts, 0, 20), static fn($h) => is_string($h) && isset($known[$h])));
+    $down = array_values(array_filter(array_slice($bulkFailed, 0, 20), static fn($h) => is_string($h) && isset($known[$h])));
+    if ($up || $down) {
+        change_state($dir, static function (&$fresh) use ($up, $down) {
+            foreach ($up as $host) {
+                $fresh['bulk_hosts'][$host] = time();
+            }
+            foreach ($down as $host) {
+                unset($fresh['bulk_hosts'][$host]);
+            }
+        });
     }
     return $summary;
 }

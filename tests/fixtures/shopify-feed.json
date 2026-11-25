@@ -1,0 +1,243 @@
+{
+ "products": [
+  {
+   "id": 15430367477843,
+   "title": "ALFA Network AOA-915-10ACM 10 dBi N-Male Omni Outdoor LoRa Meshtastic Antenna",
+   "handle": "alfa-network-aoa-915-10acm-10-dbi-n-male-omni-outdoor-lora-meshtastic-antenna",
+   "published_at": "2026-10-23T14:50:03-04:00",
+   "created_at": "2026-10-23T14:45:46-04:00",
+   "updated_at": "2026-11-25T10:19:02-05:00",
+   "vendor": "Rokland",
+   "product_type": "Electronics > Electronics Accessories > Antennas > Communication Antennas",
+   "tags": [
+    "N Male Antenna",
+    "N Male Helium Antenna",
+    "Outdoor Helium Antennas",
+    "RAK Nebra Indoor Bobcat Syncrobit"
+   ],
+   "variants": [
+    {
+     "id": 67892762771539,
+     "title": "Default Title",
+     "option1": "Default Title",
+     "option2": null,
+     "option3": null,
+     "sku": "AOA-915-10ACM",
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": null,
+     "available": true,
+     "price": "129.97",
+     "grams": 3674,
+     "compare_at_price": null,
+     "position": 1,
+     "product_id": 15430367477843,
+     "created_at": "2026-10-23T14:45:46-04:00",
+     "updated_at": "2026-11-25T10:19:02-05:00"
+    }
+   ],
+   "options": [
+    {
+     "name": "Title",
+     "position": 1,
+     "values": [
+      "Default Title"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 8051958251603,
+   "title": "Color MESHTAC\u2122 2.5 dBi SMA Male 915 MHz soft flexible whip antenna for Meshtastic and LoRa",
+   "handle": "color-meshtac-2-5-dbi-sma-male-915-mhz-soft-flexible-whip-antenna-for-meshtastic-and-lora",
+   "published_at": "2026-08-14T10:08:18-04:00",
+   "created_at": "2026-08-14T09:26:46-04:00",
+   "updated_at": "2026-11-25T10:19:02-05:00",
+   "vendor": "Rokland",
+   "product_type": "LoRa Antennas",
+   "tags": [
+    "915MHz",
+    "915MHz-antenna",
+    "antennas",
+    "LilyGo",
+    "Meshtastic",
+    "SMA"
+   ],
+   "variants": [
+    {
+     "id": 45963864342611,
+     "title": "Red",
+     "option1": "Red",
+     "option2": null,
+     "option3": null,
+     "sku": null,
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": {
+      "id": 42065629741139,
+      "product_id": 8051958251603,
+      "position": 6,
+      "created_at": "2026-08-14T10:04:52-04:00",
+      "updated_at": "2026-08-14T10:04:54-04:00",
+      "alt": null,
+      "width": 700,
+      "height": 700,
+      "src": "https://cdn.shopify.com/s/files/1/0071/3772/files/5_69900527-591d-4996-916f-77166c9f559c.png?v=1786716294",
+      "variant_ids": [
+       45963864342611
+      ]
+     },
+     "available": true,
+     "price": "12.97",
+     "grams": 57,
+     "compare_at_price": null,
+     "position": 1,
+     "product_id": 8051958251603,
+     "created_at": "2026-08-14T10:05:54-04:00",
+     "updated_at": "2026-11-25T10:19:02-05:00"
+    },
+    {
+     "id": 45963864375379,
+     "title": "White",
+     "option1": "White",
+     "option2": null,
+     "option3": null,
+     "sku": null,
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": {
+      "id": 42065629675603,
+      "product_id": 8051958251603,
+      "position": 4,
+      "created_at": "2026-08-14T10:04:52-04:00",
+      "updated_at": "2026-08-14T10:04:54-04:00",
+      "alt": null,
+      "width": 700,
+      "height": 700,
+      "src": "https://cdn.shopify.com/s/files/1/0071/3772/files/3_4f466081-d101-4f80-a633-f66ef081530c.png?v=1786716294",
+      "variant_ids": [
+       45963864375379
+      ]
+     },
+     "available": true,
+     "price": "12.97",
+     "grams": 57,
+     "compare_at_price": null,
+     "position": 2,
+     "product_id": 8051958251603,
+     "created_at": "2026-08-14T10:05:54-04:00",
+     "updated_at": "2026-11-25T10:19:02-05:00"
+    },
+    {
+     "id": 45963864408147,
+     "title": "Green",
+     "option1": "Green",
+     "option2": null,
+     "option3": null,
+     "sku": null,
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": {
+      "id": 42065634033747,
+      "product_id": 8051958251603,
+      "position": 8,
+      "created_at": "2026-08-14T10:06:45-04:00",
+      "updated_at": "2026-08-14T10:06:46-04:00",
+      "alt": null,
+      "width": 700,
+      "height": 700,
+      "src": "https://cdn.shopify.com/s/files/1/0071/3772/files/6_e34bf03f-0a8d-4533-acfb-21ca66ee5a98.png?v=1786716406",
+      "variant_ids": [
+       45963864408147
+      ]
+     },
+     "available": true,
+     "price": "12.97",
+     "grams": 57,
+     "compare_at_price": null,
+     "position": 3,
+     "product_id": 8051958251603,
+     "created_at": "2026-08-14T10:05:54-04:00",
+     "updated_at": "2026-11-25T10:19:02-05:00"
+    },
+    {
+     "id": 45963864440915,
+     "title": "Yellow",
+     "option1": "Yellow",
+     "option2": null,
+     "option3": null,
+     "sku": null,
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": {
+      "id": 42065629708371,
+      "product_id": 8051958251603,
+      "position": 5,
+      "created_at": "2026-08-14T10:04:52-04:00",
+      "updated_at": "2026-08-14T10:04:54-04:00",
+      "alt": null,
+      "width": 700,
+      "height": 700,
+      "src": "https://cdn.shopify.com/s/files/1/0071/3772/files/4_4ad3967f-3ba5-43a4-8d30-366236f6d6ed.png?v=1786716294",
+      "variant_ids": [
+       45963864440915
+      ]
+     },
+     "available": true,
+     "price": "12.97",
+     "grams": 57,
+     "compare_at_price": null,
+     "position": 4,
+     "product_id": 8051958251603,
+     "created_at": "2026-08-14T10:05:54-04:00",
+     "updated_at": "2026-11-25T10:19:02-05:00"
+    },
+    {
+     "id": 68141158727763,
+     "title": "Black",
+     "option1": "Black",
+     "option2": null,
+     "option3": null,
+     "sku": null,
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": {
+      "id": 43490202189907,
+      "product_id": 8051958251603,
+      "position": 9,
+      "created_at": "2026-11-12T13:48:23-05:00",
+      "updated_at": "2026-11-12T13:48:25-05:00",
+      "alt": null,
+      "width": 1254,
+      "height": 1254,
+      "src": "https://cdn.shopify.com/s/files/1/0071/3772/files/black-meshtac.png?v=1794509305",
+      "variant_ids": [
+       68141158727763
+      ]
+     },
+     "available": false,
+     "price": "12.97",
+     "grams": 57,
+     "compare_at_price": null,
+     "position": 5,
+     "product_id": 8051958251603,
+     "created_at": "2026-11-12T13:48:29-05:00",
+     "updated_at": "2026-11-25T10:19:02-05:00"
+    }
+   ],
+   "options": [
+    {
+     "name": "Style",
+     "position": 1,
+     "values": [
+      "Red",
+      "White",
+      "Green",
+      "Yellow",
+      "Black"
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -52,20 +52,63 @@ try {
     if (!extension_loaded('curl') || !extension_loaded('dom')) {
         throw new RuntimeException('Enable the PHP cURL and DOM extensions.');
     }
-    $jobs = api($base, $token, 'jobs', ['limit'=>24])['jobs'] ?? [];
+    $jobs = api($base, $token, 'jobs', ['limit'=>60])['jobs'] ?? [];
     echo 'Claimed ' . count($jobs) . " listing(s).\n";
     $cache = sys_get_temp_dir() . '/offgrid-runner-' . bin2hex(random_bytes(4));
     mkdir($cache, 0700);
     $deadline = time() + 240;
-    $results = [];
+    // Stores with several listings in this run: read the whole product feed once instead of one page per listing.
+    $wanted = [];
     foreach ($jobs as $job) {
+        $handle = ($job['mode'] ?? '') === 'auto' ? shopify_handle((string)($job['url'] ?? '')) : null;
+        if ($handle !== null) {
+            $wanted[seller_bucket(product_url($job['url'])['host'])][$handle] = true;
+        }
+    }
+    $feeds = [];
+    $bulkHosts = [];
+    $bulkFailed = [];
+    $kept = [];
+    foreach ($wanted as $host => $handles) {
+        if (count($handles) < BULK_MIN_PAGES) {
+            continue;
+        }
+        $feeds[$host] = shopify_bulk_lookup($host, array_keys($handles), static fn($url) => guarded_fetch_live($url, $cache));
+        if ($feeds[$host]) {
+            $bulkHosts[] = $host;
+            echo 'Read ' . $host . ' in bulk: ' . count($feeds[$host]) . ' of ' . count($handles) . " listing(s) from its product feed.\n";
+        } else {
+            $bulkFailed[] = $host;
+            echo $host . " has no readable product feed. Reading its pages one by one.\n";
+        }
+    }
+    // Without a feed, a store keeps the old limit of a few pages a run. The rest wait for the next run.
+    $perHost = [];
+    $jobs = array_values(array_filter($jobs, static function ($job) use ($bulkFailed, &$perHost) {
+        $host = seller_bucket(product_url((string)$job['url'])['host']);
+        if (!in_array($host, $bulkFailed, true)) {
+            return true;
+        }
+        $perHost[$host][$job['url']] = true;
+        return count($perHost[$host]) <= REMOTE_PER_SELLER;
+    }));
+    $results = [];
+    $fallbacks = [];
+    foreach ($jobs as $job) {
+        // A listing the feed did not contain is read page by page, but only a few per store per run.
+        $feedHost = seller_bucket(product_url((string)$job['url'])['host']);
+        $feedHandle = shopify_handle((string)$job['url']);
+        if (!empty($feeds[$feedHost]) && ($feedHandle === null || !isset($feeds[$feedHost][$feedHandle]))
+            && ++$fallbacks[$feedHost] > REMOTE_PER_SELLER) {
+            continue;
+        }
         $line = ($job['name'] ?? '?') . ' <' . ($job['url'] ?? '') . '> ';
         $out = ['id'=>$job['id'],'fingerprint'=>$job['fingerprint'],'ok'=>false,'error'=>'','cooldown'=>0];
         try {
             if (time() >= $deadline) {
                 throw new ScanFailure('The runner ran out of time before this check.');
             }
-            $found = scan_item($job, $cache);
+            $found = scan_item($job, $cache, $feeds[seller_bucket(product_url((string)$job['url'])['host'])] ?? null);
             $out = ['id'=>$job['id'],'fingerprint'=>$job['fingerprint'],'ok'=>true,
                 'result'=>array_intersect_key($found, array_flip(['status','price','qty','from_price','detail']))];
             echo $line . '-> ' . $found['status'] . ' ' . ($found['price'] === null ? '' : '$' . number_format($found['price'] / 100, 2)) . "\n";
@@ -83,7 +126,7 @@ try {
         $results[] = $out;
     }
     if ($results) {
-        $summary = api($base, $token, 'results', ['results'=>$results]);
+        $summary = api($base, $token, 'results', ['results'=>$results, 'bulk_hosts'=>$bulkHosts, 'bulk_failed'=>$bulkFailed]);
         echo 'Posted results: ' . ($summary['stored'] ?? 0) . ' stored, ' . ($summary['ignored'] ?? 0) . " ignored.\n";
     }
 } catch (Throwable $failure) {

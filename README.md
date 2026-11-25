@@ -298,3 +298,11 @@ The catalog has two categories, Radios and Antennas, told apart by the listing's
 - **Pages:** each antenna has a page like a radio's, with an "About this antenna" list. `radios.php` lists antennas in their own section (`#antennas`).
 - **Starter list:** 22 Rokland antennas, all read automatically from the store's product feed. They are `late` listings, so an existing install gets each one once. Sellers that block automated checks are not used.
 - **Manual-entry listings:** the starter list has none, and the admin has a "Remove N manual-entry" button that deletes the ones an install already has.
+
+### Reading a whole store at once
+
+A Shopify store publishes all its products at `/products.json`. When the U.S. runner is handed three or more listings from one store, it reads that feed (100 products a page, up to 8 pages, stopping as soon as every wanted listing is found) instead of one request per listing. `shopify_bulk_lookup()` in `includes/scanner.php` does the reading, and `shopify_feed_to_product()` converts a feed product into the shape of the per-page `.js` feed, so both go through `shopify_result()` and give the same answer (`tests/php/bulk.test.php` checks this against real Rokland data in `tests/fixtures`).
+
+- **The server learns which stores work.** The runner reports the stores it read in bulk (`bulk_hosts`) and the ones whose feed failed (`bulk_failed`). A store flagged as readable is claimed whole (up to 60 pages) on the next claim, other stores keep the limit of three pages a run. A flag the runner has not confirmed for 14 days expires.
+- **If a feed stops working,** the runner falls back to one page per listing for that store, for at most three pages a run, and reports the failure so the flag is dropped.
+- **Limits:** the runner claims up to 60 listings a run (it was 24), and the server accepts up to 60 results at a time.
