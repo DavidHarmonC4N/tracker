@@ -16,6 +16,12 @@ run(async (t) => {
   await page.goto(ALERTS + ref);
   const name = [...topics][0].split('/').pop();
   t.ok('the block is there with its heading and the radio\'s topic, with JavaScript off', /Get notified about this radio/.test(await page.textContent('#notify')) && (await page.textContent('#notify-topic')) === name);
+  const contrast = await page.$eval('.notify-actions a.primary', (a) => {
+    const lum = (c) => { const m = c.match(/\d+/g).map(Number).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; };
+    const s = getComputedStyle(a); const [x, y] = [lum(s.color), lum(s.backgroundColor)];
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  });
+  t.ok('the main button label is readable against its background', contrast > 7, contrast.toFixed(1) + ':1');
   const links = await page.$$eval('.notify-actions a', (a) => a.map((x) => x.getAttribute('href')));
   t.ok('the app link points at the topic', links[0] === 'ntfy://ntfy.sh/' + name, links[0]);
   t.ok('the RSS link is limited to this radio\'s listings', /^feed\.php\?ids=/.test(links[1]) && decodeURIComponent(links[1]).split('=')[1].split(',').length === seeed.length, links[1]);

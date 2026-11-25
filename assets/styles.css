@@ -505,3 +505,5 @@ p.footer-head { display: block; }
 .ant-warn { margin: 0 0 .9rem; padding: .7rem .9rem; background: var(--panel-deep); border: 1px dashed var(--amber); font-size: .92rem; }
 .ant-warn b { color: var(--amber); }
 .specs { display: flex; flex-wrap: wrap; gap: .35rem .5rem; margin: 0; }
+/* A primary button inside a panel keeps its dark label (".guide-step a" would turn it green on green) */
+.guide-step a.primary { color: #192111; text-decoration: none; }
