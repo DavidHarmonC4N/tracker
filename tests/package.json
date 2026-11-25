@@ -1,0 +1,13 @@
+{
+  "name": "offgrid-tests",
+  "private": true,
+  "description": "Browser tests for the Offgrid Comms Tracker. Run everything with: bash tests/run.sh",
+  "scripts": {
+    "test": "bash run.sh",
+    "test:php": "bash run.sh php",
+    "test:browser": "bash run.sh browser"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

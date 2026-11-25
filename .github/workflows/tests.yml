@@ -1,0 +1,51 @@
+name: Tests
+
+# Runs the PHP and browser tests on every push and pull request. Nothing here touches the host or its secrets:
+# tests/run.sh serves throwaway copies of the site from a temporary folder.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - 'runner/**'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, dom, mbstring
+          tools: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - name: Install the browser test tools
+        working-directory: tests
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run the tests
+        run: bash tests/run.sh
+
+      - name: Keep the server logs when a test fails
+        if: failure()
+        run: ls -la "${TMPDIR:-/tmp}" | grep offgrid-tests || true

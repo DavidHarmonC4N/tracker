@@ -250,10 +250,11 @@ function listing_url_key(string $url): string {
     return $host . rtrim($parts['path'], '/') . ($query ? '?' . implode('&',$query) : '');
 }
 
-function has_listing_url(array $rows, string $url): bool {
+/** True when a listing with the same link exists. With $warehouse, only a listing for that warehouse counts (Seeed lists one page per warehouse). */
+function has_listing_url(array $rows, string $url, ?string $warehouse = null): bool {
     $key = listing_url_key($url);
     foreach ($rows as $row) {
-        if (listing_url_key($row['url']) === $key) {
+        if (listing_url_key($row['url']) === $key && ($warehouse === null || ($row['warehouse'] ?? '') === $warehouse)) {
             return true;
         }
     }

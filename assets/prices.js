@@ -228,6 +228,7 @@ function drawTable() {
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.title = 'View listing at ' + item.seller + ' (opens in a new tab)';
+        link.setAttribute('aria-label', 'View listing at ' + item.seller + ' (opens in a new tab)');
       }
     } catch (error) { /* seller name only */ }
     first.append(toggle, link);

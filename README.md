@@ -199,3 +199,20 @@ In the admin, the "Add a listing by link" panel reads a store's product feed fro
 ## Price history
 
 Each time a check finds a new price or stock status, the tracker adds a point to that listing's history (kept in `tracker.json`, up to 120 points per listing, only on change). `history.php` serves it to the Price history page, and `catalog.php` adds the lowest and highest recorded price to each listing for the "Lowest seen" badge and filter. History starts the day this ships, so older price moves are not available.
+
+## Tests
+
+The tests live in `tests/` and never touch your real `config.php`, data folder or host: `tests/run.sh` copies the site to a temporary folder, starts PHP's built-in server on two local ports, runs everything, and stops the servers.
+
+```bash
+cd tests && npm ci && npx playwright install chromium   # once, for the browser tests
+bash tests/run.sh                  # everything
+bash tests/run.sh php              # only the PHP tests (needs PHP 8.3, no Node)
+bash tests/run.sh browser prices   # only browser tests whose file name contains "prices"
+```
+
+- `tests/php/*.test.php` check the rules directly: link validation, matching a store variant, change events, price history, the Add by link guessing, the starter listings, and that the public catalog exposes no private fields.
+- `tests/browser/*.test.js` drive a real Chromium: filters and badges, My picks, roll-up sections, the Price history page, the What's new stamp, layout checks (title wrapping, phone widths, links that open in a new tab), and the admin Add by link flow. The admin test replaces the store fetch with `tests/fixtures/rokland-wismesh.json`, so no test contacts a real shop.
+- Each file prints `PASS` or `FAIL` lines and ends with `ALL PASSED` or a failure count; `run.sh` exits non-zero if any file fails.
+- GitHub runs the same command on every push and pull request (`.github/workflows/tests.yml`). The deploy workflow does not wait for it, and `tests/` is never uploaded to the host.
+- To add a test, copy a file in `tests/php/` or `tests/browser/`; the browser helper in `tests/browser/lib.js` sets up the page, the checks and the JavaScript-error watch.

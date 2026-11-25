@@ -11,6 +11,8 @@ on:
       - '.github/workflows/check.yml'
       - 'runner/**'
       - '.claude/**'
+      - 'tests/**'
+      - '.github/workflows/tests.yml'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -95,6 +97,7 @@ jobs:
             .taste-skill/**
             .githooks/**
             runner/**
+            tests/**
             README.md
             config.php
             .htaccess

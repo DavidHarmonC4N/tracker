@@ -9,3 +9,5 @@ ratelimit.json
 # Local state and settings for Claude Code skills.
 .taste-skill/
 .claude/settings.local.json
+# Test tooling (never uploaded to the host)
+tests/node_modules/

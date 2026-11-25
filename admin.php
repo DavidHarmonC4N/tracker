@@ -148,7 +148,11 @@ try {
         }
         if ($action === 'addurl_read') {
             $found = addurl_read(field($_POST,'link'), static fn($u) => guarded_fetch($u, $dir), $state['items']);
-            if (has_listing_url($state['items'], $found['url'])) {
+            // Seeed lists one page per warehouse, so a link that exists only as warehouse listings is not blocked here;
+            // the save step checks the warehouse too.
+            $existing = array_filter($state['items'], static fn($row) => listing_url_key($row['url']) === listing_url_key($found['url']));
+            if ($existing && !array_filter($existing, static fn($row) => ($row['warehouse'] ?? '') !== '')
+                && has_listing_url($state['items'], $found['url'])) {
                 throw new InvalidArgumentException('This product link is already in the catalog.');
             }
             $readings = [];
@@ -333,8 +337,8 @@ try {
                 throw new InvalidArgumentException('This installation supports up to 250 listings.');
             }
             $new = save_item($_POST,null);
-            if (has_listing_url($fresh['items'],$new['url'])) {
-                throw new InvalidArgumentException('This product link is already in the catalog.');
+            if (has_listing_url($fresh['items'],$new['url'],$new['warehouse'])) {
+                throw new InvalidArgumentException('This product link is already in the catalog' . ($new['warehouse'] !== '' ? ' for that warehouse' : '') . '.');
             }
             if ($fromReading && $fromReading['listing_url'] === $new['url'] && $new['mode'] === 'auto') {
                 // The administrator saw this reading a moment ago, so the card is right from the start.
