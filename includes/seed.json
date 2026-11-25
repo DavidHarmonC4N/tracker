@@ -1939,10 +1939,10 @@
     "setup": "flash",
     "kind": "keyboard",
     "role": "companion",
-    "note": "Keyboard and touchscreen. Ships without firmware, so flash Meshtastic or MeshCore yourself. Rokland sells several versions at different prices; the price shown is the cheapest one in stock.",
+    "note": "Keyboard and touchscreen. Base version: no case, no GPS, no battery. Ships without firmware, so flash Meshtastic or MeshCore yourself. Rokland also sells assembled versions at higher prices.",
     "mode": "auto",
     "checker": "remote",
-    "variant": "",
+    "variant": "BASE (No case,No gps, no battery)",
     "scope": "",
     "ready": "",
     "sold": "",
@@ -1950,13 +1950,13 @@
     "paused": false,
     "late": true,
     "result": {
-      "status": "orderable",
-      "price": 9497,
+      "status": "out_of_stock",
+      "price": 6797,
       "qty": null,
       "from_price": false,
       "observed_at": null,
       "source": "research",
-      "detail": "Research snapshot · updated from the first live check, Nov 25, 2026"
+      "detail": "Research snapshot · Base version out of stock, Nov 25, 2026"
     },
     "attempted_at": null,
     "error": null
