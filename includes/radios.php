@@ -69,7 +69,7 @@ function radios_row(array $item, string $status): string {
     $stock = h(RADIO_STATUS_LABEL[$status]) . (is_int($reading['qty'] ?? null) && $status === 'in_stock' ? ' · ' . (int)$reading['qty'] . ' shown' : '');
     $facts = [FIRMWARE[$item['firmware']] ?? '', SETUP[$item['setup']] ?? ''];
     return '<tr id="r-' . h($item['id']) . '"><th scope="row">' . radios_name($item) . '<small>' . h(implode(' · ', array_filter($facts))) . '</small></th>'
-        . '<td>' . h($item['seller']) . (($item['location'] ?? '') !== '' ? '<small>' . h($item['location']) . '</small>' : '') . (!empty($item['manual']) ? '<small>Checked by hand</small>' : '') . '</td>'
+        . '<td>' . (mb_strlen((string)$item['seller']) <= 24 ? '<span class="nb">' . h($item['seller']) . '</span>' : h($item['seller'])) . (($item['location'] ?? '') !== '' ? '<small>' . h($item['location']) . '</small>' : '') . (!empty($item['manual']) ? '<small>Checked by hand</small>' : '') . '</td>'
         . '<td class="num">' . h($price) . '</td><td class="nw">' . $stock . '</td>'
         . '<td class="nw">' . h(WAREHOUSES[$item['warehouse'] ?? ''] ?? '') . '</td><td class="nw">' . $checked . '</td><td class="nw">' . $link . '</td></tr>';
 }
