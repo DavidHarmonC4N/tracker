@@ -10,6 +10,7 @@ on:
       - 'README.md'
       - '.github/workflows/check.yml'
       - 'runner/**'
+      - '.claude/**'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -90,6 +91,9 @@ jobs:
             **/.git*
             **/.git*/**
             .github/**
+            .claude/**
+            .taste-skill/**
+            .githooks/**
             runner/**
             README.md
             config.php
