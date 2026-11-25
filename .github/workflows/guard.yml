@@ -1,0 +1,22 @@
+name: Repository safety check
+
+# Fails when config.php contains real values or a tracked file looks like it holds a password, token or key.
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+      - run: php .github/scripts/check-config.php

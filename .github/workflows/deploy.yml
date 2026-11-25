@@ -62,6 +62,10 @@ jobs:
           php-version: '8.3'
           tools: none
 
+      - name: Stop if config.php or any file holds a secret
+        if: steps.cfg.outputs.ok == 'true'
+        run: php .github/scripts/check-config.php
+
       - name: Stop on broken PHP or JavaScript
         if: steps.cfg.outputs.ok == 'true'
         run: |

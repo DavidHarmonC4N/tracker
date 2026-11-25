@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Optional local safety net. Turn it on once per clone with:  git config core.hooksPath .githooks
+if ! command -v php > /dev/null 2>&1; then
+  echo "pre-commit: PHP not found, skipping the repository safety check." >&2
+  exit 0
+fi
+php "$(git rev-parse --show-toplevel)/.github/scripts/check-config.php"

@@ -1,4 +1,8 @@
 # Never commit your live settings or data.
 offgrid-private/
 *.local
+*.bak
+.env
 tracker.json
+visits.json
+ratelimit.json
