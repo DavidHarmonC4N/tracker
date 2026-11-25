@@ -65,6 +65,17 @@ run(async (t) => {
   const radioRows = (list.split('id="antennas"')[0].match(/<th scope="row">/g) || []).length;
   t.ok('antennas are not counted as radios in the list lead', new RegExp('<p class="lead">' + radioRows + ' radios').test(list), String(radioRows));
 
+  // the hero has a Browse antennas button that opens the Antennas category
+  await p.goto(t.SITE + 'index.html'); await p.waitForSelector('.card');
+  const hero = await p.$$eval('.hero-actions a', (a) => a.map((x) => ({ text: x.textContent.trim(), href: x.getAttribute('href'), cls: x.className })));
+  t.ok('the hero has Browse radios, Browse antennas and MESH tools buttons', hero.map((h) => h.text).join('|') === 'Browse radios|Browse antennas|MESH tools' && hero[0].cls === 'primary' && hero[1].cls === 'quiet', JSON.stringify(hero.map((h) => h.text)));
+  await p.click('.hero-actions a:has-text("Browse antennas")');
+  await p.waitForSelector('.card');
+  t.ok('Browse antennas opens the antenna catalog', /Antenna catalog/.test(await p.textContent('#inventory-title')) && /cat=antennas/.test(await p.evaluate(() => location.href)) && (await p.$$eval('.card h3', (h) => h.length)) >= 20);
+  await p.click('.hero-actions a:has-text("Browse radios")');
+  await p.waitForSelector('.card');
+  t.ok('Browse radios from there goes back to radios', /Radio catalog/.test(await p.textContent('#inventory-title')) && !/cat=antennas/.test(await p.evaluate(() => location.href)));
+
   // phone
   const phone = await t.openContext({ viewport: { width: 390, height: 844 } });
   await t.mockCatalog(phone, (data) => { const now = new Date().toISOString(); data.items.forEach((i) => { i.result = { ...i.result, status: 'in_stock', observed_at: now }; }); });

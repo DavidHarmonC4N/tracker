@@ -29,6 +29,29 @@ run(async (t) => {
   t.ok('signed in: the Add by link panel is there', (await p.$('#addurl-heading')) !== null);
   t.ok('the old cron warning banner is gone', !/scheduled checker/i.test(await p.textContent('body')));
 
+  // listing filters: radios or antennas, and the three stock statuses (plus Needs review)
+  const shownRows = () => p.$$eval('#admin-list .admin-row:not([hidden])', (r) => r.length);
+  const allRows = await shownRows();
+  const chipCount = async (filter, value) => Number((await p.textContent(`[data-filter="${filter}"][data-value="${value}"] .n`)).trim());
+  t.ok('the list has radios and antennas, and each filter button shows its count', allRows > 80 && (await chipCount('category', 'radio')) + (await chipCount('category', 'antenna')) === allRows && (await chipCount('category', 'antenna')) >= 30, allRows + ' listings');
+  t.ok('the filters offer All, Radios, Antennas and Any, In stock, Orderable, Out of stock, Needs review', JSON.stringify(await p.$$eval('[data-filter]', (b) => b.map((x) => x.textContent.replace(/\s+\d*$/, '').trim()))) === JSON.stringify(['All', 'Radios', 'Antennas', 'Any', 'In stock', 'Orderable', 'Out of stock', 'Needs review']));
+  await p.click('[data-filter="category"][data-value="antenna"]');
+  const antennaRows = await shownRows();
+  t.ok('Antennas shows only antennas', antennaRows === (await chipCount('category', 'antenna')) && antennaRows >= 30 && (await p.$$eval('#admin-list .admin-row:not([hidden])', (r) => r.every((x) => x.dataset.category === 'antenna'))));
+  t.ok('the button pressed is marked and the count line says how many are shown', (await p.getAttribute('[data-filter="category"][data-value="antenna"]', 'aria-pressed')) === 'true' && new RegExp(antennaRows + ' of ' + allRows + ' listings shown').test(await p.textContent('#admin-count')));
+  t.ok('an antenna row shows its type and facts, not firmware', /Omni antenna|Whip or flexible antenna/.test(await p.textContent('#admin-list .admin-row:not([hidden])')) && !/firmware/i.test(await p.textContent('#admin-list .admin-row:not([hidden]) .dim')));
+  await p.click('[data-filter="group"][data-value="out_of_stock"]');
+  const both = await shownRows();
+  t.ok('a status narrows the antennas further, and the other buttons show counts for that choice', (await p.$$eval('#admin-list .admin-row:not([hidden])', (r) => r.every((x) => x.dataset.category === 'antenna' && x.dataset.group === 'out_of_stock'))) && both <= antennaRows && (await chipCount('group', '')) === antennaRows);
+  await p.fill('#admin-search', 'zzzz-no-such-listing');
+  t.ok('search, category and status all have to match', (await shownRows()) === 0);
+  await p.fill('#admin-search', '');
+  await p.click('[data-filter="category"][data-value=""]'); await p.click('[data-filter="group"][data-value=""]');
+  t.ok('All and Any bring everything back and clear the count line', (await shownRows()) === allRows && (await p.textContent('#admin-count')).trim() === '');
+  await p.click('[data-filter="category"][data-value="radio"]');
+  t.ok('Radios shows only radios', (await p.$$eval('#admin-list .admin-row:not([hidden])', (r) => r.length > 50 && r.every((x) => x.dataset.category === 'radio'))));
+  await p.click('[data-filter="category"][data-value=""]');
+
   // alerts: the panel, the test button, and what actually went out (run.sh points sendmail at a file)
   t.ok('the Alerts panel shows the address masked and the sender', /o\*\*\*@example\.com/.test(await p.textContent('#alerts-heading + p, .panel[aria-labelledby="alerts-heading"]')) && /alerts@example\.org/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));
   t.ok('the panel says the public topic is off and shows the buttons setting', /Public topic\s*·\s*off/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));

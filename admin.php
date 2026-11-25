@@ -482,8 +482,8 @@ $reading = $editor['result'] ?? [];
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= is_staging() ? '[STAGING] ' : '' ?><?= $auth && !empty($state['submissions']) ? '(' . h(count($state['submissions'])) . ') ' : '' ?>Admin · Offgrid Comms Tracker</title>
-<link rel="stylesheet" href="assets/styles.css?v=20261126-addurl">
-<script src="assets/admin.js?v=2" defer></script>
+<link rel="stylesheet" href="assets/styles.css?v=20261130-adminfilters">
+<script src="assets/admin.js?v=3" defer></script>
 </head>
 <body>
 <?php if (is_staging()): ?><div class="staging-bar" role="note">STAGING · a private test copy, not the live site</div><?php endif; ?>
@@ -803,10 +803,20 @@ $reading = $editor['result'] ?? [];
       <?php if ($failing): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="queue_failing">Queue all failing</button></form><?php endif; ?>
       <a class="primary" href="?add=1">Add listing</a></div></div>
     <label class="admin-search">Search listings<input type="search" id="admin-search" placeholder="Name, seller, or status" autocomplete="off"></label>
+    <div class="admin-filters" role="group" aria-label="Filter listings">
+      <span class="qlabel" id="admin-kind-label">Show</span>
+      <?php foreach (['' => 'All', 'radio' => 'Radios', 'antenna' => 'Antennas'] as $key => $label): ?><button type="button" class="chip" data-filter="category" data-value="<?= h($key) ?>" aria-pressed="<?= $key === '' ? 'true' : 'false' ?>" aria-describedby="admin-kind-label"><?= h($label) ?> <b class="n"></b></button><?php endforeach; ?>
+      <span class="sep" aria-hidden="true"></span>
+      <span class="qlabel" id="admin-status-label">Status</span>
+      <?php foreach (['' => 'Any', 'in_stock' => 'In stock', 'orderable' => 'Orderable', 'out_of_stock' => 'Out of stock', 'review' => 'Needs review'] as $key => $label): ?><button type="button" class="chip" data-filter="group" data-value="<?= h($key) ?>" aria-pressed="<?= $key === '' ? 'true' : 'false' ?>" aria-describedby="admin-status-label"><?= h($label) ?> <b class="n"></b></button><?php endforeach; ?>
+    </div>
     <p class="dim" id="admin-count" role="status" aria-live="polite"></p>
     <div class="admin-list" id="admin-list">
       <?php foreach ($rows as $row): $item = $row['item']; ?>
-      <div class="admin-row" data-search="<?= h(strtolower($item['name'] . ' ' . $item['seller'] . ' ' . $row['tag'] . ' ' . $row['detail'])) ?>"><div><strong><?= h($item['name']) ?></strong><p class="dim"><?= h($item['seller']) ?> · <?= h(FIRMWARE[$item['firmware']]) ?> · <?= h(ROLES[$item['role']]) ?></p><p class="dim<?= $row['rank'] === 0 ? ' danger' : '' ?>"><?= h($row['detail']) ?></p></div>
+      <?php $isAnt = is_antenna_kind((string)$item['kind']);
+        $facts = $isAnt ? array_filter(array_values(clean_specs($item['specs'] ?? []))) : [];
+        $group = $row['rank'] === 0 ? 'review' : ($row['rank'] === 4 ? 'hidden' : (string)$item['result']['status']); ?>
+      <div class="admin-row" data-category="<?= $isAnt ? 'antenna' : 'radio' ?>" data-group="<?= h($group) ?>" data-search="<?= h(strtolower($item['name'] . ' ' . $item['seller'] . ' ' . $row['tag'] . ' ' . $row['detail'])) ?>"><div><strong><?= h($item['name']) ?></strong><p class="dim"><?= h($item['seller']) ?> · <?= $isAnt ? h(KINDS[$item['kind']] . ($facts ? ' · ' . implode(' · ', $facts) : '')) : h(FIRMWARE[$item['firmware']]) . ' · ' . h(ROLES[$item['role']]) ?></p><p class="dim<?= $row['rank'] === 0 ? ' danger' : '' ?>"><?= h($row['detail']) ?></p></div>
       <span class="tag <?= h($row['rank'] === 0 || $row['rank'] === 4 ? 'unknown' : $item['result']['status']) ?>"><?= h($row['tag']) ?></span>
       <a class="quiet" href="?edit=<?= h(rawurlencode($item['id'])) ?>">Edit</a></div>
       <?php endforeach; ?>
