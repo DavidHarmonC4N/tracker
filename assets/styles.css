@@ -317,3 +317,14 @@ nav.footer-col { display: block; font-size: .87rem; color: var(--dim); }
 .stamp { margin: 0; color: #8d987f; font: .72rem/1.5 var(--mono); letter-spacing: .03em; }
 .stamp .call { color: var(--dim); }
 @media (prefers-reduced-motion: reduce) { .wn .chev { transition: none; } }
+
+/* Roll-up groups */
+.count-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem 1rem; }
+.fold { display: inline-flex; align-items: center; gap: .55rem; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-transform: none; letter-spacing: 0; cursor: pointer; text-align: left; }
+.fold:hover { color: var(--green); }
+.fold .chev { display: grid; place-items: center; width: 22px; height: 22px; flex: none; }
+.fold .chev svg { width: 20px; height: 20px; fill: none; stroke: var(--green); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+.group.folded .fold .chev svg { transform: rotate(-90deg); }
+.group.folded { margin-bottom: 1rem; }
+.group.folded .group-head { margin-bottom: 0; border-bottom-color: transparent; }
+@media (prefers-reduced-motion: reduce) { .fold .chev svg { transition: none; } }

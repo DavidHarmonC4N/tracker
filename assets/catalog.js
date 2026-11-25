@@ -498,6 +498,78 @@ function buildTabs() {
   }));
 }
 
+// Roll-up sections. Which groups the visitor folded is remembered in this browser. Out of stock and Unverified start folded.
+const FOLD_KEY = 'offgrid.folds.v1';
+const foldDefaults = { out_of_stock: true, unknown: true };
+let folds = loadFolds();
+const CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>';
+
+function loadFolds() {
+  try {
+    const value = JSON.parse(localStorage.getItem(FOLD_KEY) || '{}');
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function isFolded(key) {
+  return key in folds ? Boolean(folds[key]) : Boolean(foldDefaults[key]);
+}
+
+function setFolded(key, value) {
+  folds[key] = value;
+  try { localStorage.setItem(FOLD_KEY, JSON.stringify(folds)); } catch (error) { /* folds then last for this visit only */ }
+}
+
+// One group of cards with a heading. With a single group on screen there is nothing to fold, so it stays a plain heading.
+function groupSection(key, titleNodes, note, cardsList, foldable) {
+  const section = el('section', 'group');
+  const head = el('div', 'group-head');
+  const heading = el('h3');
+  const grid = el('div', 'catalog');
+  grid.append(...cardsList);
+  if (foldable) {
+    const button = el('button', 'fold');
+    button.type = 'button';
+    button.dataset.fold = key;
+    button.id = 'fold-' + key.replace(/[^a-z0-9]/gi, '-');
+    grid.id = 'group-' + key.replace(/[^a-z0-9]/gi, '-');
+    button.setAttribute('aria-controls', grid.id);
+    const chevron = el('span', 'chev');
+    chevron.innerHTML = CHEVRON;
+    button.append(chevron, ...titleNodes);
+    const apply = (folded) => {
+      section.classList.toggle('folded', folded);
+      grid.hidden = folded;
+      button.setAttribute('aria-expanded', String(!folded));
+    };
+    apply(isFolded(key));
+    button.addEventListener('click', () => {
+      const folded = !section.classList.contains('folded');
+      setFolded(key, folded);
+      apply(folded);
+      syncFoldAll();
+    });
+    heading.append(button);
+  } else {
+    heading.append(...titleNodes);
+  }
+  head.append(heading);
+  if (note) head.append(el('p', 'dim', note));
+  section.append(head, grid);
+  return section;
+}
+
+function syncFoldAll() {
+  const button = byId('fold-all');
+  const groups = document.querySelectorAll('#list .fold');
+  button.hidden = groups.length < 2;
+  const anyOpen = [...groups].some((item) => item.getAttribute('aria-expanded') === 'true');
+  button.textContent = anyOpen ? 'Collapse all' : 'Expand all';
+  button.dataset.mode = anyOpen ? 'collapse' : 'expand';
+}
+
 function sortRows(list, sort) {
   list.sort((a, b) => {
     if (sort === 'price') return (a.result.price ?? Infinity) - (b.result.price ?? Infinity) || a.name.localeCompare(b.name);
@@ -568,34 +640,20 @@ function draw() {
     empty.append(document.createTextNode(hint), reset);
     parts.push(empty);
   } else if (!chips.seeed && sort === 'availability' && hideable) {
-    for (const status of priority) {
-      const group = shown.filter((row) => displayStatus(row) === status);
-      if (!group.length) continue;
-      const section = el('section', 'group');
-      const heading = el('div', 'group-head');
-      heading.append(el('h3', '', lookup.status[status] + ' · ' + group.length), el('p', 'dim', groupNotes[status]));
-      const grid = el('div', 'catalog');
-      grid.append(...group.map(card));
-      section.append(heading, grid);
-      parts.push(section);
+    const groups = priority.map((status) => [status, shown.filter((row) => displayStatus(row) === status)]).filter(([, list]) => list.length);
+    for (const [status, group] of groups) {
+      parts.push(groupSection(status, [document.createTextNode(lookup.status[status] + ' · ' + group.length)], groupNotes[status], group.map(card), groups.length > 1));
     }
   } else if (chips.seeed) {
     // One section per warehouse, each in the chosen sort order.
-    for (const key of ['us', 'eu', 'cn', '']) {
-      const group = shown.filter((row) => (row.warehouse || '') === key);
-      if (!group.length) continue;
+    const groups = ['us', 'eu', 'cn', ''].map((key) => [key, shown.filter((row) => (row.warehouse || '') === key)]).filter(([, list]) => list.length);
+    for (const [key, group] of groups) {
       const label = lookup.warehouse[key] || 'Warehouse not specified';
-      const section = el('section', 'group');
-      const heading = el('div', 'group-head');
-      const heading3 = el('h3');
       const flag = flagNode(key);
-      if (flag) heading3.append(flag);
-      heading3.append(document.createTextNode(label + ' · ' + group.length));
-      heading.append(heading3);
-      const grid = el('div', 'catalog');
-      grid.append(...group.map(card));
-      section.append(heading, grid);
-      parts.push(section);
+      const title = [];
+      if (flag) title.push(flag);
+      title.push(document.createTextNode(label + ' · ' + group.length));
+      parts.push(groupSection('wh:' + key, title, '', group.map(card), groups.length > 1));
     }
   } else {
     const grid = el('div', 'catalog');
@@ -618,6 +676,7 @@ function draw() {
     parts.push(toggle);
   }
   byId('list').replaceChildren(...parts);
+  syncFoldAll();
   syncPickButtons();
   byId('manual-note').hidden = !shown.some(isManual);
   if (restoreFocus) {
@@ -735,6 +794,13 @@ document.querySelectorAll('[data-chip]').forEach((button) => {
     showUnverified = false;
     draw();
   });
+});
+byId('fold-all').addEventListener('click', () => {
+  const collapse = byId('fold-all').dataset.mode === 'collapse';
+  document.querySelectorAll('#list .fold').forEach((item) => {
+    setFolded(item.dataset.fold, collapse);
+  });
+  draw();
 });
 byId('picks-btn').addEventListener('click', () => {
   picksView = !picksView;
