@@ -484,7 +484,8 @@ function record_events(array &$fresh, array $events): void {
 function announce_events(array $events, string $url): void {
     foreach ($events as $event) {
         if (in_array($event['type'], ['back_in_stock','price_drop'], true)) {
-            notify(ucfirst(event_text($event)), event_text($event) . "\n" . $url);
+            notify(ucfirst(event_text($event)), event_text($event) . "\n" . $url, ['url'=>$url, 'type'=>$event['type']]);
+            notify_public_event($event, $url);
         }
     }
 }

@@ -408,5 +408,7 @@ nav a[aria-current="page"] { color: var(--green); }
 @media (max-width: 620px) { .ptable th, .ptable td { padding: .5rem .35rem; } .ptable .num { font-size: .88rem; } }
 .cbox + .note2 { margin-top: 1rem; }
 
+/* ntfy phone alerts */
+.ntfy-radio { color: var(--green); font: .78rem var(--mono); text-decoration: underline; text-underline-offset: .18em; }
 /* Staging copy marker */
 .staging-bar { padding: .45rem 1rem; background: #6b3b1c; color: #ffe9d1; text-align: center; font: 800 .78rem var(--mono); letter-spacing: .08em; }

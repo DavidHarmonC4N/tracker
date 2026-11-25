@@ -25,6 +25,13 @@ return [
     // Optional. The address alert emails come from. Leave empty to use alerts@ your site's own domain. Use an address on a domain your
     // host sends mail for; mail that claims to come from somewhere else is often sent to spam.
     'notify_from' => '',
+    // Optional. A PUBLIC ntfy topic for anyone who wants phone alerts: https://ntfy.sh/your-long-topic-name (letters, digits, _ and -).
+    // It carries only back-in-stock and price-drop news. Each radio also gets its own topic (this name plus a short code).
+    // Anyone who knows a topic name can post to it, so a public topic can receive fake posts. Leave empty to keep it off.
+    'notify_public_topic' => '',
+    // Optional. A secret of 32 or more random characters. With it, your private alerts get tap buttons (Status, Mute 24h, and
+    // more on the reply) that call ntfy.php. Needs base_url, and notify_webhook set to your private ntfy topic.
+    'ntfy_token' => '',
     // Optional: lets the U.S. runner (see README) report checks to ingest.php. Use a unique random key of at
     // least 32 characters and put the same value in the OFFGRID_TOKEN secret on GitHub. Leave empty to turn off.
     'ingest_token' => '',

@@ -48,8 +48,9 @@ try {
                     return false;
                 });
                 if ($added) {
+                    $review = base_url() !== '' ? base_url() . 'admin.php#submissions' : 'admin.php';
                     notify('New listing submission', $row['name'] . ' (' . $row['seller'] . ")\n" . $row['url']
-                        . "\nReview it in Admin: " . (base_url() !== '' ? base_url() . 'admin.php#submissions' : 'admin.php'));
+                        . "\nReview it in Admin: " . $review, ['url'=>base_url() !== '' ? $review : '', 'type'=>'submission']);
                 }
             }
             $_SESSION['listing_received'] = true;

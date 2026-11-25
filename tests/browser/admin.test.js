@@ -31,6 +31,7 @@ run(async (t) => {
 
   // alerts: the panel, the test button, and what actually went out (run.sh points sendmail at a file)
   t.ok('the Alerts panel shows the address masked and the sender', /o\*\*\*@example\.com/.test(await p.textContent('#alerts-heading + p, .panel[aria-labelledby="alerts-heading"]')) && /alerts@example\.org/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));
+  t.ok('the panel says the public topic is off and shows the buttons setting', /Public topic\s*·\s*off/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));
   t.ok('the full address is never shown on the page', !/owner@example\.com/.test(await p.textContent('body')));
   await p.click('button[value="test_alert"]'); await p.waitForLoadState();
   t.ok('Send test alert reports what happened', /Test alert sent/.test(await p.textContent('.notice')) && /not proof of delivery/.test(await p.textContent('.notice')), (await p.textContent('.notice')).trim().slice(0, 120));

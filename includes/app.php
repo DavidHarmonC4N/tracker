@@ -273,6 +273,7 @@ function endpoint_result(): array {
     $state = $configured ? load_state(data_dir()) : ['items'=>seed(),'last_run'=>null];
     $items = [];
     $now = time();
+    $publicTopic = ntfy_public_base();
     $latest = [];
     foreach ($state['events'] ?? [] as $event) {
         $latest[$event['id']] = $event;
@@ -302,10 +303,11 @@ function endpoint_result(): array {
         $public['low'] = $summary['low'];
         $public['high'] = $summary['high'];
         $public['was'] = $summary['was'];
+        $public['topic'] = ntfy_radio_topic($publicTopic, (string)$item['id']);
         $public['seller_paused'] = !$public['manual'] && ($state['cooldowns'][$host] ?? 0) > $now;
         $items[] = $public;
     }
-    return ['items'=>$items,'configured'=>$configured,'staging'=>is_staging(),'last_run'=>$state['last_run'],
+    return ['items'=>$items,'configured'=>$configured,'staging'=>is_staging(),'public_topic'=>$publicTopic,'last_run'=>$state['last_run'],
         'interval_minutes'=>max(30, (int)config()['interval_minutes'])];
 }
 
@@ -367,45 +369,112 @@ function base_url(): string {
 /**
  * Owner alerts. Configure notify_email and/or notify_webhook in config.php (README: "Alerts").
  *
- * notify() queues an alert. Everything queued during one request is sent together when the request ends, as one digest,
- * so a runner pass that finds twenty changes sends one message, not twenty. notify_send() sends right away and reports
- * what happened for each channel, which is what the admin "Send test alert" button uses.
- * Failures never break the caller; they are recorded in the alert log shown in the admin.
+ * notify() queues an alert for you; notify_public_event() queues a public ntfy post. Everything queued during one request
+ * is sent together when the request ends, as one digest, so a runner pass that finds twenty changes sends one message, not
+ * twenty. notify_send() sends right away and reports what happened for each channel, which is what the admin "Send test
+ * alert" button uses. Failures never break the caller; they are recorded in the alert log shown in the admin.
+ * $meta may hold: url (the listing), type (back_in_stock, price_drop, submission, test), priority (1-5).
  */
-function notify(string $subject, string $body): void {
-    static $queue = [];
-    static $registered = false;
+function notify(string $subject, string $body, array $meta = []): void {
     if (is_staging()) {
         return; // a staging copy never sends alerts, even with production settings copied into it
     }
-    $queue[] = [$subject, $body];
-    if (!$registered) {
-        $registered = true;
-        register_shutdown_function(static function () use (&$queue) {
-            if (!$queue) {
-                return;
+    notify_queue('owner', [$subject, $body, $meta]);
+}
+
+/** Queues a public ntfy post for a back-in-stock or price-drop event. */
+function notify_public_event(array $event, string $url): void {
+    if (is_staging() || ntfy_public_base() === '') {
+        return;
+    }
+    notify_queue('public', [$event, $url]);
+}
+
+function notify_queue(string $kind, array $item): void {
+    static $queues = ['owner'=>[], 'public'=>[]];
+    static $registered = false;
+    $queues[$kind][] = $item;
+    if ($registered) {
+        return;
+    }
+    $registered = true;
+    register_shutdown_function(static function () use (&$queues) {
+        $owner = $queues['owner'];
+        $public = $queues['public'];
+        $queues = ['owner'=>[], 'public'=>[]];
+        notify_flush($owner, $public);
+    });
+}
+
+/** Sends what a request queued: one digest to the owner (unless muted) and the public posts. */
+function notify_flush(array $owner, array $public): void {
+    $log = [];
+    $subject = '';
+    try {
+        $state = config()['data_dir'] !== '' ? load_state(data_dir()) : [];
+        if ($owner) {
+            [$subject, $body, $meta] = notify_digest($owner);
+            if (alerts_muted($state)) {
+                $log[] = ['channel'=>'owner alerts', 'ok'=>true, 'message'=>'Muted until ' . gmdate('H:i', (int)$state['alerts_muted_until']) . ' UTC, so this was not sent.'];
+            } else {
+                $log = array_merge($log, notify_send($subject, $body, $meta));
             }
-            [$subject, $body] = notify_digest($queue);
-            $queue = [];
-            $results = notify_send($subject, $body);
-            try {
-                if (config()['data_dir'] !== '') {
-                    alert_log_record(data_dir(), $subject, $results);
-                }
-            } catch (Throwable $failure) {
-                error_log('Offgrid notify log: ' . $failure->getMessage());
-            }
-        });
+        }
+        if ($public) {
+            $log = array_merge($log, notify_public_flush(array_map(static fn($item) => $item[0], $public), array_map(static fn($item) => $item[1], $public)));
+            $subject = $subject !== '' ? $subject : ucfirst(event_text($public[0][0]));
+        }
+        if ($log && config()['data_dir'] !== '') {
+            alert_log_record(data_dir(), $subject, $log);
+        }
+    } catch (Throwable $failure) {
+        error_log('Offgrid notify: ' . $failure->getMessage());
     }
 }
 
-/** Joins queued alerts into one subject and body. One alert is sent as it is. */
+/** Posts public events to the public topic (one message) and to each radio's own topic. */
+function notify_public_flush(array $events, array $urls): array {
+    $base = ntfy_public_base();
+    if ($base === '' || !$events) {
+        return [];
+    }
+    $site = base_url() !== '' ? base_url() . 'index.html' : '';
+    $note = "\nConfirm stock and the selected variant with the seller.";
+    $types = array_column($events, 'type');
+    $results = [];
+    if (count($events) === 1) {
+        $title = ucfirst(event_text($events[0]));
+        $body = event_text($events[0]) . $note;
+        $click = $urls[0];
+    } else {
+        $title = count($events) . ' updates: ' . ucfirst(event_text($events[0])) . ' and ' . (count($events) - 1) . ' more';
+        $body = implode("\n", array_map(static fn($event) => '• ' . event_text($event), $events));
+        $click = $site;
+    }
+    $options = ['priority'=>in_array('back_in_stock', $types, true) ? 4 : 3, 'tags'=>NTFY_TAGS[$types[0]] ?? NTFY_TAGS['info'], 'click'=>$click];
+    $first = ntfy_publish($base, $title, $body, $options);
+    $results[] = ['channel'=>'public topic', 'ok'=>$first['ok'], 'message'=>$first['message']];
+    $failed = '';
+    $posted = 0;
+    foreach (array_slice($events, 0, 25) as $i => $event) {
+        $one = ntfy_publish(ntfy_radio_topic($base, (string)$event['id']), ucfirst(event_text($event)), event_text($event) . $note,
+            ['priority'=>$event['type'] === 'back_in_stock' ? 4 : 3, 'tags'=>NTFY_TAGS[$event['type']] ?? NTFY_TAGS['info'], 'click'=>$urls[$i]]);
+        $one['ok'] ? $posted++ : ($failed = $failed ?: $one['message']);
+    }
+    $results[] = ['channel'=>'radio topics', 'ok'=>$failed === '', 'message'=>$failed === '' ? 'Posted to ' . $posted . ' radio topic' . ($posted === 1 ? '' : 's') . '.' : $failed];
+    return $results;
+}
+
+/** Joins queued alerts into one subject, body and meta. One alert is sent as it is. */
 function notify_digest(array $queue): array {
     if (count($queue) === 1) {
-        return [(string)$queue[0][0], (string)$queue[0][1]];
+        return [(string)$queue[0][0], (string)$queue[0][1], (array)($queue[0][2] ?? [])];
     }
     $parts = array_map(static fn($item) => trim((string)$item[1]), $queue);
-    return [count($queue) . ' updates: ' . $queue[0][0] . ' and ' . (count($queue) - 1) . ' more', implode("\n\n", $parts)];
+    $types = array_filter(array_map(static fn($item) => $item[2]['type'] ?? '', $queue));
+    $meta = ['type'=>in_array('back_in_stock', $types, true) ? 'back_in_stock' : (string)reset($types),
+        'url'=>base_url() !== '' ? base_url() . 'index.html' : ''];
+    return [count($queue) . ' updates: ' . $queue[0][0] . ' and ' . (count($queue) - 1) . ' more', implode("\n\n", $parts), $meta];
 }
 
 /** The address alerts are sent from: notify_from in config.php, or alerts@ the site's own domain. */
@@ -426,7 +495,7 @@ function notify_from_address(): string {
 }
 
 /** Sends an alert now. Returns one entry per channel: ['channel'=>'email'|'webhook', 'ok'=>bool, 'message'=>string]. */
-function notify_send(string $subject, string $body): array {
+function notify_send(string $subject, string $body, array $meta = []): array {
     $results = [];
     if (is_staging()) {
         return $results;
@@ -463,7 +532,13 @@ function notify_send(string $subject, string $body): array {
     }
     $hook = trim((string)(config()['notify_webhook'] ?? ''));
     if ($hook !== '') {
-        if (!str_starts_with($hook, 'https://') || !function_exists('curl_init')) {
+        if (ntfy_topic_ok($hook)) {
+            // An ntfy topic: add a tag, a priority, tap-to-open and the tap buttons.
+            $type = (string)($meta['type'] ?? 'info');
+            $sent = ntfy_publish($hook, $subject, $body, ['priority'=>(int)($meta['priority'] ?? ($type === 'back_in_stock' ? 4 : 3)),
+                'tags'=>NTFY_TAGS[$type] ?? NTFY_TAGS['info'], 'click'=>(string)($meta['url'] ?? ''), 'actions'=>ntfy_alert_buttons((string)($meta['url'] ?? ''))]);
+            $results[] = ['channel'=>'webhook', 'ok'=>$sent['ok'], 'message'=>$sent['message']];
+        } elseif (!str_starts_with($hook, 'https://') || !function_exists('curl_init')) {
             $results[] = ['channel'=>'webhook', 'ok'=>false, 'message'=>'notify_webhook must be an https:// address, and PHP needs cURL.'];
         } else {
             $curl = curl_init($hook);
@@ -587,3 +662,5 @@ function ingest_enabled(): bool {
     }
     return strlen((string)(config()['ingest_token'] ?? '')) >= 32;
 }
+
+require_once __DIR__ . '/ntfy.php';

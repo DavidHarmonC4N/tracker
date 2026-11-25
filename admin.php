@@ -150,7 +150,8 @@ try {
             if (is_staging()) {
                 throw new InvalidArgumentException('This is a staging copy. Staging never sends alerts.');
             }
-            $results = notify_send('Test alert', "This is a test alert from your Offgrid Comms Tracker admin.\nIf you can read this, alerts are working.\n" . base_url() . 'index.html');
+            $results = notify_send('Test alert', "This is a test alert from your Offgrid Comms Tracker admin.\nIf you can read this, alerts are working.\n" . base_url() . 'index.html',
+                ['type'=>'test', 'url'=>base_url() !== '' ? base_url() . 'index.html' : '']);
             if (!$results) {
                 throw new InvalidArgumentException('Alerts are off. Add notify_email or notify_webhook to the config.php on your host, then try again.');
             }
@@ -160,6 +161,30 @@ try {
                 throw new InvalidArgumentException('Test alert problem. ' . implode(' ', $lines));
             }
             $_SESSION['notice'] = 'Test alert sent. ' . implode(' ', $lines);
+            go();
+        }
+        if ($action === 'test_public') {
+            if (is_staging()) {
+                throw new InvalidArgumentException('This is a staging copy. Staging never posts alerts.');
+            }
+            $base = ntfy_public_base();
+            if ($base === '') {
+                throw new InvalidArgumentException('The public topic is off. Set notify_public_topic in config.php first.');
+            }
+            $sent = ntfy_publish($base, 'Test post from the Offgrid Comms Tracker', "This is a test post. Real alerts name a radio, its seller and what changed.\nYou can ignore this one.",
+                ['tags'=>NTFY_TAGS['test'], 'click'=>base_url() !== '' ? base_url() . 'index.html' : '']);
+            alert_log_record($dir, 'Test post to the public topic', [['channel'=>'public topic', 'ok'=>$sent['ok'], 'message'=>$sent['message']]]);
+            if (!$sent['ok']) {
+                throw new InvalidArgumentException('Public topic problem. ' . $sent['message']);
+            }
+            $_SESSION['notice'] = 'Test post sent to the public topic. ' . $sent['message'];
+            go();
+        }
+        if ($action === 'unmute_alerts') {
+            change_state($dir, static function (&$fresh) {
+                $fresh['alerts_muted_until'] = 0;
+            });
+            $_SESSION['notice'] = 'Owner alerts are on again.';
             go();
         }
         if ($action === 'addurl_read') {
@@ -665,13 +690,19 @@ $reading = $editor['result'] ?? [];
       <form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="test_alert">Send test alert</button></form></div>
     <?php if (is_staging()): ?>
       <p class="dim">This is a staging copy, so it never sends alerts.</p>
-    <?php elseif ($alertEmail === '' && $alertHook === ''): ?>
+    <?php elseif ($alertEmail === '' && $alertHook === '' && ntfy_public_base() === ''): ?>
       <p class="notice" role="status">Alerts are off. Add <code>notify_email</code> (an email address) or <code>notify_webhook</code> (an https:// address, such as a private ntfy.sh topic) to the config.php on your host. A webhook is the more reliable choice on shared hosting.</p>
     <?php else: ?>
       <ul class="event-list">
         <li><strong>Email</strong> · <?= $alertEmail === '' ? 'not set' : h($maskedEmail !== '' ? $maskedEmail : 'invalid address') ?><?= $alertEmail !== '' ? ' · from ' . h(notify_from_address() ?: 'the host\'s default sender (set notify_from)') : '' ?></li>
-        <li><strong>Webhook</strong> · <?= $alertHook === '' ? 'not set' : h($hookHost) ?></li>
+        <li><strong>Private topic / webhook</strong> · <?= $alertHook === '' ? 'not set' : h($hookHost . (ntfy_owner_topic() !== '' ? ' · topic …' . substr($alertHook, -4) . ' · tap buttons ' . (ntfy_endpoint() !== '' ? 'on' : 'off (set ntfy_token and base_url)') : '')) ?></li>
+        <li><strong>Public topic</strong> · <?= ntfy_public_base() === '' ? 'off' : h(ntfy_public_base()) . ' · each radio also has its own topic' ?></li>
+        <?php if (alerts_muted($state)): ?><li><strong>Muted</strong> until <?= h(gmdate('D H:i', (int)$state['alerts_muted_until'])) ?> UTC for owner alerts. Public topics are not affected.
+          <form method="post" style="display:inline"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="unmute_alerts">Unmute</button></form></li><?php endif; ?>
       </ul>
+      <?php if (ntfy_public_base() !== ''): ?>
+        <form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="test_public" data-confirm="This posts a message that everyone following the public topic will see. Send it?">Send test post to the public topic</button></form>
+      <?php endif; ?>
     <?php endif; ?>
     <?php if ($alertLog): ?>
       <p class="dim">Latest results</p>

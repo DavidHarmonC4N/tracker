@@ -74,6 +74,7 @@ const STAR_PATH = '<path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1
 const ID_PATTERN = /^[a-z0-9_-]{1,60}$/;
 let picks = loadPicks();
 let picksView = false;
+let publicTopic = '';
 let sharedIds = null;
 const baseline = {};
 for (const [id, pick] of Object.entries(picks)) baseline[id] = { price: pick.seenPrice ?? pick.price, status: pick.seenStatus ?? pick.status };
@@ -154,7 +155,9 @@ function pickCard(row) {
     const notes = pickChanges(row, baseline[row.id] || snapshot(row)).map(([kind, text]) => el('p', 'change ' + kind, text));
     if (notes.length) node.querySelector('.card-top').after(...notes);
     const added = 'Added ' + formatDay.format(new Date(pick.added)) + (Number.isInteger(pick.price) ? ' at ' + formatMoney.format(pick.price / 100) : '');
-    node.querySelector('.facts').after(el('p', 'hist', added));
+    const hist = el('p', 'hist', added);
+    node.querySelector('.facts').after(hist);
+    if (row.topic) hist.after(externalLink('ntfy-radio', 'Phone alerts for this radio', row.topic, 'Opens ntfy, where you can subscribe from the app. Free, no account.'));
   }
   return node;
 }
@@ -216,6 +219,7 @@ function drawPicks() {
     feed.rel = 'noopener';
     feed.title = 'Stock and price changes for these radios only. Add the address to any feed reader.';
     actions.append(link, feed);
+    if (publicTopic) actions.append(externalLink('sbtn', 'Phone alerts (all)', publicTopic, 'Opens ntfy, where you can subscribe from the app. Free, no account.'));
     if (!sharedIds) {
       const history = el('a', 'sbtn', 'Price history');
       history.href = 'prices.html?scope=picks';
@@ -652,6 +656,24 @@ function markStaging(data) {
   if (!document.title.startsWith('[STAGING]')) document.title = '[STAGING] ' + document.title;
 }
 
+// Phone alerts through ntfy: shown only when the owner has set a public topic.
+function externalLink(className, text, href, hint) {
+  const link = el('a', className, text);
+  link.href = href;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.title = hint;
+  link.append(el('span', 'sr', ' (opens in a new tab)'));
+  return link;
+}
+
+function showNtfyFooter() {
+  const item = byId('ntfy-footer');
+  if (!item) return;
+  item.hidden = !publicTopic;
+  if (publicTopic) byId('ntfy-link').href = publicTopic;
+}
+
 function draw() {
   document.body.classList.toggle('picks-mode', picksView);
   if (picksView) { drawPicks(); return; }
@@ -835,6 +857,8 @@ async function refresh() {
     if (signature === lastSignature) return;
     lastSignature = signature;
     markStaging(data);
+    publicTopic = typeof data.public_topic === 'string' && /^https:\/\//.test(data.public_topic) ? data.public_topic : '';
+    showNtfyFooter();
     rows = data.items;
     byId('total').textContent = rows.length;
     byId('available').textContent = rows.filter((row) => displayStatus(row) === 'in_stock').length;

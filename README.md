@@ -146,6 +146,17 @@ Each scan is compared with the previous live reading. The tracker records when a
   - **Webhook** is an HTTPS URL that accepts a plain-text POST, such as a private ntfy.sh topic. The test shows whether it answered with success. Many shared hosts limit or filter `mail()`, so a webhook is more reliable.
   - A staging copy never sends alerts.
 
+### Phone alerts with ntfy (two topics)
+
+[ntfy](https://ntfy.sh) sends a phone notification for every message posted to a topic. Install the ntfy app, subscribe to your topic, and you get alerts. Topics are open to anyone who knows the name, so use long random names. ntfy itself is one-way (the site posts, your phone receives), but the notifications carry tap buttons that call back to the site, which answers in the same topic.
+
+1. **Your private topic.** Subscribe to a topic with a long secret name, for example `https://ntfy.sh/offgrid-` plus 20 random characters, and put that address in `notify_webhook`. You get every alert, with an emoji tag, a higher priority for back in stock, and tap to open the listing. Press **Send test alert** in the admin to check it.
+2. **Tap buttons (optional).** Set `ntfy_token` to a secret of 32 or more random characters, and set `base_url`. Alerts then carry **Open listing**, **Status** (a summary of stock, the runner and the latest changes) and **Mute 24h**. The reply to a button appears in your topic with **Check now** (starts the U.S. runner), **Drops this week** and **Mute 24h** or **Unmute**. The buttons call `ntfy.php` with the token in a request header. Muting silences your private alerts for a day and does not affect public topics. After ten wrong tokens from one address the page stops answering for 15 minutes. Anyone who can read your private topic can see the token, which is one more reason to keep its name secret. Change `ntfy_token` if you think it leaked.
+3. **A public topic (optional, off by default).** Set `notify_public_topic` to a topic address of your choice, for example `https://ntfy.sh/offgrid-comms-tracker`. It carries only public news: back in stock and price drops. Each radio also gets its own topic (the public name, a dash and eight characters), so a visitor can follow only the radios they care about, with no account. The site then shows **Phone alerts (ntfy)** in the footer, and **Phone alerts (all)** and **Phone alerts for this radio** in My picks. The admin Alerts panel has **Send test post to the public topic**.
+   - **Know the risk:** anyone who knows a topic name can post to it, so someone could send followers a fake alert with a link to anywhere. The site only posts public facts, and the notification's tap opens the seller's page, but followers cannot tell a fake from a real post. If that ever happens, change the topic name, or use a reserved topic (an ntfy account feature) or your own ntfy server, where only you can post.
+
+Typed commands are not supported: your host has no always-running process to listen to a topic, so the buttons do the two-way part.
+
 ## Review public submissions
 
 After administrator setup, visitors can choose **Submit a listing** and send a seller's direct product link. Admin shows suggestions under **Pending submissions**. Pending submissions stay private and the checker skips them. If alerts are configured, you are notified when a new one arrives, and the Admin browser tab title shows the pending count.
@@ -177,6 +188,8 @@ These live in the **host's** `config.php`. The repository's copy is a blank temp
 | `notify_email` | Email address for owner alerts | Optional |
 | `notify_webhook` | HTTPS URL that takes a plain-text POST | Optional. An ntfy.sh topic works. |
 | `notify_from` | Address alert emails come from | Optional. Default is `alerts@` your domain. |
+| `notify_public_topic` | A public ntfy topic address for visitors | Optional, off by default. See "Phone alerts with ntfy". |
+| `ntfy_token` | Secret for the tap buttons (32 or more characters) | Optional. Turns on the buttons. |
 | `ingest_token` | Key the U.S. runner uses to report checks | 32+ random characters. Must equal the `OFFGRID_TOKEN` secret. Empty turns the runner off. |
 | `github_repo` | `OWNER/REPOSITORY` of this repository | For starting the runner from the site |
 | `github_token` | Fine-grained token with Actions read and write on that one repository | Optional. Empty turns site-started runs off. |

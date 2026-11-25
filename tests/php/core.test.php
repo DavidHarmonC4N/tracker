@@ -75,14 +75,14 @@ check('one page can be listed once per warehouse', has_listing_url([['url'=>'htt
 
 // the public catalog exposes only public fields
 $public = endpoint_result();
-$allowed = ['id','seller','location','name','url','firmware','setup','kind','role','note','result','attempted_at','warehouse','manual','check_failed','change','low','high','was','seller_paused'];
+$allowed = ['id','seller','location','name','url','firmware','setup','kind','role','note','result','attempted_at','warehouse','manual','check_failed','change','low','high','was','topic','seller_paused'];
 $extra = [];
 foreach ($public['items'] as $item) {
     $extra = array_merge($extra, array_diff(array_keys($item), $allowed));
 }
 check('catalog items carry only public fields', !$extra, implode(',', array_unique($extra)));
 $json = strtolower(json_encode($public));
-foreach (['password', 'ingest_token', 'setup_key', 'github_token', 'data_dir'] as $secret) {
+foreach (['password', 'ingest_token', 'setup_key', 'github_token', 'data_dir', 'ntfy_token', 'notify_webhook', 'notify_email'] as $secret) {
     check("the public catalog never mentions $secret", !str_contains($json, $secret));
 }
 finish();
