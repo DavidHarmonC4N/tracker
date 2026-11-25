@@ -54,6 +54,7 @@ $series = radio_series($group, $history);
 $svg = radio_history_svg($series, $now, 'Price history for ' . $group['name'] . ' at ' . $group['seller']);
 $changes = radio_change_rows($group, $history);
 $similar = radio_similar($groups, $group, $now);
+$isAntenna = ($group['category'] ?? 'radio') === 'antenna';
 $warehouses = array_values(array_filter(array_map(static fn($o) => WAREHOUSES[$o['warehouse'] ?? ''] ?? '', $group['offers'])));
 $https = parse_url((string)$group['url'], PHP_URL_SCHEME) === 'https';
 $modified = $summary['observed'];
@@ -61,7 +62,7 @@ $graph = ['@context'=>'https://schema.org', '@type'=>'WebPage', 'name'=>$title, 
     + ($canonical !== '' ? ['url'=>$canonical, 'isPartOf'=>['@type'=>'WebSite', 'name'=>'Offgrid Comms Tracker', 'url'=>$base],
         'breadcrumb'=>['@type'=>'BreadcrumbList', 'itemListElement'=>[
             ['@type'=>'ListItem', 'position'=>1, 'name'=>'Offgrid Comms Tracker', 'item'=>$base],
-            ['@type'=>'ListItem', 'position'=>2, 'name'=>'All radios', 'item'=>$base . 'radios.php'],
+            ['@type'=>'ListItem', 'position'=>2, 'name'=>$isAntenna ? 'Antennas' : 'All radios', 'item'=>$base . 'radios.php' . ($isAntenna ? '#antennas' : '')],
             ['@type'=>'ListItem', 'position'=>3, 'name'=>$group['name'], 'item'=>$canonical]]]] : [])
     + ($modified ? ['dateModified'=>gmdate('c', $modified)] : []);
 $phoneAlerts = ntfy_public_base() !== '' ? ntfy_radio_topic(ntfy_public_base(), (string)$group['offers'][0]['id']) : '';
@@ -99,7 +100,7 @@ $feedIds = implode(',', array_map(static fn($offer) => rawurlencode((string)$off
   <a class="skip" href="#radio">Skip to this radio</a>
   <?= radios_page_chrome('header') ?>
   <main class="wrap guide" id="radio">
-    <nav class="crumbs" aria-label="Breadcrumb"><a href="./">Home</a> <span aria-hidden="true">›</span> <a href="radios.php">All radios</a> <span aria-hidden="true">›</span> <span aria-current="page"><?= radios_nowrap_models(h($group['name'])) ?></span></nav>
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="./">Home</a> <span aria-hidden="true">›</span> <a href="radios.php<?= $isAntenna ? '#antennas' : '' ?>"><?= $isAntenna ? 'Antennas' : 'All radios' ?></a> <span aria-hidden="true">›</span> <span aria-current="page"><?= radios_nowrap_models(h($group['name'])) ?></span></nav>
     <div class="pagehead">
       <div><p class="eyebrow"><?= h(strtoupper($group['seller'])) ?></p><h1><?= radios_nowrap_models(h($group['name'])) ?></h1>
         <p class="lead"><?= h(radio_summary_text($group, $summary)) ?></p>
@@ -140,12 +141,16 @@ $feedIds = implode(',', array_map(static fn($offer) => rawurlencode((string)$off
     <?php endif; ?>
 
     <section class="panel guide-step" aria-labelledby="facts">
-      <h2 id="facts">About this radio</h2>
+      <h2 id="facts">About this <?= ($group['category'] ?? 'radio') === 'antenna' ? 'antenna' : 'radio' ?></h2>
       <dl class="facts-list">
         <div><dt>Type</dt><dd><?= h(KINDS[$group['kind']] ?? '') ?></dd></div>
+        <?php if (($group['category'] ?? 'radio') === 'antenna'): foreach (radio_antenna_facts($group) as $fact): ?>
+        <div><dt><?= h($fact[0]) ?></dt><dd><?= h($fact[1]) ?></dd></div>
+        <?php endforeach; else: ?>
         <div><dt>Primary use</dt><dd><?= h(ROLES[$group['role']] ?? '') ?></dd></div>
         <div><dt>Firmware</dt><dd><?= h(FIRMWARE[$group['firmware']] ?? '') ?></dd></div>
         <div><dt>Setup</dt><dd><?= h(SETUP[$group['setup']] ?? '') ?></dd></div>
+        <?php endif; ?>
         <div><dt>Seller</dt><dd><?= h($group['seller']) ?><?= ($group['location'] ?? '') !== '' ? ' · ' . h($group['location']) : '' ?></dd></div>
         <?php if ($warehouses): ?><div><dt>Ships from</dt><dd><?= h(implode(', ', $warehouses)) ?></dd></div><?php endif; ?>
       </dl>
@@ -171,7 +176,7 @@ $feedIds = implode(',', array_map(static fn($offer) => rawurlencode((string)$off
 
     <?php if ($similar): ?>
     <section class="panel guide-step" aria-labelledby="similar">
-      <h2 id="similar">Similar radios</h2>
+      <h2 id="similar">Similar <?= ($group['category'] ?? 'radio') === 'antenna' ? 'antennas' : 'radios' ?></h2>
       <ul class="rlist">
         <?php foreach ($similar as $entry): ?><li><a href="radio.php?r=<?= h($entry['group']['ref']) ?>"><?= radios_nowrap_models(h($entry['group']['name'])) ?></a> · <?= h($entry['group']['seller']) ?> · <?= h(RADIO_STATUS_LABEL[$entry['summary']['status']]) ?><?= $entry['summary']['price'] !== null ? ' · ' . h(money($entry['summary']['price'])) : '' ?></li><?php endforeach; ?>
       </ul>

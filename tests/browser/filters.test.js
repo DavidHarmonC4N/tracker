@@ -11,7 +11,7 @@ run(async (t) => {
       item.result = { ...item.result, status: 'in_stock', observed_at: now, price: 3000 + i * 150, qty: null };
       item.low = null; item.high = null; item.was = null;
     });
-    data.items.forEach((item) => { item.manual = /etsy\.com/.test(item.url); }); // the starter list has none, your live admin does
+    data.items.forEach((item, i) => { item.manual = i === 5 || i === 6; }); // the starter list has none, so two are marked here
     const a = data.items;
     a[0].result.price = 4000; a[0].low = 4000; a[0].high = 4500; a[0].was = { price: 4500, t: ago(9) };
     a[1].result.price = 5200; a[1].result.qty = 2;

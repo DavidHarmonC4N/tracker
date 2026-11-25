@@ -50,14 +50,15 @@ function audit() {
 run(async (t) => {
   const catalog = await (await fetch(t.SITE + 'catalog.php')).json();
   const seeed = catalog.items.find((i) => /^seeed-t1000e-/.test(i.id));
-  const pages = ['radios.php', seeed.page, 'prices.html', 'alerts.html', 'index.html'];
+  const antenna = catalog.items.find((i) => i.category === 'antenna');
+  const pages = ['radios.php', seeed.page, antenna.page, 'prices.html', 'alerts.html', 'index.html', 'index.html?cat=antennas'];
   for (const width of [1280, 1000, 390]) {
     const ctx = await t.openContext({ viewport: { width, height: 900 } });
     await t.mockCatalog(ctx, (data) => { const now = new Date().toISOString(); data.items.forEach((i) => { i.result = { ...i.result, status: 'in_stock', observed_at: now }; }); });
     for (const pg of pages) {
       const page = t.watch(await ctx.newPage());
       await page.goto(t.SITE + pg);
-      if (pg === 'index.html') await page.waitForSelector('.card');
+      if (pg.startsWith('index.html')) await page.waitForSelector('.card');
       if (pg === 'prices.html') await page.waitForTimeout(500);
       const problems = await page.evaluate(audit);
       t.ok(`${pg} at ${width}px: no split model numbers, wrapping short cells or orphan lines`, problems.length === 0, problems.slice(0, 5).join(' | '));

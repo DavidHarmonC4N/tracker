@@ -27,8 +27,8 @@
   {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://mesh.davidandlaura.net/#website","url":"https://mesh.davidandlaura.net/","name":"Offgrid Comms Tracker","description":"Live prices and stock for MeshCore and Meshtastic radios from U.S. and international sellers.","inLanguage":"en","publisher":{"@id":"https://mesh.davidandlaura.net/#organization"}},{"@type":"Organization","@id":"https://mesh.davidandlaura.net/#organization","name":"Offgrid Comms Tracker","url":"https://mesh.davidandlaura.net/","logo":{"@type":"ImageObject","url":"https://mesh.davidandlaura.net/assets/og-image.png","width":1200,"height":630}}]}
   </script>
   <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
-  <link rel="stylesheet" href="assets/styles.css?v=20261128-numfix">
-  <script src="assets/catalog.js?v=20261127-alerts" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=20261129-antennas">
+  <script src="assets/catalog.js?v=20261129-antennas" defer></script>
 </head>
 <body>
   <a class="skip" href="#inventory">Skip to listings</a>
@@ -89,22 +89,27 @@
           <p id="feed-state" class="feed-state" role="status">Loading listings…</p>
         </div>
         <div class="toolbar">
+          <div class="seg cat-seg" id="cat-tabs" role="group" aria-label="Category"><button type="button" class="cat-tab" data-cat-tab="radio" aria-pressed="true">Radios <span class="cat-count">0</span></button><button type="button" class="cat-tab" data-cat-tab="antenna" aria-pressed="false">Antennas <span class="cat-count">0</span></button></div>
+          <p class="ant-warn" id="ant-warn" hidden><b>Check the band and connector before you buy.</b> A 915 MHz (U.S.) antenna on an 868 MHz (EU) radio, or the wrong connector type, will not work.</p>
           <div class="seg" id="status-tabs" role="group" aria-label="Availability"></div>
           <form class="filters" id="filters" aria-label="Filter and sort radios">
             <div class="filter-row">
               <label class="field search"><span>Search</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg><input type="search" id="search" placeholder="Radio, seller or location" autocomplete="off"></label>
               <button type="button" class="filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filter-selects">Filters <b id="filters-n" hidden>0</b></button>
               <div class="filter-selects" id="filter-selects">
-                <label class="field"><span>Use</span><select id="role"><option value="">Any use</option><option value="companion">Companion</option><option value="tracker">Tracker</option><option value="repeater">Repeater</option><option value="solar_repeater">Solar repeater</option><option value="unspecified">Unspecified</option></select></label>
-                <label class="field"><span>Firmware</span><select id="firmware"><option value="">Any firmware</option><option value="meshcore">MeshCore only</option><option value="meshtastic">Meshtastic only</option><option value="both">Both firmware options</option></select></label>
+                <label class="field" data-cat="radio"><span>Use</span><select id="role"><option value="">Any use</option><option value="companion">Companion</option><option value="tracker">Tracker</option><option value="repeater">Repeater</option><option value="solar_repeater">Solar repeater</option><option value="unspecified">Unspecified</option></select></label>
+                <label class="field" data-cat="radio"><span>Firmware</span><select id="firmware"><option value="">Any firmware</option><option value="meshcore">MeshCore only</option><option value="meshtastic">Meshtastic only</option><option value="both">Both firmware options</option></select></label>
+                <label class="field" data-cat="antenna" hidden><span>Band</span><select id="band"><option value="">Any band</option></select></label>
+                <label class="field" data-cat="antenna" hidden><span>Connector</span><select id="connector"><option value="">Any connector</option></select></label>
+                <label class="field" data-cat="antenna" hidden><span>Antenna type</span><select id="atype"><option value="">Any type</option><option value="antenna_omni">Omni antenna</option><option value="antenna_directional">Directional antenna</option><option value="antenna_whip">Whip or flexible antenna</option><option value="antenna_cable">Cable, adapter or mount</option></select></label>
                 <label class="field"><span>Ships from</span><select id="warehouse"><option value="">Any warehouse</option><option value="us">U.S. warehouse</option><option value="eu">EU warehouse</option><option value="cn">China warehouse</option></select></label>
-                <label class="field"><span>Radio type</span><select id="kind"><option value="">Any type</option><option value="handheld">Handheld</option><option value="keyboard">Keyboard radio</option><option value="solar">Solar node</option><option value="base">Base station</option><option value="tracker">GPS tracker</option><option value="board">Board or kit</option><option value="other">Other</option></select></label>
+                <label class="field" data-cat="radio"><span>Radio type</span><select id="kind"><option value="">Any type</option><option value="handheld">Handheld</option><option value="keyboard">Keyboard radio</option><option value="solar">Solar node</option><option value="base">Base station</option><option value="tracker">GPS tracker</option><option value="board">Board or kit</option><option value="other">Other</option></select></label>
               </div>
             </div>
             <div class="quick-row">
               <span class="qlabel" id="quick-label">Quick filters</span>
-              <button type="button" class="chip" data-chip="seeed" aria-pressed="false" aria-describedby="quick-label">Seeed Studio</button>
-              <button type="button" class="chip" data-chip="manual" aria-pressed="false" aria-describedby="quick-label">Checked by hand</button>
+              <button type="button" class="chip" data-cat="radio" data-chip="seeed" aria-pressed="false" aria-describedby="quick-label">Seeed Studio</button>
+              <button type="button" class="chip" data-cat="radio" data-chip="manual" aria-pressed="false" aria-describedby="quick-label">Checked by hand</button>
               <button type="button" class="chip" data-chip="lowest" aria-pressed="false" aria-describedby="quick-label">Lowest seen</button>
               <button type="button" class="chip" data-chip="limited" aria-pressed="false" aria-describedby="quick-label">Limited stock</button>
               <span class="pricebox" role="group" aria-label="Price range in dollars"><span class="plabel">Price $</span><input type="number" id="pmin" min="0" max="9999" step="1" inputmode="numeric" placeholder="Min" aria-label="Minimum price in dollars"><span aria-hidden="true">to</span><input type="number" id="pmax" min="0" max="9999" step="1" inputmode="numeric" placeholder="Max" aria-label="Maximum price in dollars"></span>
@@ -195,12 +200,12 @@
         <a  class="quiet coffee" href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">Buy me a coffee<span class="sr"> (opens in a new tab)</span></a>
       </section>
       <details class="wn" id="whats-new">
-        <summary><span class="ver">v1.10</span><span class="code">Heron</span><span class="sum">What’s new</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <summary><span class="ver">v1.11</span><span class="code">Kestrel</span><span class="sum">What’s new</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
         <div class="body">
-        <div class="rel"><p class="rel-title"><span class="ver">v1.10</span><span class="code">Heron</span><span class="newtag">New</span></p><ul><li>A page for every radio: price and stock by warehouse, its history, and similar radios</li><li>Each catalog card and the plain list link to the radio's page</li><li>Fixed the price columns on the Price history page, which had turned into round badges</li></ul></div>
+        <div class="rel"><p class="rel-title"><span class="ver">v1.11</span><span class="code">Kestrel</span><span class="newtag">New</span></p><ul><li>Antennas: a new category with band, gain, connector and length, price history and stock, and band and connector filters</li><li>A Notify me block on every radio and antenna page for phone alerts</li><li>Listings that had to be checked by hand were removed, so everything here is checked automatically</li></ul></div>
+        <div class="rel"><p class="rel-title"><span class="ver">v1.10</span><span class="code">Heron</span></p><ul><li>A page for every radio: price and stock by warehouse, its history, and similar radios</li><li>Each catalog card and the plain list link to the radio's page</li><li>Fixed the price columns on the Price history page, which had turned into round badges</li></ul></div>
         <div class="rel"><p class="rel-title"><span class="ver">v1.9</span><span class="code">Tern</span></p><ul><li>A plain list of every radio with its price and stock, readable without scripts, for search engines and screen readers</li><li>Steadier Price history page: it no longer jumps while the chart loads, especially on phones</li><li>Clearer page titles and descriptions, and a link to Phone alerts in every footer</li></ul></div>
-        <div class="rel"><p class="rel-title"><span class="ver">v1.8</span><span class="code">Swift</span></p><ul><li>Phone alerts: a free way to get a notification when a radio comes back in stock or its price drops, with a step-by-step page</li><li>Follow every alert, or just the radios you picked, with the free ntfy app</li><li>Store links for the ntfy app on iPhone and Android</li></ul></div>
-          <p class="more">Earlier: v1.7 Falcon (price history, price filter, badges) · v1.6 Albatross (roll-up sections, faster refresh) · v1.5 Peregrine (My picks watchlist) · v1.4 Condor (one-row tabs, quick filters, icons and flags) · v1.3 Merlin (Seeed warehouses, T-Deck, visitor counter) · v1.2 Harrier (U.S. checker and automatic deploys) · v1.1 Osprey (change history and RSS) · v1.0 Kestrel (first public catalog)</p>
+          <p class="more">Earlier: v1.8 Swift (phone alerts) · v1.7 Falcon (price history, price filter, badges) · v1.6 Albatross (roll-up sections, faster refresh) · v1.5 Peregrine (My picks watchlist) · v1.4 Condor (one-row tabs, quick filters, icons and flags) · v1.3 Merlin (Seeed warehouses, T-Deck, visitor counter) · v1.2 Harrier (U.S. checker and automatic deploys) · v1.1 Osprey (change history and RSS) · v1.0 Kestrel (first public catalog)</p>
           <p class="more">Versions: the Antenna series is v1.x. Each release is named for a bird. The next major series starts at v2.0, named Beacon.</p>
         </div>
       </details>
@@ -208,7 +213,7 @@
         <p class="footer-pricing">Prices are in USD before tax and shipping. Confirm stock and the selected variant with the seller. Sellers marked with an asterisk block automated checks, so their listings are checked by hand.</p>
         <p class="footer-legal">Google Play and the Google Play logo are trademarks of Google LLC. App Store is a service mark of Apple Inc. MeshCore is made by its own developers and is not affiliated with this tracker.</p>
         <p class="visitors" id="visitors" hidden>Visitors: <strong id="visitors-today">0</strong> today · <strong id="visitors-total">0</strong> all time. Counted anonymously: no cookies, and no IP addresses are stored.</p>
-        <p class="stamp">v1.10 “Heron” · Antenna series · 73 de <span class="call">KY4DEH</span></p>
+        <p class="stamp">v1.11 “Kestrel” · Antenna series · 73 de <span class="call">KY4DEH</span></p>
       </div>
     </div>
   </footer>

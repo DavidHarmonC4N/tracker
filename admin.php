@@ -277,6 +277,23 @@ try {
             $_SESSION['notice'] = 'U.S. runner started on GitHub. Results appear in a minute or two.';
             go();
         }
+        if ($action === 'remove_manual') {
+            // Manual-entry listings need a person to keep them current. This deletes every one, with its price history.
+            $removed = change_state($dir, static function (&$fresh) {
+                $count = 0;
+                foreach ($fresh['items'] as $index=>$row) {
+                    if (($row['mode'] ?? '') === 'manual') {
+                        unset($fresh['history'][$row['id']]);
+                        $fresh['items'][$index] = null;
+                        $count++;
+                    }
+                }
+                $fresh['items'] = array_values(array_filter($fresh['items']));
+                return $count;
+            });
+            $_SESSION['notice'] = $removed ? $removed . ' manual-entry listing(s) removed.' : 'There are no manual-entry listings.';
+            go();
+        }
         if ($action === 'route_all') {
             if (!ingest_enabled()) {
                 throw new InvalidArgumentException('Set ingest_token in config.php first.');
@@ -448,6 +465,11 @@ $fromUrl = $auth && !$blocking && isset($_GET['from']) && is_array($addurl['gues
 $showVariant = $auth && !$blocking && !$showEditor && ($_GET['addurl'] ?? '') === 'variant' && !empty($addurl['read']['ok']);
 $values = $postEditor ? $_POST : ($editor ?? (($submission ?? ['firmware'=>'both','kind'=>'handheld','role'=>'unspecified'])
     + ['mode'=>'auto','setup'=>'unknown']));
+if (!$postEditor && is_array($values['specs'] ?? null)) {
+    foreach ($values['specs'] as $specKey=>$specValue) {
+        $values['spec_' . $specKey] = $specValue;
+    }
+}
 if ($fromUrl && !$postEditor) {
     $values = $addurl['guess']['values'] + $values;
     $GLOBALS['field_hints'] = $addurl['guess']['why'];
@@ -568,13 +590,22 @@ $reading = $editor['result'] ?? [];
       input_box('location','Seller location',$values,'text','maxlength="70"');
       input_box('url','HTTPS product link',$values,'url','required maxlength="1500"');
       select_box('firmware','Firmware support',FIRMWARE,$values);
-      select_box('kind','Radio type',KINDS,$values);
+      select_box('kind','Type',KINDS,$values);
       select_box('warehouse','Ships from',WAREHOUSES,$values);
       select_box('role','Primary use',ROLES,$values);
       select_box('setup','Setup needed',SETUP,$values);
       select_box('mode','Check method',MODES,$values);
       if (ingest_enabled()) { select_box('checker','Checked by',CHECKERS,$values); } ?>
     </div>
+    <details <?= is_antenna_kind(field($values,'kind')) ? 'open' : '' ?>>
+      <summary>Antenna facts (for antenna types only)</summary>
+      <div class="form-grid">
+        <?php input_box('spec_band','Band (915, 868/915 or any)',$values,'text','maxlength="12"');
+        input_box('spec_gain','Gain (for example 5.8 dBi)',$values,'text','maxlength="12"');
+        input_box('spec_connector','Connector (for example N male)',$values,'text','maxlength="30"');
+        input_box('spec_length','Length (for example 31 in)',$values,'text','maxlength="12"'); ?>
+      </div>
+    </details>
     <label>Public notes<textarea name="note" maxlength="500" rows="2"><?= h(field($values,'note')) ?></textarea><?= field_hint('note') ?></label>
     <?php if (!$submission): ?><label class="inline"><input type="checkbox" name="paused" <?= !empty($values['paused']) ? 'checked' : '' ?>> Hide listing and pause checks</label><?php endif; ?>
     <details <?= field($values,'scope') ? 'open' : '' ?>>
@@ -765,6 +796,7 @@ $reading = $editor['result'] ?? [];
       <form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="diagnose">Run connection test</button></form>
       <?php if ($pausedSellers || $failing): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="clear_pauses" data-confirm="Clear all seller pauses and queue every automatic listing?">Clear seller pauses</button></form><?php endif; ?>
       <?php if (github_trigger_enabled()): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="dispatch">Run U.S. checker now</button></form><?php endif; ?>
+      <?php $manualCount = count(array_filter($state['items'], static fn($i) => ($i['mode'] ?? '') === 'manual')); if ($manualCount): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="remove_manual" data-confirm="Delete <?= h($manualCount) ?> manual-entry listing(s) and their price history? This cannot be undone.">Remove <?= h($manualCount) ?> manual-entry</button></form><?php endif; ?>
       <?php if (ingest_enabled() && $serverAuto): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="route_all" data-confirm="Move <?= h($serverAuto) ?> automatic listing(s) from this server to the U.S. runner?">Move all <?= h($serverAuto) ?> to U.S. runner</button></form><?php endif; ?>
       <?php if (ingest_enabled() && ($failing || $pausedSellers)): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="route_failing" data-confirm="Move failing listings to the U.S. runner?">Move failing to U.S. runner</button></form><?php endif; ?>
       <?php if ($failing): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="queue_failing">Queue all failing</button></form><?php endif; ?>

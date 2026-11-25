@@ -96,7 +96,7 @@ run(async (t) => {
   await p.click('button[name="another"]'); await p.waitForLoadState();
   t.ok('Save and add another returns to the variant step', /addurl=variant/.test(p.url()) && /Listing saved/.test(await p.textContent('.notice')));
   t.ok('both colours are now taken and "any" is selected', (await p.$$('.var.taken')).length === 2 && (await p.$eval('input[value="any"]', (e) => e.checked)));
-  const links = (await catalog()).filter((i) => /wismesh/.test(i.url)).map((i) => i.url.split('?')[1]);
+  const links = (await catalog()).filter((i) => /wismesh-tag/.test(i.url)).map((i) => i.url.split('?')[1]);
   t.ok('two separate listings exist, one per colour', links.length === 2 && new Set(links).size === 2);
 
   // fallbacks

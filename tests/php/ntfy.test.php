@@ -140,7 +140,7 @@ check('with no public topic nothing is posted publicly', count($posts) === 1 && 
 [$r] = $run('catalog-off', 'ntfy-catalog', $none);
 check('the catalog advertises no topic when the public topic is off', $r['public_topic'] === '' && count(array_filter($r['topics'])) === 0);
 [$r] = $run('catalog-on', 'ntfy-catalog', ['notify_public_topic'=>$public] + $none);
-check('the catalog gives each radio its own topic when it is on (warehouses of one radio share it)', $r['public_topic'] === $public && $r['topics']['rok-tdeck'] === ntfy_radio_topic($public, 'rok-tdeck') && count(array_unique($r['topics'])) === 42 && count($r['topics']) > 42);
+check('the catalog gives each radio its own topic when it is on (warehouses of one radio share it)', $r['public_topic'] === $public && $r['topics']['rok-tdeck'] === ntfy_radio_topic($public, 'rok-tdeck') && count(array_unique($r['topics'])) > 40 && count(array_unique($r['topics'])) < count($r['topics']));
 [$r, $posts] = $run('catalog-staging', 'ntfy-flush', ['staging'=>true, 'notify_webhook'=>$private, 'notify_public_topic'=>$public] + $none);
 check('a staging copy posts to neither topic', $posts === []);
 

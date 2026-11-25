@@ -3,9 +3,6 @@
   "spec-kilo": "companion",
   "spec-ranger": "companion",
   "spec-relay": "solar_repeater",
-  "erod-v4": "companion",
-  "w5sat-v4": "repeater",
-  "nostep-solar": "solar_repeater",
   "canopy-rax": "solar_repeater",
   "atlavox-m1": "companion",
   "muzi-h2t": "companion",
@@ -14,8 +11,6 @@
   "ameri-m9": "companion",
   "ameri-beacon": "solar_repeater",
   "d47-pager": "companion",
-  "enzo-v4": "companion",
-  "poly-v4": "companion",
   "rok-lowmesh-s": "companion",
   "rok-lowmesh-m": "companion"
 }

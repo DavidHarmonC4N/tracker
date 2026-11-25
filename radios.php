@@ -20,7 +20,9 @@ try {
     echo '<!doctype html><title>Temporarily unavailable</title><p>The radio list is temporarily unavailable. Try again in a minute.</p>';
     exit;
 }
-$items = $catalog['items'];
+$all = $catalog['items'];
+$items = array_values(array_filter($all, static fn($item) => ($item['category'] ?? 'radio') === 'radio'));
+$antennas = array_values(array_filter($all, static fn($item) => ($item['category'] ?? '') === 'antenna'));
 $now = time();
 $sellers = count(array_unique(array_column($items, 'seller')));
 $latest = radios_latest_reading($items);
@@ -70,6 +72,11 @@ $graph = ['@context'=>'https://schema.org', '@type'=>'CollectionPage', 'name'=>'
         <p class="plain-link"><a href="./#inventory">Open the interactive catalog</a> with filters, a price range and My picks, or see <a href="prices.html">price history</a>.</p></div>
     </div>
     <?= radios_tables($items, $now) ?>
+    <?php if ($antennas): ?>
+    <section id="antennas" aria-labelledby="antennas-h"><h2 class="sec-head" id="antennas-h">Antennas · <?= h(count($antennas)) ?></h2>
+      <p class="dim">Antennas and cables that fit these radios. Check the band (915 MHz in the U.S.) and the connector before you buy. Each name links to its own page with specs and price history.</p>
+      <?= radios_tables($antennas, $now, 'a', 'Antennas: ', 'antennas') ?></section>
+    <?php endif; ?>
   </main>
   <?= radios_page_chrome('footer') ?>
 </body>

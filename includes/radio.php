@@ -44,6 +44,7 @@ function radio_groups(array $items): array {
         $slug = radio_slug($first['name'] . ' ' . $first['seller']);
         $groups[$hash] = ['key'=>(string)$key, 'hash'=>$hash, 'ref'=>($slug !== '' ? $slug . '-' : '') . $hash, 'offers'=>$offers,
             'name'=>$first['name'], 'seller'=>$first['seller'], 'location'=>$first['location'] ?? '', 'url'=>$first['url'], 'kind'=>$first['kind'],
+            'category'=>$first['category'] ?? 'radio', 'specs'=>$first['specs'] ?? null,
             'role'=>$first['role'] ?? 'unspecified', 'firmware'=>$first['firmware'], 'setup'=>$first['setup'], 'note'=>$first['note'] ?? ''];
     }
     return $groups;
@@ -182,9 +183,28 @@ function radio_change_rows(array $group, array $history, int $limit = 12): array
     return array_slice($rows, 0, $limit);
 }
 
+/** [label, value] for each antenna fact that is known. */
+function radio_antenna_facts(array $group): array {
+    $specs = clean_specs($group['specs'] ?? []);
+    $band = $specs['band'] === 'any' ? 'Any band' : ($specs['band'] !== '' ? $specs['band'] . ' MHz' : '');
+    $list = [['Band', $band], ['Gain', $specs['gain']], ['Connector', $specs['connector']], ['Length', $specs['length']]];
+    return array_values(array_filter($list, static fn($f) => $f[1] !== ''));
+}
+
 /** A short factual summary written from the data, shown at the top of the page. */
 function radio_summary_text(array $group, array $summary): string {
     $kind = KINDS[$group['kind']] ?? 'Radio';
+    if (($group['category'] ?? 'radio') === 'antenna') {
+        $parts = [$group['name'] . ' is a ' . lcfirst($kind) . ' sold by ' . $group['seller'] . (($group['location'] ?? '') !== '' ? ' (' . $group['location'] . ')' : '') . '.'];
+        $facts = radio_antenna_facts($group);
+        if ($facts) {
+            $parts[] = implode('. ', array_map(static fn($f) => $f[0] . ': ' . $f[1], $facts)) . '.';
+        }
+        $parts[] = $summary['status'] === 'unknown'
+            ? ($summary['price'] !== null ? 'We have no recent reading. The last price we saw was ' . money($summary['price']) . '.' : 'We have no recent reading, and no price we can read.')
+            : 'Right now it is ' . strtolower(RADIO_STATUS_LABEL[$summary['status']]) . ($summary['price'] !== null ? ' at ' . money($summary['price']) : '') . '.';
+        return implode(' ', $parts);
+    }
     $parts = [$group['name'] . ' is a ' . (preg_match('/^[A-Z]{2,}/', $kind) ? $kind : lcfirst($kind)) . ' sold by ' . $group['seller'] . (($group['location'] ?? '') !== '' ? ' (' . $group['location'] . ')' : '') . '.'];
     $parts[] = 'Firmware: ' . (FIRMWARE[$group['firmware']] ?? 'not stated') . '. Setup: ' . (SETUP[$group['setup']] ?? 'see the listing') . '.';
     if ($summary['status'] === 'unknown') {
@@ -200,7 +220,7 @@ function radio_summary_text(array $group, array $summary): string {
 /** A short meta description for search results. */
 function radio_meta_description(array $group, array $summary): string {
     $state = $summary['status'] === 'unknown' ? 'no recent reading' : strtolower(RADIO_STATUS_LABEL[$summary['status']]);
-    return $group['name'] . ' at ' . $group['seller'] . ': ' . $state . ($summary['price'] !== null ? ', ' . money($summary['price']) : '') . '. Price history, stock by warehouse and similar radios.';
+    return $group['name'] . ' at ' . $group['seller'] . ': ' . $state . ($summary['price'] !== null ? ', ' . money($summary['price']) : '') . '. Price history, stock by warehouse and similar ' . (($group['category'] ?? 'radio') === 'antenna' ? 'antennas' : 'radios') . '.';
 }
 
 /** Up to $limit other radios of the same type, closest in price first. */

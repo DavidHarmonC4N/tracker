@@ -289,3 +289,12 @@ A staging copy lets you try a branch on the real server before it goes live. It 
 When `notify_public_topic` is set, every radio page shows a "Get notified about this radio" block: the radio's ntfy topic with a Copy button, an Open in ntfy app link, an RSS link limited to that radio, and a short how-to. It is plain HTML and works without JavaScript (only Copy needs `assets/notify.js`). With no public topic the block is not on the page.
 
 There is one topic per radio page, not per listing. The lead listing (U.S. warehouse first) names it (`includes/radio.php`, `radio_lead_ids()`), so a radio sold from several warehouses has one topic, and a single-listing radio keeps the topic it already had.
+
+### Antennas
+
+The catalog has two categories, Radios and Antennas, told apart by the listing's type (`antenna_omni`, `antenna_directional`, `antenna_whip`, `antenna_cable`; see `KINDS` in `includes/app.php`). An antenna listing carries `specs` (band, gain, connector, length), which the admin form edits under "Antenna facts". The public catalog adds `category` and `specs` to each item.
+
+- **Catalog:** the category switch sits above the availability tabs and is saved in the link (`?cat=antennas`). Band and connector choices are built from the antennas that exist. Radio-only filters are hidden for antennas, and the other way round.
+- **Pages:** each antenna has a page like a radio's, with an "About this antenna" list. `radios.php` lists antennas in their own section (`#antennas`).
+- **Starter list:** 22 Rokland antennas, all read automatically from the store's product feed. They are `late` listings, so an existing install gets each one once. Sellers that block automated checks are not used.
+- **Manual-entry listings:** the starter list has none, and the admin has a "Remove N manual-entry" button that deletes the ones an install already has.

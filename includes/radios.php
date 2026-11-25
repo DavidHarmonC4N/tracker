@@ -75,7 +75,7 @@ function radios_row(array $item, string $status): string {
 }
 
 /** One table per availability group, in the same order as the catalog. */
-function radios_tables(array $items, int $now): string {
+function radios_tables(array $items, int $now, string $idPrefix = 'g', string $labelPrefix = '', string $noun = 'radios'): string {
     $groups = array_fill_keys(RADIO_STATUS_ORDER, []);
     foreach ($items as $item) {
         $groups[radio_status($item, $now)][] = $item;
@@ -87,9 +87,9 @@ function radios_tables(array $items, int $now): string {
             continue;
         }
         usort($list, static fn($a, $b) => strcasecmp($a['name'], $b['name']));
-        $html .= '<section class="rgroup" aria-labelledby="g-' . $status . '"><h2 id="g-' . $status . '">' . h(RADIO_STATUS_LABEL[$status]) . ' · ' . count($list) . '</h2>'
-            . '<p class="dim">' . h(RADIO_STATUS_NOTE[$status]) . '</p><div class="rtable-wrap"><table class="rtable rwide"><caption class="sr">' . h(RADIO_STATUS_LABEL[$status]) . ' radios</caption>'
-            . '<thead><tr><th scope="col">Radio</th><th scope="col">Seller</th><th scope="col">Price</th><th scope="col">Stock</th><th scope="col">Ships from</th><th scope="col">Last checked</th><th scope="col">Listing</th></tr></thead><tbody>';
+        $html .= '<section class="rgroup" aria-labelledby="' . $idPrefix . '-' . $status . '"><h2 id="' . $idPrefix . '-' . $status . '">' . h($labelPrefix . RADIO_STATUS_LABEL[$status]) . ' · ' . count($list) . '</h2>'
+            . '<p class="dim">' . h(RADIO_STATUS_NOTE[$status]) . '</p><div class="rtable-wrap"><table class="rtable rwide"><caption class="sr">' . h(RADIO_STATUS_LABEL[$status]) . ' ' . h($noun) . '</caption>'
+            . '<thead><tr><th scope="col">' . ($noun === 'radios' ? 'Radio' : 'Name') . '</th><th scope="col">Seller</th><th scope="col">Price</th><th scope="col">Stock</th><th scope="col">Ships from</th><th scope="col">Last checked</th><th scope="col">Listing</th></tr></thead><tbody>';
         foreach ($list as $item) {
             $html .= radios_row($item, $status);
         }

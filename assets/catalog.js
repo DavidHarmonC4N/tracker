@@ -2,7 +2,8 @@
 
 const lookup = {
   firmware: { meshcore: 'MeshCore only', meshtastic: 'Meshtastic only', both: 'Both firmware options' },
-  kind: { handheld: 'Handheld', keyboard: 'Keyboard radio', solar: 'Solar node', base: 'Base station', tracker: 'GPS tracker', board: 'Board or kit', other: 'Other' },
+  kind: { handheld: 'Handheld', keyboard: 'Keyboard radio', solar: 'Solar node', base: 'Base station', tracker: 'GPS tracker', board: 'Board or kit', other: 'Other',
+    antenna_omni: 'Omni antenna', antenna_directional: 'Directional antenna', antenna_whip: 'Whip or flexible antenna', antenna_cable: 'Cable, adapter or mount' },
   warehouse: { us: 'U.S. warehouse', eu: 'EU warehouse', cn: 'China warehouse' },
   role: { companion: 'Companion', tracker: 'Tracker', repeater: 'Repeater', solar_repeater: 'Solar repeater', unspecified: 'Unspecified' },
   setup: { meshcore: 'MeshCore installed', meshtastic: 'Meshtastic installed', choice: 'Choose or request firmware', flash: 'Install MeshCore yourself', unknown: 'See listing for setup' },
@@ -16,7 +17,11 @@ const formatDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'nume
 const previewSource = byId('preview-data');
 let rows = [];
 let lastSignature = '';
-const filterIds = { q: 'search', firmware: 'firmware', role: 'role', kind: 'kind', warehouse: 'warehouse', sort: 'sort' };
+const filterIds = { q: 'search', firmware: 'firmware', role: 'role', kind: 'kind', warehouse: 'warehouse', sort: 'sort', band: 'band', connector: 'connector', atype: 'atype' };
+// Radios and antennas share the catalog. The category switch decides which one the filters and cards work on.
+let category = 'radio';
+const pendingSelects = {};
+const isAntenna = (row) => row.category === 'antenna';
 const tabs = [
   { key: 'available', label: 'Available now', note: 'In stock or orderable' },
   { key: 'in_stock', label: 'In stock' },
@@ -39,7 +44,7 @@ let restoreFocus = false;
 let latestReading = null;
 // Quick filters. They combine with the availability tab and the filters.
 const chips = { seeed: false, manual: false, lowest: false, limited: false };
-const selectFilters = [['role', 'Use'], ['firmware', 'Firmware'], ['warehouse', 'Ships from'], ['kind', 'Radio type']];
+const selectFilters = [['role', 'Use'], ['firmware', 'Firmware'], ['warehouse', 'Ships from'], ['kind', 'Radio type'], ['band', 'Band'], ['connector', 'Connector'], ['atype', 'Type']];
 
 // Small line icons for the radio type. They are decoration: the text label next to them says the same thing.
 const ICONS = {
@@ -49,6 +54,10 @@ const ICONS = {
   tracker: '<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M12 7a3.2 3.2 0 0 1 3.2 3.2c0 2.2-3.2 5.3-3.2 5.3s-3.2-3.1-3.2-5.3A3.2 3.2 0 0 1 12 7z"/><circle cx="12" cy="10.2" r="1.1"/>',
   base: '<rect x="3" y="13" width="18" height="7.5" rx="1.8"/><path d="M7 16.8h2M12 13V5M9.2 7a4 4 0 0 1 5.6 0M7 4.6a7 7 0 0 1 10 0"/>',
   board: '<rect x="5" y="5" width="14" height="14" rx="1.5"/><rect x="9" y="9" width="6" height="6"/><path d="M8 2v3M12 2v3M16 2v3M8 19v3M12 19v3M16 19v3M2 8h3M2 12h3M2 16h3M19 8h3M19 12h3M19 16h3"/>',
+  antenna_omni: '<path d="M12 3v18M9 21h6M8.5 6.5a5 5 0 0 0 0 7M15.5 6.5a5 5 0 0 1 0 7"/>',
+  antenna_directional: '<path d="M3 12h15M6 7v10M10 8.5v7M14 9.8v4.4M18 12l3-3M18 12l3 3"/>',
+  antenna_whip: '<path d="M12 21V8M9 21h6M12 8c0-3 2-4 4-4"/><circle cx="16.5" cy="4" r="1"/>',
+  antenna_cable: '<path d="M3 8h5v8H3zM16 8h5v8h-5zM8 12h8"/>',
   other: '<circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>'
 };
 const BARS = { in_stock: 4, orderable: 3, preorder: 2, unknown: 1, out_of_stock: 0 };
@@ -298,10 +307,13 @@ function readUrlFilters() {
     const control = byId(id);
     const value = params.get(key);
     if (value === null) continue;
+    // Band and connector options come from the catalog, which has not loaded yet.
+    if (id === 'band' || id === 'connector') { pendingSelects[id] = value; continue; }
     control.value = value;
     if (control.value !== value && control.tagName === 'SELECT') control.selectedIndex = 0;
   }
   // "stock" is the older name for the availability filter, kept so existing shared links still work.
+  category = params.get('cat') === 'antennas' ? 'antenna' : 'radio';
   const status = params.get('status') ?? params.get('stock');
   if (status && tabs.some((item) => item.key === status)) tab = status;
   chips.seeed = params.get('seller') === 'seeed';
@@ -336,6 +348,7 @@ function writeUrlFilters() {
     const value = control.value.trim();
     if (value && !(key === 'sort' && value === 'availability')) params.set(key, value);
   }
+  if (category === 'antenna') params.set('cat', 'antennas');
   if (tab !== 'available') params.set('status', tab);
   if (chips.seeed) params.set('seller', 'seeed');
   if (chips.manual) params.set('hand', '1');
@@ -411,6 +424,30 @@ function fact(text, className, title) {
   return node;
 }
 
+// Text with model numbers such as T1000-E or AOA-915-10ACM kept whole, so a line never breaks inside one.
+function modelNodes(text) {
+  const nodes = [];
+  let last = 0;
+  for (const match of text.matchAll(/\b[A-Za-z0-9]+(?:-[A-Za-z0-9]+)+\b/g)) {
+    if (match.index > last) nodes.push(document.createTextNode(text.slice(last, match.index)));
+    nodes.push(el('span', 'nb', match[0]));
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) nodes.push(document.createTextNode(text.slice(last)));
+  return nodes;
+}
+
+// The band, gain, connector and length of an antenna, as short labels.
+function antennaFacts(row) {
+  const specs = row.specs || {};
+  const list = [];
+  if (specs.band) list.push(specs.band === 'any' ? 'Any band' : specs.band + ' MHz');
+  if (specs.gain) list.push(specs.gain);
+  if (specs.connector) list.push(specs.connector);
+  if (specs.length) list.push(specs.length);
+  return list;
+}
+
 function card(row) {
   const status = displayStatus(row);
   const reading = row.result;
@@ -419,7 +456,7 @@ function card(row) {
   const count = status === 'in_stock' && Number.isInteger(reading.qty) ? ' · ' + reading.qty + ' shown' : '';
   const role = radioRole(row);
   const kind = el('span', 'card-kind');
-  kind.append(iconNode(row.kind), document.createTextNode(role === 'unspecified' ? lookup.kind[row.kind] : lookup.role[role]));
+  kind.append(iconNode(row.kind), document.createTextNode(role === 'unspecified' || isAntenna(row) ? lookup.kind[row.kind] : lookup.role[role]));
   const tag = el('span', 'tag ' + status);
   tag.append(statusBars(status), document.createTextNode(lookup.status[status] + count));
   first.append(kind, tag);
@@ -432,10 +469,16 @@ function card(row) {
     star.setAttribute('aria-label', '. This seller blocks automated stock checks, so this listing is checked by hand.');
     sellerLine.append(star);
   }
-  title.append(el('h3', '', row.name), sellerLine);
+  const heading = el('h3');
+  heading.append(...modelNodes(row.name));
+  title.append(heading, sellerLine);
 
   const facts = el('p', 'facts');
-  facts.append(fact(lookup.firmware[row.firmware]), fact(lookup.setup[row.setup]));
+  if (isAntenna(row)) {
+    for (const text of antennaFacts(row)) facts.append(fact(text));
+  } else {
+    facts.append(fact(lookup.firmware[row.firmware]), fact(lookup.setup[row.setup]));
+  }
   if (lookup.warehouse[row.warehouse]) {
     facts.append(fact(lookup.warehouse[row.warehouse], row.warehouse,
       'Ships from the seller’s ' + lookup.warehouse[row.warehouse].replace(' warehouse', '') + ' warehouse. Shipping time, duties and fees depend on the warehouse.'));
@@ -680,10 +723,18 @@ function draw() {
   const role = byId('role').value;
   const warehouse = byId('warehouse').value;
   const sort = byId('sort').value;
-  const base = rows.filter((row) =>
+  const band = byId('band').value;
+  const connector = byId('connector').value;
+  const atype = byId('atype').value;
+  const inCategory = rows.filter((row) => (isAntenna(row) ? 'antenna' : 'radio') === category);
+  syncCategory();
+  const base = inCategory.filter((row) =>
     (!firmware || row.firmware === firmware)
     && (!kind || row.kind === kind)
     && (!role || radioRole(row) === role)
+    && (!band || (row.specs && (row.specs.band === 'any' || (row.specs.band || '').split('/').includes(band))))
+    && (!connector || (row.specs && row.specs.connector === connector))
+    && (!atype || row.kind === atype)
     && (!warehouse || row.warehouse === warehouse)
     && matchesChips(row)
     && [row.name, row.seller, row.location, row.note].join(' ').toLowerCase().includes(query)
@@ -708,7 +759,7 @@ function draw() {
   if (hideable && tab === 'available' && showUnverified) shown = inTab.concat(unverifiedRows);
   sortRows(shown, sort);
   const visibleCount = shown.length;
-  byId('count').textContent = visibleCount + ' of ' + rows.length + ' listings'
+  byId('count').textContent = visibleCount + ' of ' + inCategory.length + (category === 'antenna' ? ' antennas' : ' listings')
     + (hideable && !showUnverified && hiddenCount ? ' · ' + hiddenCount + ' unverified hidden' : '');
   writeUrlFilters();
 
@@ -726,7 +777,8 @@ function draw() {
     const reset = el('button', 'text-button', 'Clear filters');
     reset.type = 'button';
     reset.addEventListener('click', clearFilters);
-    const hint = tab === 'available' ? 'No available radios match. Try the All tab. ' : 'No radios match these filters. ';
+    const noun = category === 'antenna' ? 'antennas' : 'radios';
+    const hint = tab === 'available' ? 'No available ' + noun + ' match. Try the All tab. ' : 'No ' + noun + ' match these filters. ';
     empty.append(document.createTextNode(hint), reset);
     parts.push(empty);
   } else if (!chips.seeed && sort === 'availability' && hideable) {
@@ -773,6 +825,51 @@ function draw() {
     restoreFocus = false;
     byId('unverified-toggle')?.focus();
   }
+}
+
+// Shows the filters that belong to the chosen category and keeps the category buttons in step.
+function syncCategory() {
+  const antennas = category === 'antenna';
+  document.querySelectorAll('[data-cat]').forEach((node) => { node.hidden = node.dataset.cat !== category; });
+  document.querySelectorAll('[data-cat-tab]').forEach((button) => {
+    const key = button.dataset.catTab;
+    button.setAttribute('aria-pressed', String(key === category));
+    button.classList.toggle('active', key === category);
+    button.querySelector('.cat-count').textContent = rows.filter((row) => (isAntenna(row) ? 'antenna' : 'radio') === key).length;
+  });
+  byId('ant-warn').hidden = !antennas;
+  byId('inventory-title').textContent = antennas ? 'Antenna catalog' : 'Radio catalog';
+  byId('search').placeholder = antennas ? 'Antenna, seller or connector' : 'Radio, seller or location';
+}
+
+// Band and connector choices come from the antennas in the catalog, so they never list something nobody sells.
+function fillAntennaOptions() {
+  const antennas = rows.filter(isAntenna);
+  const bands = [...new Set(antennas.flatMap((row) => ((row.specs && row.specs.band) || '').split('/')).filter((b) => /^\d{3}$/.test(b)))].sort();
+  const connectors = [...new Set(antennas.map((row) => row.specs && row.specs.connector).filter(Boolean))].sort();
+  const fill = (id, values, label) => {
+    const select = byId(id);
+    const keep = pendingSelects[id] ?? select.value;
+    select.replaceChildren(new Option('Any ' + label, ''), ...values.map((v) => new Option(id === 'band' ? v + ' MHz' : v, v)));
+    select.value = values.includes(keep) ? keep : '';
+    delete pendingSelects[id];
+  };
+  fill('band', bands, 'band');
+  fill('connector', connectors, 'connector');
+}
+
+function setCategory(next) {
+  if (next === category) return;
+  category = next;
+  // A filter that belongs to the other category would hide everything without being visible.
+  const radioOnly = ['role', 'firmware', 'kind'];
+  const antennaOnly = ['band', 'connector', 'atype'];
+  for (const id of next === 'antenna' ? radioOnly : antennaOnly) byId(id).value = '';
+  tab = 'available';
+  showUnverified = false;
+  chips.seeed = false;
+  chips.manual = false;
+  draw();
 }
 
 function activeFilters() {
@@ -856,6 +953,7 @@ async function refresh() {
     markStaging(data);
     publicTopic = typeof data.public_topic === 'string' && /^https:\/\//.test(data.public_topic) ? data.public_topic : '';
     rows = data.items;
+    fillAntennaOptions();
     byId('total').textContent = rows.length;
     byId('available').textContent = rows.filter((row) => displayStatus(row) === 'in_stock').length;
     byId('orderable').textContent = rows.filter((row) => displayStatus(row) === 'orderable').length;
@@ -909,6 +1007,9 @@ byId('filters-toggle').addEventListener('click', () => {
   const open = !panel.classList.contains('open');
   panel.classList.toggle('open', open);
   byId('filters-toggle').setAttribute('aria-expanded', String(open));
+});
+document.querySelectorAll('[data-cat-tab]').forEach((button) => {
+  button.addEventListener('click', () => setCategory(button.dataset.catTab));
 });
 buildTabs();
 readUrlFilters();

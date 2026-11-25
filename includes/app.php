@@ -7,7 +7,25 @@ if (!defined('OFFGRID_APP')) {
 }
 
 const FIRMWARE = ['meshcore'=>'MeshCore only','meshtastic'=>'Meshtastic only','both'=>'Both firmware options'];
-const KINDS = ['handheld'=>'Handheld','keyboard'=>'Keyboard radio','solar'=>'Solar node','base'=>'Base station','tracker'=>'GPS tracker','board'=>'Board or kit','other'=>'Other'];
+const KINDS = ['handheld'=>'Handheld','keyboard'=>'Keyboard radio','solar'=>'Solar node','base'=>'Base station','tracker'=>'GPS tracker','board'=>'Board or kit','other'=>'Other',
+    'antenna_omni'=>'Omni antenna','antenna_directional'=>'Directional antenna','antenna_whip'=>'Whip or flexible antenna','antenna_cable'=>'Cable, adapter or mount'];
+
+/** Antennas share the catalog with radios. They are told apart by their type. */
+function is_antenna_kind(string $kind): bool {
+    return str_starts_with($kind, 'antenna_');
+}
+
+const SPEC_FIELDS = ['band'=>12, 'gain'=>12, 'connector'=>30, 'length'=>12];
+
+/** The antenna facts (band, gain, connector, length) that are safe to show: short text from a small set of characters. */
+function clean_specs($specs): array {
+    $out = [];
+    foreach (SPEC_FIELDS as $key=>$limit) {
+        $value = is_array($specs) && is_string($specs[$key] ?? null) ? trim($specs[$key]) : '';
+        $out[$key] = $value !== '' && strlen($value) <= $limit && preg_match('~^[A-Za-z0-9 ./+\-]+$~D', $value) ? $value : '';
+    }
+    return $out;
+}
 const ROLES = ['companion'=>'Companion','tracker'=>'Tracker','repeater'=>'Repeater','solar_repeater'=>'Solar repeater','unspecified'=>'Unspecified'];
 const SETUP = ['meshcore'=>'MeshCore installed','meshtastic'=>'Meshtastic installed','choice'=>'Choose or request firmware','flash'=>'Install MeshCore yourself','unknown'=>'See listing'];
 const STATUSES = ['in_stock'=>'In stock','orderable'=>'Orderable','out_of_stock'=>'Out of stock','preorder'=>'Preorder / backorder','unknown'=>'Unverified'];
@@ -233,6 +251,16 @@ function listing_fields(array $post, string $defaultRole = 'unspecified'): array
             throw new InvalidArgumentException('Choose a valid ' . ($key === 'kind' ? 'radio type' : $key) . '.');
         }
     }
+    if (is_antenna_kind($row['kind'])) {
+        $specs = [];
+        foreach (array_keys(SPEC_FIELDS) as $key) {
+            $specs[$key] = field($post, 'spec_' . $key);
+            if (strlen($specs[$key]) > SPEC_FIELDS[$key] || ($specs[$key] !== '' && clean_specs([$key=>$specs[$key]])[$key] === '')) {
+                throw new InvalidArgumentException('Check the antenna ' . $key . ': letters, digits, spaces and . / + - only, up to ' . SPEC_FIELDS[$key] . ' characters.');
+            }
+        }
+        $row['specs'] = $specs;
+    }
     $row['warehouse'] = field($post,'warehouse');
     if (!isset(WAREHOUSES[$row['warehouse']])) {
         throw new InvalidArgumentException('Choose a valid warehouse.');
@@ -292,6 +320,8 @@ function endpoint_result(): array {
         $public = array_intersect_key($item, array_flip([
             'id','seller','location','name','url','firmware','setup','kind','role','note','result','attempted_at',
         ]));
+        $public['category'] = is_antenna_kind((string)$item['kind']) ? 'antenna' : 'radio';
+        $public['specs'] = $public['category'] === 'antenna' ? clean_specs($item['specs'] ?? []) : null;
         $public['warehouse'] = isset(WAREHOUSES[$item['warehouse'] ?? '']) ? ($item['warehouse'] ?? '') : '';
         $public['manual'] = $item['mode'] === 'manual';
         $public['check_failed'] = !empty($item['error']);
