@@ -34,6 +34,12 @@ switch ($scenario) {
         }
         echo json_encode($out) . "\n";
         return;
+    case 'health-muted':
+        change_state(data_dir(), static function (&$state) { $state['alerts_muted_until'] = time() + 3600; });
+        notify('Back in stock: Radio', 'stock body', ['type'=>'back_in_stock']);
+        notify('Checker stalled', 'health body', ['type'=>'health']);
+        echo json_encode($out) . "\n";
+        return;
     case 'ntfy-one':
         $drop = ['t'=>iso_now(), 'id'=>'rok-tdeck', 'name'=>'LILYGO T-Deck', 'seller'=>'Rokland', 'type'=>'price_drop', 'from'=>7495, 'to'=>6797];
         notify(ucfirst(event_text($drop)), event_text($drop), ['url'=>'https://shop.example/t-deck', 'type'=>'price_drop']);

@@ -134,6 +134,13 @@ $uris = array_column($posts, 'uri');
 check('muting silences the private topic only', !in_array('/private-topic-1234', $uris, true) && in_array('/public-topic', $uris, true) && count($posts) === 4, implode(' ', $uris));
 check('a muted alert is logged as muted', in_array('owner alerts', array_column($state['alert_log'] ?? [], 'channel'), true));
 
+// ---- muted: a health alert still gets through, a stock alert does not
+[, $posts, $state] = $run('health-muted', 'health-muted', ['notify_webhook'=>$private] + $none);
+$titles = array_column(array_column($posts, 'headers'), 'title');
+check('a health alert is sent while alerts are muted', count($posts) === 1 && ($titles[0] ?? '') === 'Checker stalled', json_encode($titles));
+check('a stock alert queued with it stays muted', !in_array('Back in stock: Radio', $titles, true) && !str_contains(json_encode($posts), 'stock body'));
+check('both outcomes are in the alert log', in_array('owner alerts', array_column($state['alert_log'] ?? [], 'channel'), true), implode(',', array_column($state['alert_log'] ?? [], 'channel')));
+
 // ---- public topic off by default
 [, $posts] = $run('nopublic', 'ntfy-flush', ['notify_webhook'=>$private] + $none);
 check('with no public topic nothing is posted publicly', count($posts) === 1 && $posts[0]['uri'] === '/private-topic-1234');

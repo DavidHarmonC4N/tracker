@@ -54,7 +54,7 @@ run(async (t) => {
 
   // alerts: the panel, the test button, and what actually went out (run.sh points sendmail at a file)
   t.ok('the Alerts panel shows the address masked and the sender', /o\*\*\*@example\.com/.test(await p.textContent('#alerts-heading + p, .panel[aria-labelledby="alerts-heading"]')) && /alerts@example\.org/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));
-  t.ok('the Alerts panel says health alerts are on and what state the checker is in', /Health alerts\s*·\s*on: you are told once if no checker reports for 3 hours/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')) && /Now: (waiting for the first check|running|stalled)/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));
+  t.ok('the Alerts panel says health alerts are on and what state the checker is in', /Health alerts\s*·\s*on, and sent even while muted: you are told once if no checker reports for 3 hours/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')) && /Now: (waiting for the first check|running|stalled)/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));
   t.ok('the panel says the public topic is off and shows the buttons setting', /Public topic\s*·\s*off/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));
   t.ok('the full address is never shown on the page', !/owner@example\.com/.test(await p.textContent('body')));
   await p.click('button[value="test_alert"]'); await p.waitForLoadState();

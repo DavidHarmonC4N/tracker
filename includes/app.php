@@ -462,12 +462,22 @@ function notify_flush(array $owner, array $public): void {
     $subject = '';
     try {
         $state = config()['data_dir'] !== '' ? load_state(data_dir()) : [];
-        if ($owner) {
-            [$subject, $body, $meta] = notify_digest($owner);
+        // Checker health alerts (the checker stopped, a seller keeps failing) are sent even while alerts are muted: muting is for
+        // stock noise, and these are the messages that say the stock data itself is going stale. They go out as their own digest.
+        $health = array_filter($owner, static fn($item) => ($item[2]['type'] ?? '') === 'health');
+        $stock = array_diff_key($owner, $health);
+        if ($health) {
+            [$healthSubject, $healthBody, $healthMeta] = notify_digest(array_values($health));
+            $subject = $healthSubject;
+            $log = array_merge($log, notify_send($healthSubject, $healthBody, $healthMeta));
+        }
+        if ($stock) {
+            [$stockSubject, $body, $meta] = notify_digest(array_values($stock));
+            $subject = $subject !== '' ? $subject : $stockSubject;
             if (alerts_muted($state)) {
                 $log[] = ['channel'=>'owner alerts', 'ok'=>true, 'message'=>'Muted until ' . gmdate('H:i', (int)$state['alerts_muted_until']) . ' UTC, so this was not sent.'];
             } else {
-                $log = array_merge($log, notify_send($subject, $body, $meta));
+                $log = array_merge($log, notify_send($stockSubject, $body, $meta));
             }
         }
         if ($public) {
