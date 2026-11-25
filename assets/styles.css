@@ -259,3 +259,8 @@ nav.footer-col { display: block; font-size: .87rem; color: var(--dim); }
   .filter-selects.open { display: grid; }
   .result-line { flex-wrap: wrap; }
 }
+
+/* Warehouse flags */
+.flag { width: 20px; height: 13.3px; flex: none; margin-right: .45rem; border-radius: 2px; box-shadow: 0 0 0 1px #ffffff2e; }
+.group-head h3 { display: flex; align-items: center; }
+.group-head h3 .flag { width: 28px; height: 18.7px; margin-right: .6rem; border-radius: 3px; }

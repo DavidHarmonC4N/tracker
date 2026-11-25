@@ -145,8 +145,25 @@ function changeBadge(row, status) {
   return null;
 }
 
+// Tiny vector flags for the warehouse tags. Static markup, drawn here so they look the same on every device.
+const FLAGS = {
+  us: '<svg class="flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false"><rect y="0.000" width="30" height="1.558" fill="#B22234"/><rect y="1.538" width="30" height="1.558" fill="#FFFFFF"/><rect y="3.077" width="30" height="1.558" fill="#B22234"/><rect y="4.615" width="30" height="1.558" fill="#FFFFFF"/><rect y="6.154" width="30" height="1.558" fill="#B22234"/><rect y="7.692" width="30" height="1.558" fill="#FFFFFF"/><rect y="9.231" width="30" height="1.558" fill="#B22234"/><rect y="10.769" width="30" height="1.558" fill="#FFFFFF"/><rect y="12.308" width="30" height="1.558" fill="#B22234"/><rect y="13.846" width="30" height="1.558" fill="#FFFFFF"/><rect y="15.385" width="30" height="1.558" fill="#B22234"/><rect y="16.923" width="30" height="1.558" fill="#FFFFFF"/><rect y="18.462" width="30" height="1.558" fill="#B22234"/><rect width="12" height="10.77" fill="#3C3B6E"/><circle cx="2.20" cy="1.90" r=".85" fill="#fff"/><circle cx="5.10" cy="1.90" r=".85" fill="#fff"/><circle cx="8.00" cy="1.90" r=".85" fill="#fff"/><circle cx="10.90" cy="1.90" r=".85" fill="#fff"/><circle cx="2.20" cy="4.45" r=".85" fill="#fff"/><circle cx="5.10" cy="4.45" r=".85" fill="#fff"/><circle cx="8.00" cy="4.45" r=".85" fill="#fff"/><circle cx="10.90" cy="4.45" r=".85" fill="#fff"/><circle cx="2.20" cy="7.00" r=".85" fill="#fff"/><circle cx="5.10" cy="7.00" r=".85" fill="#fff"/><circle cx="8.00" cy="7.00" r=".85" fill="#fff"/><circle cx="10.90" cy="7.00" r=".85" fill="#fff"/><circle cx="2.20" cy="9.55" r=".85" fill="#fff"/><circle cx="5.10" cy="9.55" r=".85" fill="#fff"/><circle cx="8.00" cy="9.55" r=".85" fill="#fff"/><circle cx="10.90" cy="9.55" r=".85" fill="#fff"/></svg>',
+  eu: '<svg class="flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#003399"/><circle cx="21.20" cy="10.00" r="1.15" fill="#FFCC00"/><circle cx="20.37" cy="13.10" r="1.15" fill="#FFCC00"/><circle cx="18.10" cy="15.37" r="1.15" fill="#FFCC00"/><circle cx="15.00" cy="16.20" r="1.15" fill="#FFCC00"/><circle cx="11.90" cy="15.37" r="1.15" fill="#FFCC00"/><circle cx="9.63" cy="13.10" r="1.15" fill="#FFCC00"/><circle cx="8.80" cy="10.00" r="1.15" fill="#FFCC00"/><circle cx="9.63" cy="6.90" r="1.15" fill="#FFCC00"/><circle cx="11.90" cy="4.63" r="1.15" fill="#FFCC00"/><circle cx="15.00" cy="3.80" r="1.15" fill="#FFCC00"/><circle cx="18.10" cy="4.63" r="1.15" fill="#FFCC00"/><circle cx="20.37" cy="6.90" r="1.15" fill="#FFCC00"/></svg>',
+  cn: '<svg class="flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#DE2910"/><polygon points="5.00,2.40 5.67,4.47 7.85,4.47 6.09,5.75 6.76,7.83 5.00,6.55 3.24,7.83 3.91,5.75 2.15,4.47 4.33,4.47" fill="#FFDE00"/><polygon points="10.00,1.00 10.22,1.69 10.95,1.69 10.36,2.12 10.59,2.81 10.00,2.38 9.41,2.81 9.64,2.12 9.05,1.69 9.78,1.69" fill="#FFDE00"/><polygon points="12.00,3.10 12.22,3.79 12.95,3.79 12.36,4.22 12.59,4.91 12.00,4.48 11.41,4.91 11.64,4.22 11.05,3.79 11.78,3.79" fill="#FFDE00"/><polygon points="12.00,6.00 12.22,6.69 12.95,6.69 12.36,7.12 12.59,7.81 12.00,7.38 11.41,7.81 11.64,7.12 11.05,6.69 11.78,6.69" fill="#FFDE00"/><polygon points="10.00,8.10 10.22,8.79 10.95,8.79 10.36,9.22 10.59,9.91 10.00,9.48 9.41,9.91 9.64,9.22 9.05,8.79 9.78,8.79" fill="#FFDE00"/></svg>',
+};
+
+function flagNode(key) {
+  if (!FLAGS[key]) return null;
+  const holder = document.createElement('span');
+  holder.innerHTML = FLAGS[key];
+  return holder.firstChild;
+}
+
 function fact(text, className, title) {
-  const node = el('span', 'fact' + (className ? ' ' + className : ''), text);
+  const node = el('span', 'fact' + (className ? ' ' + className : ''));
+  const flag = FLAGS[className] ? flagNode(className) : null;
+  if (flag) node.append(flag);
+  node.append(document.createTextNode(text));
   if (title) node.title = title;
   return node;
 }
@@ -342,7 +359,11 @@ function draw() {
       const label = lookup.warehouse[key] || 'Warehouse not specified';
       const section = el('section', 'group');
       const heading = el('div', 'group-head');
-      heading.append(el('h3', '', label + ' · ' + group.length));
+      const heading3 = el('h3');
+      const flag = flagNode(key);
+      if (flag) heading3.append(flag);
+      heading3.append(document.createTextNode(label + ' · ' + group.length));
+      heading.append(heading3);
       const grid = el('div', 'catalog');
       grid.append(...group.map(card));
       section.append(heading, grid);
