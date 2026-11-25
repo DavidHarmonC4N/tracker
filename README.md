@@ -185,3 +185,9 @@ These live in the **host's** `config.php`. The repository's copy is a blank temp
 - cPanel Cron Jobs: https://docs.cpanel.net/cpanel/advanced/cron-jobs/
 - Shopify Ajax Product API: https://shopify.dev/docs/api/ajax/reference/product
 - GitHub encrypted secrets: https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions
+
+## Versions and the What's new section
+
+Releases are named `v<major>.<minor>` plus a codename. Each major series takes the next word from the radio alphabet (v1 is the Antenna series, v2 is Beacon, then Channel, Dipole, Echo and so on). Each minor release within a series is named for a bird (v1.0 Kestrel, v1.1 Osprey, v1.2 Harrier, v1.3 Merlin, v1.4 Condor, v1.5 Peregrine).
+
+To publish a release, edit `index.html`: add a new `<div class="rel">` block at the top of the `#whats-new` section (and drop the oldest one into the "Earlier" line), then update the version in the `<summary>` line and in the `<p class="stamp">` line in the footer. Bump the `?v=` cache string on the CSS and JS links so browsers pick up the change.

@@ -296,3 +296,24 @@ nav.footer-col { display: block; font-size: .87rem; color: var(--dim); }
 .card.gone { opacity: .8; border-style: dashed; }
 .empty-action { margin-top: .9rem; }
 @media (max-width: 620px) { .picks-btn { margin-left: 0; } }
+
+/* What's new and version stamp */
+.wn { grid-column: 1 / -1; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
+.wn > summary { list-style: none; display: flex; align-items: center; gap: .8rem; padding: .7rem 1rem; min-height: 48px; cursor: pointer; }
+.wn > summary::-webkit-details-marker { display: none; }
+.wn > summary:hover { background: #20281b; border-radius: 8px; }
+.wn .ver { font: 800 .78rem var(--mono); letter-spacing: .06em; color: #192111; background: var(--green); border-radius: 4px; padding: .12rem .5rem; }
+.wn .code { font: 700 .95rem var(--mono); color: var(--green); text-transform: uppercase; letter-spacing: .08em; }
+.wn .sum { flex: 1; color: var(--dim); font-size: .9rem; }
+.wn .chev { width: 18px; height: 18px; fill: none; stroke: var(--dim); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+.wn[open] .chev { transform: rotate(180deg); }
+.wn .body { padding: .2rem 1rem 1rem; border-top: 1px solid var(--edge); }
+.wn .rel { padding: .85rem 0; border-bottom: 1px solid var(--edge); }
+.wn .rel h3 { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0 0 .5rem; font-size: 1rem; }
+.wn .rel ul { margin: 0; padding-left: 1.1rem; font-size: .92rem; line-height: 1.55; }
+.wn .rel li::marker { color: #627447; }
+.wn .newtag { font: 800 .68rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--green); border: 1px solid var(--green); border-radius: 999px; padding: .05rem .45rem; }
+.wn .more { margin: .7rem 0 0; color: var(--dim); font: .8rem/1.5 var(--mono); }
+.stamp { margin: 0; color: #8d987f; font: .72rem/1.5 var(--mono); letter-spacing: .03em; }
+.stamp .call { color: var(--dim); }
+@media (prefers-reduced-motion: reduce) { .wn .chev { transition: none; } }
