@@ -1960,5 +1960,37 @@
     },
     "attempted_at": null,
     "error": null
+  },
+  {
+    "id": "rok-wismesh-tag",
+    "seller": "Rokland",
+    "location": "Florida",
+    "name": "RAK WisMesh Tag · US915",
+    "url": "https://store.rokland.com/products/wismesh-tag-from-rakwireless-mokosmart-meshtastic-compatible-card-sized-node-us915-mhz?variant=44663304552531",
+    "firmware": "meshtastic",
+    "setup": "meshtastic",
+    "kind": "tracker",
+    "role": "tracker",
+    "note": "Card-sized GPS tracker with an IP66 case and a 1000 mAh battery. Ships with Meshtastic installed.",
+    "mode": "auto",
+    "checker": "remote",
+    "variant": "",
+    "scope": "",
+    "ready": "",
+    "sold": "",
+    "price_path": "",
+    "paused": false,
+    "late": true,
+    "result": {
+      "status": "in_stock",
+      "price": 5000,
+      "qty": null,
+      "from_price": false,
+      "observed_at": null,
+      "source": "research",
+      "detail": "Research snapshot · Rokland listed $50.00 in stock, Nov 25, 2026"
+    },
+    "attempted_at": null,
+    "error": null
   }
 ]
