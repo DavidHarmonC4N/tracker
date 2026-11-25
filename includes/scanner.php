@@ -237,13 +237,19 @@ function shopify_result(string $body, array $item): ?array {
     }
     parse_str(parse_url($item['url'], PHP_URL_QUERY) ?? '', $query);
     $id = is_string($query['variant'] ?? null) ? $query['variant'] : '';
-    $terms = array_values(array_filter(array_map('trim', explode('|', strtolower($item['variant']))), 'strlen'));
+    // Variant text is compared without capitals or spaces, so "No case,No gps" matches "No case, No GPS".
+    $flat = static fn($text) => (string)preg_replace('/\s+/u', '', strtolower((string)$text));
+    $terms = array_values(array_filter(array_map($flat, explode('|', $item['variant'])), 'strlen'));
     $matches = [];
     foreach ($data['variants'] as $v) {
         if (!is_array($v) || !is_int($v['price'] ?? null) || !is_bool($v['available'] ?? null)) {
             continue;
         }
-        $options = array_map(static fn($option) => strtolower(trim((string)$option)), $v['options'] ?? []);
+        $options = array_map($flat, $v['options'] ?? []);
+        // Some stores keep the choice in the variant title ("915 MHz / BASE ...") rather than in separate options.
+        foreach (explode('/', (string)($v['public_title'] ?? $v['title'] ?? '')) as $part) {
+            $options[] = $flat($part);
+        }
         if (($id !== '' && (string)$v['id'] !== $id) || array_diff($terms, $options)) {
             continue;
         }
