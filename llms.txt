@@ -6,6 +6,7 @@
 - [All radios (plain list with price and stock)](https://mesh.davidandlaura.net/radios.php): every tracked radio, grouped by availability.
 - [Interactive catalog](https://mesh.davidandlaura.net/): filter by use, firmware, warehouse, radio type and price.
 - [Price history](https://mesh.davidandlaura.net/prices.html): how prices and stock have moved over time.
+- [Local groups directory](https://mesh.davidandlaura.net/groups.php): Meshtastic and MeshCore groups in every U.S. state, with a map. Compiled by an automated search and not endorsed.
 - [Phone alerts](https://mesh.davidandlaura.net/alerts.html): get a free ntfy alert on restocks and price drops.
 
 ## Feeds

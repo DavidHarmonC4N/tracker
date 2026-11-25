@@ -68,7 +68,7 @@ run(async (t) => {
   // the hero has a Browse antennas button that opens the Antennas category
   await p.goto(t.SITE + 'index.html'); await p.waitForSelector('.card');
   const hero = await p.$$eval('.hero-actions a', (a) => a.map((x) => ({ text: x.textContent.trim(), href: x.getAttribute('href'), cls: x.className })));
-  t.ok('the hero has Browse radios, Browse antennas and MESH tools buttons', hero.map((h) => h.text).join('|') === 'Browse radios|Browse antennas|MESH tools' && hero[0].cls === 'primary' && hero[1].cls === 'quiet', JSON.stringify(hero.map((h) => h.text)));
+  t.ok('the hero has Browse radios, Browse antennas, Find a local group and MESH tools buttons', hero.map((h) => h.text).join('|') === 'Browse radios|Browse antennas|Find a local group|MESH tools' && hero[0].cls === 'primary' && hero[1].cls === 'quiet', JSON.stringify(hero.map((h) => h.text)));
   await p.click('.hero-actions a:has-text("Browse antennas")');
   await p.waitForSelector('.card');
   t.ok('Browse antennas opens the antenna catalog', /Antenna catalog/.test(await p.textContent('#inventory-title')) && /cat=antennas/.test(await p.evaluate(() => location.href)) && (await p.$$eval('.card h3', (h) => h.length)) >= 20);

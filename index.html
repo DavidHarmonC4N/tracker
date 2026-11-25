@@ -27,7 +27,7 @@
   {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://mesh.davidandlaura.net/#website","url":"https://mesh.davidandlaura.net/","name":"Offgrid Comms Tracker","description":"Live prices and stock for MeshCore and Meshtastic radios from U.S. and international sellers.","inLanguage":"en","publisher":{"@id":"https://mesh.davidandlaura.net/#organization"}},{"@type":"Organization","@id":"https://mesh.davidandlaura.net/#organization","name":"Offgrid Comms Tracker","url":"https://mesh.davidandlaura.net/","logo":{"@type":"ImageObject","url":"https://mesh.davidandlaura.net/assets/og-image.png","width":1200,"height":630}}]}
   </script>
   <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
-  <link rel="stylesheet" href="assets/styles.css?v=20261201-review">
+  <link rel="stylesheet" href="assets/styles.css?v=20261202-groups">
   <script src="assets/catalog.js?v=20261201-review" defer></script>
 </head>
 <body>
@@ -35,7 +35,7 @@
   <header class="mast">
     <div class="wrap mast-inner">
       <a class="brand" href="./"><span class="brand-icon" aria-hidden="true"><i></i></span> OFFGRID <span>COMMS</span></a>
-      <nav aria-label="Site navigation"><a href="#inventory">Catalog</a><a href="prices.html">Price history</a><a href="#offline-tools">Mesh tools</a><a class="quiet" href="submit.php" data-submit>Submit a listing</a><a  class="quiet coffee" href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">Buy me a coffee<span class="sr"> (opens in a new tab)</span></a><a href="admin.php" data-admin>Admin</a></nav>
+      <nav aria-label="Site navigation"><a href="#inventory">Catalog</a><a href="prices.html">Price history</a><a href="groups.php">Groups</a><a href="#offline-tools">Mesh tools</a><a class="quiet" href="submit.php" data-submit>Submit a listing</a><a  class="quiet coffee" href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">Buy me a coffee<span class="sr"> (opens in a new tab)</span></a><a href="admin.php" data-admin>Admin</a></nav>
     </div>
   </header>
   <main>
@@ -48,6 +48,7 @@
           <div class="hero-actions">
             <a class="primary" href="./#inventory">Browse radios</a>
             <a class="quiet" href="./?cat=antennas#inventory">Browse antennas</a>
+            <a class="quiet" href="groups.php">Find a local group</a>
             <a class="quiet" href="#notoryx-tools">MESH tools</a>
           </div>
           <p class="hero-support">If you find this helpful, <a  href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">buy me a coffee<span class="sr"> (opens in a new tab)</span></a>.</p>
@@ -190,6 +191,7 @@
           <li><a href="prices.html">Price history</a></li>
           <li><a href="#offline-tools">Mesh tools and links</a></li>
           <li><a href="radios.php">All radios (plain list)</a></li>
+          <li><a href="groups.php">Local groups directory</a></li>
           <li><a href="submit.php">Submit a listing</a></li>
           <li><a href="feed.php">Stock alerts (RSS)</a></li>
           <li><a href="alerts.html">Phone alerts (ntfy)</a></li>
@@ -201,12 +203,12 @@
         <a  class="quiet coffee" href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">Buy me a coffee<span class="sr"> (opens in a new tab)</span></a>
       </section>
       <details class="wn" id="whats-new">
-        <summary><span class="ver">v1.12</span><span class="code">Osprey</span><span class="sum">What’s new</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <summary><span class="ver">v1.13</span><span class="code">Harrier</span><span class="sum">What’s new</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
         <div class="body">
-        <div class="rel"><p class="rel-title"><span class="ver">v1.12</span><span class="code">Osprey</span><span class="newtag">New</span></p><ul><li>16 more antennas from Atlavox, RAKwireless, ameriDroid, SpecFive and Muzi Works</li><li>Antennas that fit: radio pages list antennas that match the radio's connector, and antenna pages list the radios they fit</li><li>The checker reads a whole store in one request, so Rokland refreshes every hour</li></ul></div>
+        <div class="rel"><p class="rel-title"><span class="ver">v1.13</span><span class="code">Harrier</span><span class="newtag">New</span></p><ul><li>A directory of 234 local Meshtastic and MeshCore groups across every U.S. state, with a tile map and a page for each state</li><li>Filter groups by state, protocol, search words, or whether they have a Discord</li><li>Every group link opens in a new tab. The list was compiled by an automated search and is not endorsed</li></ul></div>
+        <div class="rel"><p class="rel-title"><span class="ver">v1.12</span><span class="code">Osprey</span></p><ul><li>16 more antennas from Atlavox, RAKwireless, ameriDroid, SpecFive and Muzi Works</li><li>Antennas that fit: radio pages list antennas that match the radio's connector, and antenna pages list the radios they fit</li><li>The checker reads a whole store in one request, so Rokland refreshes every hour</li></ul></div>
         <div class="rel"><p class="rel-title"><span class="ver">v1.11</span><span class="code">Kestrel</span></p><ul><li>Antennas: a new category with band, gain, connector and length, price history and stock, and band and connector filters</li><li>A Notify me block on every radio and antenna page for phone alerts</li><li>Listings that had to be checked by hand were removed, so everything here is checked automatically</li></ul></div>
-        <div class="rel"><p class="rel-title"><span class="ver">v1.10</span><span class="code">Heron</span></p><ul><li>A page for every radio: price and stock by warehouse, its history, and similar radios</li><li>Each catalog card and the plain list link to the radio's page</li><li>Fixed the price columns on the Price history page, which had turned into round badges</li></ul></div>
-          <p class="more">Earlier: v1.9 Tern (plain list, search data) · v1.8 Swift (phone alerts) · v1.7 Falcon (price history, price filter, badges) · v1.6 Albatross (roll-up sections, faster refresh) · v1.5 Peregrine (My picks watchlist) · v1.4 Condor (one-row tabs, quick filters, icons and flags) · v1.3 Merlin (Seeed warehouses, T-Deck, visitor counter) · v1.2 Harrier (U.S. checker and automatic deploys) · v1.1 Osprey (change history and RSS) · v1.0 Kestrel (first public catalog)</p>
+          <p class="more">Earlier: v1.10 Heron (a page for every radio) · v1.9 Tern (plain list, search data) · v1.8 Swift (phone alerts) · v1.7 Falcon (price history, price filter, badges) · v1.6 Albatross (roll-up sections, faster refresh) · v1.5 Peregrine (My picks watchlist) · v1.4 Condor (one-row tabs, quick filters, icons and flags) · v1.3 Merlin (Seeed warehouses, T-Deck, visitor counter) · v1.2 Harrier (U.S. checker and automatic deploys) · v1.1 Osprey (change history and RSS) · v1.0 Kestrel (first public catalog)</p>
           <p class="more">Versions: the Antenna series is v1.x. Each release is named for a bird. The next major series starts at v2.0, named Beacon.</p>
         </div>
       </details>
@@ -214,7 +216,7 @@
         <p class="footer-pricing">Prices are in USD before tax and shipping. Confirm stock and the selected variant with the seller. Sellers marked with an asterisk block automated checks, so their listings are checked by hand.</p>
         <p class="footer-legal">Google Play and the Google Play logo are trademarks of Google LLC. App Store is a service mark of Apple Inc. MeshCore is made by its own developers and is not affiliated with this tracker.</p>
         <p class="visitors" id="visitors" hidden>Visitors: <strong id="visitors-today">0</strong> today · <strong id="visitors-total">0</strong> all time. Counted anonymously: no cookies, and no IP addresses are stored.</p>
-        <p class="stamp">v1.12 “Osprey” · Antenna series · 73 de <span class="call">KY4DEH</span></p>
+        <p class="stamp">v1.13 “Harrier” · Antenna series · 73 de <span class="call">KY4DEH</span></p>
       </div>
     </div>
   </footer>

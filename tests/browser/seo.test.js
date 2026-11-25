@@ -36,7 +36,7 @@ run(async (t) => {
   const map = await raw('sitemap.php');
   t.ok('the sitemap is XML', map.status === 200 && /xml/.test(map.type) && /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/.test(map.text));
   const locs = [...map.text.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  t.ok('it lists the four main pages and every radio page, with absolute addresses', locs.length > 40 && locs.every((l) => /^https?:\/\//.test(l)) && locs.some((l) => l.endsWith('radios.php')) && locs.some((l) => l.endsWith('prices.html')) && locs.some((l) => l.endsWith('alerts.html')) && locs.filter((l) => /radio\.php\?r=/.test(l)).length === locs.length - 4, locs.length + ' urls');
+  t.ok('it lists the four main pages and every radio page, with absolute addresses', locs.length > 40 && locs.every((l) => /^https?:\/\//.test(l)) && locs.some((l) => l.endsWith('radios.php')) && locs.some((l) => l.endsWith('prices.html')) && locs.some((l) => l.endsWith('alerts.html')) && locs.filter((l) => /radio\.php\?r=/.test(l)).length === locs.length - 4 - 54, locs.length + ' urls');
   t.ok('it leaves out private pages and index.html', !locs.some((l) => /admin|submit|ingest|index\.html/.test(l)));
   t.ok('it has no duplicate addresses', new Set(locs).size === locs.length);
   const mods = [...map.text.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((m) => m[1]);

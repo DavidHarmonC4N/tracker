@@ -1,0 +1,4491 @@
+{
+ "verified": "2026-11-25",
+ "groups": [
+  {
+   "id": "M001",
+   "name": "Alabama Mesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://alabamamesh.org/",
+   "discord": "https://discord.com/channels/1253773694111711432/1275773786712576072",
+   "discord_members_only": true,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Alabama",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Alabama"
+   ]
+  },
+  {
+   "id": "M100",
+   "name": "Alabama Mesh Community (ALmesh.net)",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://almesh.net/",
+   "discord": "https://discord.gg/HdK9Rhr2ch",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Alabama",
+   "notes": "Primarily Meshtastic in northern Alabama. The community also reports local MeshCore experiments.",
+   "review": "reviewed",
+   "states": [
+    "Alabama"
+   ]
+  },
+  {
+   "id": "M223",
+   "name": "AU Mesh",
+   "city": "Auburn",
+   "protocol": "meshtastic",
+   "type": "Club / institution",
+   "url": "https://aumesh.club/",
+   "discord": "https://discord.gg/PmmSCSw7Dn",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://aumesh.club/tools/",
+   "coverage": "Auburn University community",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Alabama"
+   ]
+  },
+  {
+   "id": "M002",
+   "name": "Birmingham Mesh",
+   "city": "Birmingham",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://birminghammesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/profile.php?id=61556221615657",
+   "other": "",
+   "map": "",
+   "coverage": "Birmingham and surrounding counties",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Alabama"
+   ]
+  },
+  {
+   "id": "M029",
+   "name": "Gulf Coast Mesh",
+   "city": "Mobile / Gulf Shores",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.gulfcoastmesh.org/",
+   "discord": "https://discord.gulfcoastmesh.org/",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/gulfcoastmesh",
+   "other": "",
+   "map": "https://www.gulfcoastmesh.org/meshmap",
+   "coverage": "South Texas to the Florida Panhandle",
+   "notes": "Weekly Monday voice net on Discord. Louisiana is the network’s anchor.",
+   "review": "reviewed",
+   "states": [
+    "Alabama",
+    "Florida",
+    "Louisiana",
+    "Mississippi",
+    "Texas"
+   ]
+  },
+  {
+   "id": "M102",
+   "name": "AnchorNode Club – Anchorage Meshtastic Community",
+   "city": "Anchorage",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://anchornode.club/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/share/g/1DeYd3tUx8/",
+   "other": "",
+   "map": "",
+   "coverage": "Anchorage area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Alaska"
+   ]
+  },
+  {
+   "id": "M224",
+   "name": "Arizona Mesh Organization",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Club / institution",
+   "url": "https://arizonamesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://arizonamesh.org/amo_mesh_map.shtml",
+   "coverage": "Arizona amateur radio club",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Arizona"
+   ]
+  },
+  {
+   "id": "M103",
+   "name": "Arizona Meshtastic Community",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://azmsh.net/",
+   "discord": "https://discord.gg/HrKtyuFEQk",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Arizona",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Arizona"
+   ]
+  },
+  {
+   "id": "M003",
+   "name": "AZCOREMSH.NET - Arizona Mesh Networking Project",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://azcoremsh.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Arizona",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Arizona"
+   ]
+  },
+  {
+   "id": "M004",
+   "name": "MeshCore Prescott",
+   "city": "Prescott",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://meshcoreprescott.net/",
+   "discord": "https://discord.gg/dktp92TcRS",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://corescope.meshcoreprescott.net/",
+   "coverage": "Prescott, AZ",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Arizona"
+   ]
+  },
+  {
+   "id": "M270",
+   "name": "Tucson Meshtastic Community",
+   "city": "Tucson",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://discord.gg/7MzbMMd2kg",
+   "discord": "https://discord.gg/7MzbMMd2kg",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Southern Arizona",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Arizona"
+   ]
+  },
+  {
+   "id": "M225",
+   "name": "ArkSignal",
+   "city": "",
+   "protocol": "both",
+   "type": "Local project / resource",
+   "url": "https://arksignal.net/mesh/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://arksignal.net/live",
+   "coverage": "Arkansas",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Arkansas"
+   ]
+  },
+  {
+   "id": "M105",
+   "name": "Fort Smith Mesh",
+   "city": "Fort Smith",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://discord.com/invite/nwsvcXeqMX",
+   "discord": "https://discord.com/invite/nwsvcXeqMX",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Fort Smith area",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Arkansas"
+   ]
+  },
+  {
+   "id": "M079",
+   "name": "Four States Mesh Radio",
+   "city": "Texarkana",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://www.facebook.com/FourStatesMeshRadio/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/FourStatesMeshRadio/",
+   "other": "",
+   "map": "",
+   "coverage": "Texarkana / Bowie and Cass Counties",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Arkansas",
+    "Texas"
+   ]
+  },
+  {
+   "id": "M104",
+   "name": "LR Mesh",
+   "city": "Little Rock",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://lrme.sh/",
+   "discord": "https://discord.com/channels/867578229534359593/1196928262165770341",
+   "discord_members_only": true,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Central Arkansas",
+   "notes": "Uses the US Arkansas channel in the official Meshtastic Discord.",
+   "review": "reviewed",
+   "states": [
+    "Arkansas"
+   ]
+  },
+  {
+   "id": "M157",
+   "name": "LZMesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.lzmesh.com/",
+   "discord": "https://discord.lzarc.com/",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/lzmesh",
+   "other": "",
+   "map": "https://map.lzmesh.com/",
+   "coverage": "Southwest Missouri and the four-state region",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Arkansas",
+    "Kansas",
+    "Missouri",
+    "Oklahoma"
+   ]
+  },
+  {
+   "id": "M005",
+   "name": "95033 MeshCore",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://localwiki.org/95033/MeshCore",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://groups.io/g/95033Meshcore",
+   "map": "https://localwiki.org/95033/map/",
+   "coverage": "Santa Cruz Mountains, ZIP 95033",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M113",
+   "name": "Antelope Valley Mesh",
+   "city": "Lancaster / Palmdale",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.avmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Antelope Valley",
+   "notes": "Website unavailable during review. The Meshtastic project still lists the group.",
+   "review": "unconfirmed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M006",
+   "name": "Bay Area MeshCore",
+   "city": "San Francisco / Oakland / Salinas",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://bayareameshcore.org/",
+   "discord": "https://discord.gg/q59JzsYTst",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://baus.meshmapper.net/",
+   "coverage": "SF Bay Area (north of SF to Salinas and Oakland)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M091",
+   "name": "CascadiaMesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://cascadiamesh.org/",
+   "discord": "https://discord.com/invite/m9yarB3p2E",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://cascadiamesh.org/map/",
+   "coverage": "British Columbia, Washington, Oregon, Northern California",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California",
+    "Oregon",
+    "Washington"
+   ]
+  },
+  {
+   "id": "M114",
+   "name": "Central Valley Mesh",
+   "city": "Stockton / Manteca / Modesto / Fresno",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://centralvalleymesh.net/",
+   "discord": "https://discord.com/invite/9KUu5QQqMx",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://centralvalleymesh.net/map/",
+   "coverage": "San Joaquin Valley and adjoining communities",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M007",
+   "name": "High Desert Mesh",
+   "city": "Victorville / Lancaster / Palmdale",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://hdmesh.org/",
+   "discord": "https://discord.gg/BN2Sjw4qn4",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Southern California high desert (Victorville/Lancaster/Palmdale)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M008",
+   "name": "Inter-Canyon Mesh Network (ICMESH)",
+   "city": "Trabuco Canyon",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.icmesh.com/",
+   "discord": "https://discord.gg/rsjHNZA4uG",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Trabuco Canyon / Orange County canyons",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M110",
+   "name": "Meshtastic Bay Area Group",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://bayme.sh/",
+   "discord": "https://discord.gg/GpsKbhGJx5",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://bayme.sh/map/",
+   "coverage": "San Francisco Bay Area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M271",
+   "name": "Meshtastic Santa Cruz County",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://groups.io/g/Meshtastic-Santa-Cruz",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://groups.io/g/Meshtastic-Santa-Cruz",
+   "map": "",
+   "coverage": "Santa Cruz County",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M109",
+   "name": "Mission Viejo Mesh",
+   "city": "Mission Viejo",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://missionviejomesh.org/",
+   "discord": "https://discord.gg/TcZAnFQ5n6",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Southern Orange County",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M111",
+   "name": "Monterey Bay Mesh",
+   "city": "Monterey",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://mrymesh.net/",
+   "discord": "https://discord.com/invite/xeqYpc5D89",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Monterey Bay",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M115",
+   "name": "Sac Valley Mesh",
+   "city": "Sacramento",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.sacvalleymesh.com/",
+   "discord": "https://discord.gg/kk26pjpDhG",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Sacramento Valley",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M009",
+   "name": "SacMesh",
+   "city": "Sacramento",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://sacmesh.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Sacramento",
+   "notes": "Sacramento community. Separate Sac Valley Mesh entry also serves the region.",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M112",
+   "name": "San Diego Mesh",
+   "city": "San Diego",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://discord.gg/k8RputgWgD",
+   "discord": "https://discord.gg/k8RputgWgD",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "San Diego County",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M106",
+   "name": "San Jose Meshtastic Club",
+   "city": "San Jose",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://discord.gg/h7824FUxBx",
+   "discord": "https://discord.gg/h7824FUxBx",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "South Bay",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M107",
+   "name": "SoCal Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://socalmesh.org/",
+   "discord": "https://socalmesh.org/discord/",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://meshview.socalmesh.org/",
+   "coverage": "Southern California, including southern Orange County",
+   "notes": "Laguna Mesh directs visitors here.",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M226",
+   "name": "South City Mesh",
+   "city": "South San Francisco",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.southcitymesh.com/",
+   "discord": "https://discord.gg/GpsKbhGJx5",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "San Mateo County",
+   "notes": "Directs members to the Bay Area Meshtastic Discord.",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M272",
+   "name": "Tahoe Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://tahoemesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Lake Tahoe Basin",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California",
+    "Nevada"
+   ]
+  },
+  {
+   "id": "M118",
+   "name": "Visalia Mesh",
+   "city": "Visalia",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://visaliamesh.com/",
+   "discord": "https://discord.com/invite/9KUu5QQqMx",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://visaliamesh.com/map",
+   "coverage": "Visalia area",
+   "notes": "Shares the Central Valley Mesh Discord.",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M010",
+   "name": "West Coast Mesh (WCMesh)",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://wcmesh.com/",
+   "discord": "https://discord.gg/wcmesh",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.wcmesh.com/",
+   "coverage": "Southern California and West Coast coordination",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "California"
+   ]
+  },
+  {
+   "id": "M011",
+   "name": "Colorado Mesh (formerly DenverMesh)",
+   "city": "Denver",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://coloradomesh.org/",
+   "discord": "https://discord.coloradomesh.org/",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Colorado",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Colorado"
+   ]
+  },
+  {
+   "id": "M120",
+   "name": "Colorado Springs Meshtastic Network",
+   "city": "Colorado Springs",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.facebook.com/groups/cosmeshtastic",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/cosmeshtastic",
+   "other": "",
+   "map": "",
+   "coverage": "Colorado Springs area",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Colorado"
+   ]
+  },
+  {
+   "id": "M012",
+   "name": "NoCo Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://nocomesh.org/",
+   "discord": "https://discord.gg/eSa42W5Bzp",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.nocomesh.org/map",
+   "coverage": "Northern Colorado",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Colorado"
+   ]
+  },
+  {
+   "id": "M013",
+   "name": "CT Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://ctmesh.org/",
+   "discord": "https://ctmesh.org/discord",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://meshcore-map.ctmesh.org/",
+   "coverage": "Statewide Connecticut",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Connecticut"
+   ]
+  },
+  {
+   "id": "M014",
+   "name": "New England Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://newenglandme.sh/",
+   "discord": "https://discord.newenglandme.sh/",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.newenglandme.sh/",
+   "coverage": "New England regional coordination",
+   "notes": "Regional coordination for the six New England states.",
+   "review": "reviewed",
+   "states": [
+    "Connecticut",
+    "Maine",
+    "Massachusetts",
+    "New Hampshire",
+    "Rhode Island",
+    "Vermont"
+   ]
+  },
+  {
+   "id": "M227",
+   "name": "New Haven County CT Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Local project / resource",
+   "url": "https://newhavencountyctmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://newhavencountyctmesh.org/network/",
+   "coverage": "New Haven County",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Connecticut"
+   ]
+  },
+  {
+   "id": "M123",
+   "name": "Delaware Meshtastic User Group",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://deme.sh/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/demesh/",
+   "other": "",
+   "map": "",
+   "coverage": "Delaware",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Delaware"
+   ]
+  },
+  {
+   "id": "M015",
+   "name": "DC Mesh",
+   "city": "Washington",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://dcmesh.org/",
+   "discord": "https://discord.gg/Bd9xfDB9Rm",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://dcmesh.org/coverage-map/",
+   "coverage": "Washington DC",
+   "notes": "Quarterly in-person meetings in Washington, DC.",
+   "review": "reviewed",
+   "states": [
+    "District of Columbia"
+   ]
+  },
+  {
+   "id": "M099",
+   "name": "DMV Meshtastic Users",
+   "city": "Washington",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://www.reddit.com/r/Meshtastic_DMV_Users/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://www.reddit.com/r/Meshtastic_DMV_Users/",
+   "map": "",
+   "coverage": "Washington metropolitan region",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "District of Columbia",
+    "Maryland",
+    "Virginia"
+   ]
+  },
+  {
+   "id": "M016",
+   "name": "Florida Mesh (FLMesh)",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://areyoumeshingwith.us/",
+   "discord": "https://discord.com/invite/floridamesh",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://mc.flmesh.us/",
+   "map": "https://map.areyoumeshingwith.us/",
+   "coverage": "Statewide Florida",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Florida"
+   ]
+  },
+  {
+   "id": "M125",
+   "name": "JAXMesh",
+   "city": "Jacksonville",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://jaxmesh.com/",
+   "discord": "https://discord.gg/86uf2wTMwq",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://mqtt.jaxmesh.com/worldmap/",
+   "coverage": "Jacksonville area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Florida"
+   ]
+  },
+  {
+   "id": "M273",
+   "name": "Meshtastic Florida",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://www.reddit.com/r/Meshtastic_Florida/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://www.reddit.com/r/Meshtastic_Florida/",
+   "map": "",
+   "coverage": "Statewide discussion",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Florida"
+   ]
+  },
+  {
+   "id": "M017",
+   "name": "MilkMesh",
+   "city": "Orlando",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://milkmesh.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://milkmesh.com/florida-mesh/",
+   "coverage": "Orlando",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Florida"
+   ]
+  },
+  {
+   "id": "M124",
+   "name": "Space Coast Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://scmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Brevard County / Space Coast",
+   "notes": "Lists a Monday mesh meetup. The site describes its Discord as forthcoming.",
+   "review": "reviewed",
+   "states": [
+    "Florida"
+   ]
+  },
+  {
+   "id": "M228",
+   "name": "Athens Radio Club",
+   "city": "Athens",
+   "protocol": "meshtastic",
+   "type": "Club / institution",
+   "url": "https://www.athensradioclub.org/meshtastic",
+   "discord": "https://discord.gg/k9VUsy5bKZ",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/athensradioclub/",
+   "other": "",
+   "map": "https://atl.meshmapper.net/?lat=34.10691&lon=-83.47926&zoom=10.30",
+   "coverage": "Athens area",
+   "notes": "Directs members to the neighboring Mountain Mesh Discord.",
+   "review": "reviewed",
+   "states": [
+    "Georgia"
+   ]
+  },
+  {
+   "id": "M018",
+   "name": "CSRA Mesh",
+   "city": "Augusta / Evans / Grovetown",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://meshcore.csramesh.org/",
+   "discord": "https://discord.gg/mgzj2PmhKf",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/share/g/15wMGLcU8Q/",
+   "other": "https://www.csramsh.org/",
+   "map": "",
+   "coverage": "Augusta GA / Central Savannah River Area",
+   "notes": "The main link opens the MeshCore site. The additional resource opens its Meshtastic community site.",
+   "review": "reviewed",
+   "states": [
+    "Georgia",
+    "South Carolina"
+   ]
+  },
+  {
+   "id": "M129",
+   "name": "Georgia Statewide Mesh Coalition",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Coordination hub",
+   "url": "https://meshingwithgeorgia.net/",
+   "discord": "https://discord.gg/sfR43FrXtq",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Georgia",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Georgia"
+   ]
+  },
+  {
+   "id": "M019",
+   "name": "Mountain Mesh (MtnMe.sh)",
+   "city": "Atlanta / Athens",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://mtnme.sh/",
+   "discord": "https://discord.gg/vHykg8xqBG",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Southern Appalachians (North Georgia / East Tennessee)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Georgia",
+    "Tennessee"
+   ]
+  },
+  {
+   "id": "M130",
+   "name": "Southeast Georgia Mesh (SEGAMesh)",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://smp8.simplex.im/g",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://smp8.simplex.im/g",
+   "map": "",
+   "coverage": "Southeast Georgia",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Georgia"
+   ]
+  },
+  {
+   "id": "M231",
+   "name": "Big Island Amateur Radio Club",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Club / institution",
+   "url": "https://www.biarc.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/profile.php?id=100092569165888",
+   "other": "",
+   "map": "",
+   "coverage": "Hawaiʻi Island",
+   "notes": "Club newsletter identifies a Meshtastic channel in its Discord. Public invitation unavailable.",
+   "review": "reviewed",
+   "states": [
+    "Hawaii"
+   ]
+  },
+  {
+   "id": "M131",
+   "name": "Hawaii Meshnet",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.hawaiimesh.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Hawaiʻi",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Hawaii"
+   ]
+  },
+  {
+   "id": "M230",
+   "name": "MeshCore in Hawaii",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Local project / resource",
+   "url": "https://www.qsl.net/ah6rh/am-radio/hawaii/meshcore-hawaii.html",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Oʻahu",
+   "notes": "Operator-maintained information and local coordination.",
+   "review": "reviewed",
+   "states": [
+    "Hawaii"
+   ]
+  },
+  {
+   "id": "M261",
+   "name": "Cache Valley Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://cachevalleymesh.com/about/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Cache Valley",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Idaho",
+    "Utah"
+   ]
+  },
+  {
+   "id": "M020",
+   "name": "East Idaho Mesh",
+   "city": "Idaho Falls",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.eastidahomesh.com/",
+   "discord": "https://discord.gg/sTtYNDF8xB",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://www.eastidahomesh.com/live-map.html",
+   "coverage": "Eastern Idaho",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Idaho"
+   ]
+  },
+  {
+   "id": "M200",
+   "name": "Freq51 – Intermountain Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://freq51.net/",
+   "discord": "https://discord.gg/qmeeRPkq3g",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Utah and Idaho",
+   "notes": "Meshtastic network in Utah and Idaho. Shares a Discord with MountainWest Mesh.",
+   "review": "reviewed",
+   "states": [
+    "Idaho",
+    "Utah"
+   ]
+  },
+  {
+   "id": "M021",
+   "name": "Idaho Mesh (IdahoMesh.com)",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://idahomesh.com/",
+   "discord": "https://discord.gg/2kSKz88y2Z",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://idahomesh.com/maps",
+   "coverage": "Statewide Idaho",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Idaho"
+   ]
+  },
+  {
+   "id": "M022",
+   "name": "IdahoMesh (IdahoMesh.org)",
+   "city": "Boise",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://idahomesh.org/",
+   "discord": "https://idahomesh.org/discord/",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://idahomesh.org/map",
+   "coverage": "Statewide Idaho (Boise-centered)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Idaho"
+   ]
+  },
+  {
+   "id": "M092",
+   "name": "Inland NW Mesh",
+   "city": "Coeur d’Alene / Lewiston",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://inlandnwmesh.org/",
+   "discord": "https://discord.gg/VzFcvSxxyr",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1477742193327653/",
+   "other": "",
+   "map": "https://inlandnwmesh.org/wardrive",
+   "coverage": "Inland Northwest",
+   "notes": "Shares the regional Discord and Facebook group with Spokane Mesh.",
+   "review": "reviewed",
+   "states": [
+    "Idaho",
+    "Washington"
+   ]
+  },
+  {
+   "id": "M088",
+   "name": "MountainWest Mesh",
+   "city": "Boise / Idaho Falls",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://mwmesh.com/",
+   "discord": "https://discord.gg/qmeeRPkq3g",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.mwmesh.com/",
+   "coverage": "Mountain West (SLC, Provo, Ogden, Logan, St. George, Las Vegas, Boise, Idaho Falls, Rock Springs, Jackson)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Idaho",
+    "Nevada",
+    "Utah",
+    "Wyoming"
+   ]
+  },
+  {
+   "id": "M095",
+   "name": "Spokane Mesh",
+   "city": "Coeur d’Alene",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.spokanemesh.net/",
+   "discord": "https://discord.gg/VzFcvSxxyr",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1477742193327653",
+   "other": "",
+   "map": "",
+   "coverage": "Spokane / Inland Northwest",
+   "notes": "Shares regional coordination channels with Inland NW Mesh.",
+   "review": "reviewed",
+   "states": [
+    "Idaho",
+    "Washington"
+   ]
+  },
+  {
+   "id": "M023",
+   "name": "Central Illinois Mesh (CIMESH)",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://discord.gg/XXpMeCAJye",
+   "discord": "https://discord.gg/XXpMeCAJye",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Central Illinois",
+   "notes": "Website unavailable during review. A Discord is listed by the Meshtastic project.",
+   "review": "unconfirmed",
+   "states": [
+    "Illinois"
+   ]
+  },
+  {
+   "id": "M024",
+   "name": "Chicagoland Mesh",
+   "city": "Chicago",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://chicagolandmesh.org/",
+   "discord": "https://chicagolandmesh.org/discord",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://chicagolandmesh.org/corescope/map/",
+   "coverage": "Chicagoland",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Illinois",
+    "Indiana",
+    "Wisconsin"
+   ]
+  },
+  {
+   "id": "M274",
+   "name": "Clark County Illinois Meshtastic Network",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://clarkcountyill.localmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Clark County",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Illinois"
+   ]
+  },
+  {
+   "id": "M025",
+   "name": "Rock River Mesh (rrmesh)",
+   "city": "Rockford",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://rrmesh.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Rockford / Rock River",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Illinois"
+   ]
+  },
+  {
+   "id": "M137",
+   "name": "B-Town Mesh (Bloomington Area)",
+   "city": "Bloomington",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://btownmesh.org/",
+   "discord": "https://discord.gg/RAnPvDsxPJ",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Bloomington area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Indiana"
+   ]
+  },
+  {
+   "id": "M026",
+   "name": "Central Indiana Mesh Network (CIMN)",
+   "city": "Indianapolis",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.cimesh.net/",
+   "discord": "https://discord.gg/tm7wh7RjD7",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.okimesh.org/",
+   "coverage": "Central Indiana",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Indiana"
+   ]
+  },
+  {
+   "id": "M275",
+   "name": "Indiana Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://discord.gg/qHH6E84wFg",
+   "discord": "https://discord.gg/qHH6E84wFg",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide coordination",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Indiana"
+   ]
+  },
+  {
+   "id": "M142",
+   "name": "Kentuckiana Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.kentuckianamesh.org/",
+   "discord": "https://discord.gg/eqZzwXfFn9",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Louisville and southern Indiana",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Indiana",
+    "Kentucky"
+   ]
+  },
+  {
+   "id": "M135",
+   "name": "NWI Mesh Net",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://nwimesh.net/",
+   "discord": "https://discord.gg/4wQ5SWPBfQ",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://nwimesh.net/node-map",
+   "coverage": "Lake, Porter and LaPorte counties",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Indiana"
+   ]
+  },
+  {
+   "id": "M058",
+   "name": "OKI Mesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://okimesh.org/",
+   "discord": "https://discord.okimesh.org/",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.okimesh.org/",
+   "coverage": "Cincinnati tri-state (Ohio/Kentucky/Indiana)",
+   "notes": "Hoosier Mesh now redirects here. MeshCore onboarding is on the OKI site.",
+   "review": "reviewed",
+   "states": [
+    "Indiana",
+    "Kentucky",
+    "Ohio"
+   ]
+  },
+  {
+   "id": "M139",
+   "name": "Iowa Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.iowamesh.net/",
+   "discord": "https://discord.gg/2pfPx9gGD",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Iowa",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Iowa"
+   ]
+  },
+  {
+   "id": "M140",
+   "name": "Siouxland Mesh",
+   "city": "Sioux City",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://discord.gg/NRcUq9JDnc",
+   "discord": "https://discord.gg/NRcUq9JDnc",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Siouxland",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Iowa"
+   ]
+  },
+  {
+   "id": "M233",
+   "name": "Kansas City Mesh",
+   "city": "Kansas City",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://kansascitymesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Kansas City metro",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Kansas",
+    "Missouri"
+   ]
+  },
+  {
+   "id": "M141",
+   "name": "SecKC Amateur Radio Club",
+   "city": "Kansas City",
+   "protocol": "meshtastic",
+   "type": "Club / institution",
+   "url": "https://ks3ckc.radio/meshtastic",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Kansas City metro",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Kansas"
+   ]
+  },
+  {
+   "id": "M027",
+   "name": "Kentucky Alternative Communications",
+   "city": "",
+   "protocol": "both",
+   "type": "Coordination hub",
+   "url": "https://mesh-ky.org/",
+   "discord": "https://discord.gg/227bDxBQE7",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Kentucky (hub)",
+   "notes": "Statewide hub and local-group directory.",
+   "review": "reviewed",
+   "states": [
+    "Kentucky"
+   ]
+  },
+  {
+   "id": "M028",
+   "name": "MeshCore Lexington",
+   "city": "Lexington",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://meshcorelexington.com/",
+   "discord": "https://discord.gg/q7cWMKktu8",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://meshcorelexington.com/live-network-progress/",
+   "coverage": "Lexington",
+   "notes": "Local repeater planning takes place on Discord.",
+   "review": "reviewed",
+   "states": [
+    "Kentucky"
+   ]
+  },
+  {
+   "id": "M236",
+   "name": "MeshCore of Bowling Green",
+   "city": "Bowling Green",
+   "protocol": "meshcore",
+   "type": "Discussion group",
+   "url": "https://www.facebook.com/groups/1226645572598496",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1226645572598496",
+   "other": "",
+   "map": "",
+   "coverage": "Bowling Green area",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Kentucky"
+   ]
+  },
+  {
+   "id": "M238",
+   "name": "Ohio River Valley Meshtastic Group",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://www.facebook.com/groups/257831737385089",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/257831737385089",
+   "other": "",
+   "map": "",
+   "coverage": "Ohio River Valley",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Kentucky"
+   ]
+  },
+  {
+   "id": "M237",
+   "name": "Paducah Kentucky Meshtastic Mesh Project",
+   "city": "Paducah",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://www.facebook.com/groups/1629230191068091",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1629230191068091",
+   "other": "",
+   "map": "",
+   "coverage": "Western Kentucky",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Kentucky"
+   ]
+  },
+  {
+   "id": "M234",
+   "name": "Pennyrile Packet Network",
+   "city": "Hopkinsville / Guthrie",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://ppn.network/",
+   "discord": "https://discord.gg/thw4WgaSzY",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Pennyrile region",
+   "notes": "Moved from Meshtastic to MeshCore. Publishes a setup guide and county channels.",
+   "review": "reviewed",
+   "states": [
+    "Kentucky"
+   ]
+  },
+  {
+   "id": "M267",
+   "name": "TriMesh Network",
+   "city": "Ashland",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://trimesh.network/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://trimesh.network/map",
+   "coverage": "Ohio–Kentucky–West Virginia tri-state area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Kentucky",
+    "Ohio",
+    "West Virginia"
+   ]
+  },
+  {
+   "id": "M240",
+   "name": "Acadiana Mesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://acadianamesh.com/about/",
+   "discord": "https://discord.com/channels/1416518070415134732/1416571085637288067",
+   "discord_members_only": true,
+   "facebook": "",
+   "other": "",
+   "map": "https://analyzer.acadianamesh.com/",
+   "coverage": "Acadiana, southern Louisiana",
+   "notes": "Published Discord channel link requires server access.",
+   "review": "reviewed",
+   "states": [
+    "Louisiana"
+   ]
+  },
+  {
+   "id": "M143",
+   "name": "Louisiana Meshtastic Community",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://discord.gg/EvMTnWRG5p",
+   "discord": "https://discord.gg/EvMTnWRG5p",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Louisiana",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Louisiana"
+   ]
+  },
+  {
+   "id": "M276",
+   "name": "SW Louisiana Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://swlamesh.com/",
+   "discord": "https://discord.gg/SPHGpNhzw2",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.swlamesh.com/map",
+   "coverage": "Southwest Louisiana",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Louisiana"
+   ]
+  },
+  {
+   "id": "M034",
+   "name": "Maine Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://github.com/JFRHorton/MaineMesh",
+   "discord": "https://discord.gg/2Uhz4AzB8E",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/mainemesh",
+   "other": "https://github.com/deejdeej/MaineMesh-Meshcore",
+   "map": "",
+   "coverage": "Statewide Maine",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Maine"
+   ]
+  },
+  {
+   "id": "M145",
+   "name": "Maryland Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://marylandmesh.org/",
+   "discord": "https://discord.gg/BrftwacFqn",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://monitor.marylandmesh.org/",
+   "coverage": "Statewide Maryland",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Maryland"
+   ]
+  },
+  {
+   "id": "M030",
+   "name": "Berkshire Mesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://brkme.sh/",
+   "discord": "https://discord.gg/j9mr2Q48gM",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://psf.meshmapper.net/",
+   "coverage": "Berkshire County",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Massachusetts"
+   ]
+  },
+  {
+   "id": "M146",
+   "name": "Boston Meshnet",
+   "city": "Boston",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://github.com/Darachnid/Boston-Meshnet",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/376287875353461",
+   "other": "",
+   "map": "",
+   "coverage": "Greater Boston",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Massachusetts"
+   ]
+  },
+  {
+   "id": "M031",
+   "name": "Fitchburg Mesh (Old Growth Co-op)",
+   "city": "Fitchburg",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://mesh.og.coop/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://mesh.og.coop/map",
+   "coverage": "Fitchburg",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Massachusetts"
+   ]
+  },
+  {
+   "id": "M032",
+   "name": "Greater Boston Mesh",
+   "city": "Boston",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://bostonme.sh/",
+   "discord": "https://discord.gg/MUVASVEEES",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://live.bostonme.sh/",
+   "coverage": "Greater Boston",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Massachusetts"
+   ]
+  },
+  {
+   "id": "M033",
+   "name": "Pioneer Valley Mesh (PVMesh)",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://pvmesh.org/",
+   "discord": "https://discord.pvmesh.org/",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.pvmesh.org/",
+   "coverage": "Pioneer Valley (western MA)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Massachusetts"
+   ]
+  },
+  {
+   "id": "M148",
+   "name": "SouthCoast Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://southcoastmesh.com/",
+   "discord": "https://discord.gg/sZudrRnua5",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "SouthCoast Massachusetts",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Massachusetts"
+   ]
+  },
+  {
+   "id": "M035",
+   "name": "Eastside Mesh",
+   "city": "Detroit",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://eastsidemesh.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://signal.group/",
+   "map": "https://eastsidemesh.com/coverage.html",
+   "coverage": "East Michigan / Detroit east side",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Michigan"
+   ]
+  },
+  {
+   "id": "M150",
+   "name": "Michigan Meshtastic Network",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://discord.gg/3A5RREcBcc",
+   "discord": "https://discord.gg/3A5RREcBcc",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Michigan",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Michigan"
+   ]
+  },
+  {
+   "id": "M036",
+   "name": "MichMesh (Michigan Mesh Network)",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://michmesh.com/",
+   "discord": "https://discord.gg/skgWyPuft8",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Michigan",
+   "notes": "Statewide hub with separate protocol communities on the site.",
+   "review": "reviewed",
+   "states": [
+    "Michigan"
+   ]
+  },
+  {
+   "id": "M241",
+   "name": "Muskegon Mesh",
+   "city": "Muskegon",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://muskegonmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "West Michigan",
+   "notes": "Search-indexed group site. Direct access could not be confirmed.",
+   "review": "unconfirmed",
+   "states": [
+    "Michigan"
+   ]
+  },
+  {
+   "id": "M242",
+   "name": "West Michigan Mesh",
+   "city": "Grand Rapids",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://www.westmichmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/westmichmesh/",
+   "other": "",
+   "map": "https://www.westmichmesh.org/map.html",
+   "coverage": "West Michigan",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Michigan"
+   ]
+  },
+  {
+   "id": "M243",
+   "name": "Iron Range Mesh",
+   "city": "Hibbing / Virginia / Grand Rapids",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://irmesh.org/",
+   "discord": "https://discord.gg/yuts4SK6Ck",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://irmesh.org/map/",
+   "coverage": "Iron Range, northern Minnesota",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Minnesota"
+   ]
+  },
+  {
+   "id": "M151",
+   "name": "MSP Mesh",
+   "city": "Minneapolis / St. Paul",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://mspmesh.org/",
+   "discord": "https://mspmesh.org/chat",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://mspmesh.org/map/",
+   "coverage": "Twin Cities, greater Minnesota and western Wisconsin",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Minnesota",
+    "Wisconsin"
+   ]
+  },
+  {
+   "id": "M038",
+   "name": "Central Mississippi Mesh",
+   "city": "Jackson / Vicksburg",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://discord.gg/vhbeX7bJtB",
+   "discord": "https://discord.gg/vhbeX7bJtB",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://jan.meshmapper.net/",
+   "coverage": "Central Mississippi (Jackson/Vicksburg)",
+   "notes": "Jackson and Vicksburg regional coordination.",
+   "review": "directory",
+   "states": [
+    "Mississippi"
+   ]
+  },
+  {
+   "id": "M039",
+   "name": "Mississippi Mesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Coordination hub",
+   "url": "https://msmesh.org/",
+   "discord": "https://discord.gg/8uxGRFVq2B",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://msmesh.org/chat/",
+   "map": "https://gtr.meshmapper.net/",
+   "coverage": "Statewide Mississippi (coalition)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Mississippi"
+   ]
+  },
+  {
+   "id": "M152",
+   "name": "Mississippi Meshtastic Community",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://discord.gg/xmsDfx5Jcr",
+   "discord": "https://discord.gg/xmsDfx5Jcr",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Mississippi",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Mississippi"
+   ]
+  },
+  {
+   "id": "M288",
+   "name": "MS Gulf Coast",
+   "city": "Gulfport / Biloxi / Pascagoula",
+   "protocol": "meshcore",
+   "type": "Local project / resource",
+   "url": "https://msmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://gpt.meshmapper.net/",
+   "coverage": "Mississippi Gulf Coast",
+   "notes": "Coastal regional listing in the Mississippi Mesh coalition. Public link opens its coalition profile.",
+   "review": "directory",
+   "states": [
+    "Mississippi"
+   ]
+  },
+  {
+   "id": "M040",
+   "name": "NE Mississippi MeshCore",
+   "city": "Starkville / Tupelo / Oxford / Columbus",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://discord.gg/SpfA5yprfE",
+   "discord": "https://discord.gg/SpfA5yprfE",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1075228705321162",
+   "other": "",
+   "map": "https://gtr.meshmapper.net/",
+   "coverage": "Northeast Mississippi (Starkville/Tupelo/Oxford/Columbus)",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Mississippi"
+   ]
+  },
+  {
+   "id": "M154",
+   "name": "Kansas City Meshtastic Group",
+   "city": "Kansas City",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://www.facebook.com/share/XZ9jnhxy1YT4wWqC/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/share/XZ9jnhxy1YT4wWqC/",
+   "other": "",
+   "map": "",
+   "coverage": "Kansas City metro",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Missouri"
+   ]
+  },
+  {
+   "id": "M155",
+   "name": "MeshSTL",
+   "city": "St. Louis",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://meshstl.org/",
+   "discord": "https://meshstl.org/discord",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "St. Louis metro",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Missouri"
+   ]
+  },
+  {
+   "id": "M037",
+   "name": "Missouri Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://missourimesh.org/",
+   "discord": "https://missourimesh.org/discord",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Missouri",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Missouri"
+   ]
+  },
+  {
+   "id": "M156",
+   "name": "Show Me Mesh",
+   "city": "Jefferson City",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.mo-mesh.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/3864076280546910",
+   "other": "",
+   "map": "",
+   "coverage": "Jefferson City area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Missouri"
+   ]
+  },
+  {
+   "id": "M158",
+   "name": "Montana Meshtastic Community",
+   "city": "Billings / Laurel",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://montanamesh.com/",
+   "discord": "https://discord.gg/SKmsDCraTV",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://meshmonitor.montanamesh.com/",
+   "coverage": "Billings region and wider Montana",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Montana"
+   ]
+  },
+  {
+   "id": "M244",
+   "name": "Ravalli Mesh Network",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://ravallimesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://go.ravallimesh.org/s/chat",
+   "map": "",
+   "coverage": "Ravalli County and the Bitterroot Valley",
+   "notes": "Uses Zulip for community chat.",
+   "review": "reviewed",
+   "states": [
+    "Montana"
+   ]
+  },
+  {
+   "id": "M044",
+   "name": "Nebraska Mesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Coordination hub",
+   "url": "https://www.nebraskamesh.net/",
+   "discord": "https://discord.gg/aCd5yJvJaD",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://oma.meshmapper.net/",
+   "coverage": "Statewide Nebraska",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Nebraska"
+   ]
+  },
+  {
+   "id": "M045",
+   "name": "OmaMesh",
+   "city": "Omaha",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://omamesh.net/",
+   "discord": "https://discord.gg/urDBxDPKv8",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Omaha metro",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Nebraska"
+   ]
+  },
+  {
+   "id": "M159",
+   "name": "LASmesh",
+   "city": "Las Vegas",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://lasmesh.com/",
+   "discord": "https://discord.gg/WbnH2pK5zK",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://lasmesh.com/comp.php?slug=map",
+   "coverage": "Las Vegas Valley",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Nevada"
+   ]
+  },
+  {
+   "id": "M161",
+   "name": "MeshEnvy Statewide Group",
+   "city": "Reno / Las Vegas",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://meshenvy.org/",
+   "discord": "https://discord.gg/gRWAccbEWN",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://meshenvy.org/map",
+   "coverage": "Statewide Nevada",
+   "notes": "Current setup guide emphasizes MeshCore. The group also publishes Meshtastic settings.",
+   "review": "reviewed",
+   "states": [
+    "Nevada"
+   ]
+  },
+  {
+   "id": "M048",
+   "name": "NV Mesh (Nevada Mesh)",
+   "city": "Carson City / Reno / Minden / Fallon",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://nvme.sh/",
+   "discord": "https://discord.gg/FUYAZgp4Ew",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/2189330928181707/",
+   "other": "https://t.me/+Uhkh8-nD74JiODlh",
+   "map": "https://map.nvme.sh/map3",
+   "coverage": "Carson City / Reno / Minden / Fallon",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Nevada"
+   ]
+  },
+  {
+   "id": "M160",
+   "name": "VegasMesh",
+   "city": "Las Vegas",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://discord.gg/vUmWuZxYPh",
+   "discord": "https://discord.gg/vUmWuZxYPh",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Las Vegas area",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Nevada"
+   ]
+  },
+  {
+   "id": "M245",
+   "name": "Capital Region Mesh",
+   "city": "Concord",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://capitalmesh.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "New Hampshire Capital Region",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New Hampshire"
+   ]
+  },
+  {
+   "id": "M046",
+   "name": "NHMesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://nhmesh.com/",
+   "discord": "https://discord.gg/8Axh3rdgDD",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://nhmesh.live/",
+   "coverage": "Statewide New Hampshire",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New Hampshire"
+   ]
+  },
+  {
+   "id": "M277",
+   "name": "Central & South New Jersey Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://cnjmesh.me/",
+   "discord": "https://discord.gg/AXmDzZuZ2m",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://discord.gg/3erAvWHdNs",
+   "map": "https://meshview.cnjmesh.me/nodegraph",
+   "coverage": "Central and southern New Jersey",
+   "notes": "Separate Discords for Meshtastic and MeshCore.",
+   "review": "reviewed",
+   "states": [
+    "New Jersey"
+   ]
+  },
+  {
+   "id": "M278",
+   "name": "Forest Edge Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://forest-edge.info/",
+   "discord": "https://discord.gg/4eYrZTA8Hg",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/348930621560916",
+   "other": "",
+   "map": "",
+   "coverage": "Northern New Jersey",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New Jersey"
+   ]
+  },
+  {
+   "id": "M064",
+   "name": "Lehigh Valley Mesh (LVMesh)",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://lvmesh.com/",
+   "discord": "https://discord.lvmesh.com/",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.lvmesh.com/",
+   "coverage": "Lehigh Valley (Allentown/Bethlehem/Easton)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New Jersey",
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M047",
+   "name": "NJ Mesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://nj-mesh.com/",
+   "discord": "https://discord.gg/8Hw5S39XeF",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://nj-mesh.com/coverage.html",
+   "coverage": "Statewide New Jersey",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New Jersey"
+   ]
+  },
+  {
+   "id": "M164",
+   "name": "Albuquerque Mesh",
+   "city": "Albuquerque",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.abqm.net/",
+   "discord": "https://discord.com/invite/FqwAXNUTna",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Albuquerque metro",
+   "notes": "Publishes a Friday 6 p.m. Mountain on-air check-in.",
+   "review": "reviewed",
+   "states": [
+    "New Mexico"
+   ]
+  },
+  {
+   "id": "M246",
+   "name": "New Mexico Ministry of Digital Cultures",
+   "city": "Albuquerque",
+   "protocol": "both",
+   "type": "Club / institution",
+   "url": "https://www.nmmdc.org/mesh/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://matrix.to/",
+   "map": "",
+   "coverage": "Albuquerque area",
+   "notes": "Local Matrix room and nodes. Also points members to Albuquerque Mesh.",
+   "review": "reviewed",
+   "states": [
+    "New Mexico"
+   ]
+  },
+  {
+   "id": "M249",
+   "name": "ADKMesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://adkmesh.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Adirondacks",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M166",
+   "name": "BuffaLoRa and SnyderMesh",
+   "city": "Buffalo / Snyder",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://buffalora.org/",
+   "discord": "https://discord.gg/Mh3tye7CNs",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Buffalo area and western New York",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M049",
+   "name": "CNYmesh",
+   "city": "Syracuse",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://cnymesh.org/",
+   "discord": "https://discord.gg/xBb5eGTpuy",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/cnymesh",
+   "other": "",
+   "map": "https://cnymesh.org/map.html",
+   "coverage": "Central NY / Syracuse",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M247",
+   "name": "FLX Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://flxmesh.com/",
+   "discord": "https://discord.gg/dpTWnjsJW7",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://flxmesh.com/coverage/",
+   "coverage": "Finger Lakes",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M248",
+   "name": "Hudson Valley Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://hvmesh.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://hvmesh.net/map/",
+   "coverage": "Hudson Valley and Hudson Highlands",
+   "notes": "Members coordinate in neighboring communities’ Discord servers.",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M050",
+   "name": "Kaatskills Mesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://kmesh.us/",
+   "discord": "https://discord.gg/2J6BuhR",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://msv.meshmapper.net/",
+   "coverage": "Sullivan County / Southern Catskills",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M250",
+   "name": "Long Island Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://limesh.org/",
+   "discord": "https://discord.gg/YEEkVz9cSF",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://corescope.limesh.org/",
+   "coverage": "Long Island",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M051",
+   "name": "MeshNY",
+   "city": "New York City",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://nyme.sh/",
+   "discord": "https://discord.nyme.sh/",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://nyc.meshmapper.net/",
+   "coverage": "New York City metro",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M052",
+   "name": "ROCMesh",
+   "city": "Rochester",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://rocmesh.com/",
+   "discord": "https://discord.gg/aBsNaKy2u5",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://roc.meshmapper.net/",
+   "coverage": "Rochester",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M053",
+   "name": "Southern Tier Mesh (STMesh)",
+   "city": "Elmira / Corning / Binghamton",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://stmesh.net/",
+   "discord": "https://discord.gg/FwMV4M59DF",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://elm.meshmapper.net/",
+   "coverage": "Southern Tier (Elmira/Corning/Binghamton)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M054",
+   "name": "Upstate Mesh",
+   "city": "Albany / Schenectady / Troy",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.upstatemesh.org/",
+   "discord": "https://discord.gg/FvajRmXEsb",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://alb.meshmapper.net/",
+   "coverage": "Capital Region (Albany/Schenectady/Troy/Saratoga)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M055",
+   "name": "WNY MeshCore",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://wnymeshcore.org/",
+   "discord": "https://discord.gg/hmUbVzP9jk",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/share/g/1HjZ7Bg2WX/",
+   "other": "",
+   "map": "https://wnymeshcore.org/map",
+   "coverage": "Western NY (PA border to Lake Ontario, east to Rochester)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "New York"
+   ]
+  },
+  {
+   "id": "M171",
+   "name": "BackCountrySignal / Graham County Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://backcountrysignal.org/",
+   "discord": "https://discord.gg/D7nvkKkCWB",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://backcountrysignal.org/map-your-node/",
+   "coverage": "Graham County, western North Carolina",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "North Carolina"
+   ]
+  },
+  {
+   "id": "M041",
+   "name": "MeshAVL",
+   "city": "Asheville",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://meshavl.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/meshavl/",
+   "other": "https://reddit.com/r/ashevillemesh",
+   "map": "",
+   "coverage": "Asheville / Western NC",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "North Carolina"
+   ]
+  },
+  {
+   "id": "M251",
+   "name": "NC Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://ncmesh.net/",
+   "discord": "https://discord.gg/AUjz5RGGVu",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://ncmesh.net/map/?lat=35.21975793933433&lng=280.0704711914063&zoom=7",
+   "coverage": "North Carolina",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "North Carolina"
+   ]
+  },
+  {
+   "id": "M042",
+   "name": "RDUMesh",
+   "city": "Raleigh / Durham / Chapel Hill",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://rdumesh.org/",
+   "discord": "https://discord.gg/kKt8sjHrGF",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://rdumesh.org/map/",
+   "coverage": "Raleigh / Durham / Chapel Hill (NC Piedmont)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "North Carolina"
+   ]
+  },
+  {
+   "id": "M043",
+   "name": "NodakMesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://nodakmesh.org/",
+   "discord": "https://discord.gg/JUBrZepkaM",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://www.reddit.com/r/NoDakMesh/",
+   "map": "https://nodakmesh.org/meshcore/map",
+   "coverage": "Statewide North Dakota",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "North Dakota"
+   ]
+  },
+  {
+   "id": "M176",
+   "name": "Central Ohio Mesh",
+   "city": "Columbus",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://meshcolumb.us/",
+   "discord": "https://discord.com/invite/B6fuujsHJu",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Columbus metro",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Ohio"
+   ]
+  },
+  {
+   "id": "M174",
+   "name": "Cincy Mesh",
+   "city": "Cincinnati",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.cincymesh.org/",
+   "discord": "https://discord.gg/CmrJqsJ9mx",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Greater Cincinnati",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Ohio"
+   ]
+  },
+  {
+   "id": "M175",
+   "name": "Dayton Mesh",
+   "city": "Dayton",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://daytonmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Dayton metro",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Ohio"
+   ]
+  },
+  {
+   "id": "M177",
+   "name": "Northeast Ohio Mesh",
+   "city": "Cleveland / Akron",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://neome.sh/",
+   "discord": "https://discord.gg/hDCxm47JSF",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Northeast Ohio",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Ohio"
+   ]
+  },
+  {
+   "id": "M056",
+   "name": "NWO Mesh - Northwest Ohio MeshCore",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://nwomesh.com/",
+   "discord": "https://discord.gg/36zkFEEMyx",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Williams and Defiance counties",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Ohio"
+   ]
+  },
+  {
+   "id": "M057",
+   "name": "NWOMesh",
+   "city": "Toledo",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://nwomesh.org/",
+   "discord": "https://discord.gg/r6DcDt2WaW",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.nwomesh.org/",
+   "coverage": "Northwest Ohio",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Ohio"
+   ]
+  },
+  {
+   "id": "M266",
+   "name": "Ohio Valley Mesh Radio Association",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://ovmesh.com/",
+   "discord": "https://discord.gg/kwKhFamfaU",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Ohio Valley and adjoining communities",
+   "notes": "Migrated its principal network to MeshCore in 2026. Morgantown is a launch effort.",
+   "review": "reviewed",
+   "states": [
+    "Ohio",
+    "Pennsylvania",
+    "West Virginia"
+   ]
+  },
+  {
+   "id": "M179",
+   "name": "Richland County Ohio Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.facebook.com/groups/710526535393221",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/710526535393221",
+   "other": "",
+   "map": "",
+   "coverage": "Richland County",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Ohio"
+   ]
+  },
+  {
+   "id": "M253",
+   "name": "Okie Mesh",
+   "city": "Oklahoma City",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://okiemesh.org/",
+   "discord": "https://discord.com/channels/867578229534359593/1207391763715723354",
+   "discord_members_only": true,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Oklahoma City area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Oklahoma"
+   ]
+  },
+  {
+   "id": "M252",
+   "name": "Oklahoma Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://okmesh.org/",
+   "discord": "https://discord.com/invite/UQJ5QuM7vq",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide",
+   "notes": "Connect page points to the US-Oklahoma channel in the official Meshtastic Discord.",
+   "review": "reviewed",
+   "states": [
+    "Oklahoma"
+   ]
+  },
+  {
+   "id": "M180",
+   "name": "Oklahoma Meshtastic Group",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://www.facebook.com/groups/942404880478488",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/942404880478488",
+   "other": "",
+   "map": "",
+   "coverage": "Oklahoma statewide discussion",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Oklahoma"
+   ]
+  },
+  {
+   "id": "M279",
+   "name": "Tulsa Meshtastic",
+   "city": "Tulsa",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://tulsa-meshtastic.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Tulsa area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Oklahoma"
+   ]
+  },
+  {
+   "id": "M280",
+   "name": "Central Oregon Mesh",
+   "city": "Bend / Redmond",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://meshoregon.com/central-oregon-meshoregon/",
+   "discord": "https://discord.gg/RBpapg53hk",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Central Oregon",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Oregon"
+   ]
+  },
+  {
+   "id": "M181",
+   "name": "MeshOregon",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://meshoregon.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://meshoregon.com/local-mesh-directory/",
+   "map": "",
+   "coverage": "Oregon regional coordination",
+   "notes": "Use the regional directory for local Discords in the Willamette Valley, Bend and Roseburg.",
+   "review": "reviewed",
+   "states": [
+    "Oregon"
+   ]
+  },
+  {
+   "id": "M059",
+   "name": "OC-Mesh (Food Share of Lincoln County)",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://foodsharelc.org/oc-mesh/",
+   "discord": "https://discord.gg/ErSydYKQxt",
+   "discord_members_only": false,
+   "facebook": "https://facebook.com/foodsharelincolncounty",
+   "other": "",
+   "map": "https://foodsharelc.org/get-help/",
+   "coverage": "Lincoln County (Oregon coast)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Oregon"
+   ]
+  },
+  {
+   "id": "M183",
+   "name": "PDXMesh",
+   "city": "Portland",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://pdxmesh.com/",
+   "discord": "https://discord.com/invite/y4R5sHPqaU",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Portland metro and southwest Washington",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Oregon",
+    "Washington"
+   ]
+  },
+  {
+   "id": "M281",
+   "name": "Roseburg Mesh",
+   "city": "Roseburg",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://meshoregon.com/roseburg-meshoregon/",
+   "discord": "https://discord.gg/CHWsRmcTR",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Roseburg area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Oregon"
+   ]
+  },
+  {
+   "id": "M254",
+   "name": "Salem Community Mesh Network",
+   "city": "Salem",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://salemmesh.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Salem area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Oregon"
+   ]
+  },
+  {
+   "id": "M182",
+   "name": "Southern Oregon Meshtastic Community",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://sites.google.com/view/someshtastic/home",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://groups.io/g/SOMeshtastic",
+   "map": "",
+   "coverage": "Southern Oregon",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Oregon"
+   ]
+  },
+  {
+   "id": "M282",
+   "name": "Wild Rivers Coast Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://meshoregon.com/wild-rivers-coast-meshoregon/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Southern Oregon coast",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Oregon"
+   ]
+  },
+  {
+   "id": "M184",
+   "name": "Willamette Valley Mesh",
+   "city": "Eugene / Springfield",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://discord.gg/gf4mShtJz4",
+   "discord": "https://discord.gg/gf4mShtJz4",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Southern Willamette Valley",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Oregon"
+   ]
+  },
+  {
+   "id": "M060",
+   "name": "Berks County PA Meshtastic/MeshCore",
+   "city": "Reading",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.facebook.com/groups/24481639674795445/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/24481639674795445/",
+   "other": "",
+   "map": "",
+   "coverage": "Berks County / Reading",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M061",
+   "name": "BucksMesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://bucksmesh.net/",
+   "discord": "https://discord.gg/S6P3mwWgBx",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.bucksmesh.net/",
+   "coverage": "Bucks County",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M062",
+   "name": "Centre County LoRa Radio Network",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://discord.gg/KF4pR9tS",
+   "discord": "https://discord.gg/KF4pR9tS",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1418698306124569/",
+   "other": "",
+   "map": "https://sce.meshmapper.net/",
+   "coverage": "Centre County",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M063",
+   "name": "Cumberland Valley Meshtastic & MeshCore User Group",
+   "city": "Carlisle / Chambersburg",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://discord.gg/mCsTNwVWmj",
+   "discord": "https://discord.gg/mCsTNwVWmj",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/399007113176574/",
+   "other": "",
+   "map": "",
+   "coverage": "Cumberland Valley (Carlisle/Chambersburg)",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M219",
+   "name": "NEPAMesh",
+   "city": "Wilkes-Barre / Scranton / Hazleton",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://nepamesh.com/",
+   "discord": "https://discord.gg/cSpfk6H2hz",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/388798693736858/",
+   "other": "",
+   "map": "https://propagation.nepamesh.com/",
+   "coverage": "Wilkes-Barre, Scranton, Hazleton, Wyoming Valley, Poconos, and northeastern Pennsylvania",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M186",
+   "name": "Nittany Valley Mesh",
+   "city": "State College",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://nittanyvalleymesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Nittany Valley / central Pennsylvania",
+   "notes": "Links to the general Meshtastic Discord for project support.",
+   "review": "reviewed",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M065",
+   "name": "PAMesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Coordination hub",
+   "url": "https://pame.sh/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Pennsylvania (directory)",
+   "notes": "Statewide directory linking local groups, county coverage, and community invites.",
+   "review": "reviewed",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M066",
+   "name": "Philly Mesh",
+   "city": "Philadelphia",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://phillymesh.net/",
+   "discord": "https://discord.gg/MWWbAkRR9v",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://api.phillymesh.net/map",
+   "coverage": "Philadelphia / Delaware Valley",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M067",
+   "name": "Somerset County PA MeshCore Users (SomersetPA Mesh)",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.somersetpamesh.com/",
+   "discord": "https://discord.gg/bbmCD92z",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://sce.meshmapper.net/",
+   "coverage": "Somerset County / Laurel Highlands",
+   "notes": "MeshCore-focused group. PAMesh also lists Meshtastic. Check the group website for current Discord invitations.",
+   "review": "reviewed",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M068",
+   "name": "Susquehanna Valley Mesh",
+   "city": "Harrisburg / York / Lancaster",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://susme.sh/",
+   "discord": "https://discord.gg/bq45RTTZ2v",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://lns.meshmapper.net/",
+   "coverage": "Susquehanna Valley (Harrisburg, York, Lancaster, central PA)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M187",
+   "name": "WPAMesh",
+   "city": "Pittsburgh",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://discord.gg/67xqYqaqXP",
+   "discord": "https://discord.gg/67xqYqaqXP",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Western Pennsylvania",
+   "notes": "Website uses browser verification. PAMesh publishes a separate Discord invitation.",
+   "review": "unconfirmed",
+   "states": [
+    "Pennsylvania"
+   ]
+  },
+  {
+   "id": "M069",
+   "name": "Rhode Island Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://discord.gg/RSXmVP8bP2",
+   "discord": "https://discord.gg/RSXmVP8bP2",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://pvd.meshmapper.net/",
+   "coverage": "Statewide Rhode Island",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Rhode Island"
+   ]
+  },
+  {
+   "id": "M256",
+   "name": "CHS Mesh",
+   "city": "Charleston",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://chsmesh.org/",
+   "discord": "https://discord.gg/8Btn3fck2U",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Charleston area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "South Carolina"
+   ]
+  },
+  {
+   "id": "M191",
+   "name": "South Carolina Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.scmesh.us/",
+   "discord": "https://discord.gg/ZVtQeThnPU",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "South Carolina, including the Upstate",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "South Carolina"
+   ]
+  },
+  {
+   "id": "M255",
+   "name": "South Carolina MeshCore",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://www.sc-meshcore.org/",
+   "discord": "https://discord.gg/z7JE59qPe3",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "South Carolina",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "South Carolina"
+   ]
+  },
+  {
+   "id": "M193",
+   "name": "Central SoDakMesh",
+   "city": "Pierre",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://csdmesh.org/",
+   "discord": "https://discord.gg/pTcEsRFsQD",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://mesh.csdmesh.org/",
+   "coverage": "Central South Dakota and Missouri River valley",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "South Dakota"
+   ]
+  },
+  {
+   "id": "M192",
+   "name": "SoDakMesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.sodakmesh.org/",
+   "discord": "https://discord.com/invite/8wQc9nszhX",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "South Dakota",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "South Dakota"
+   ]
+  },
+  {
+   "id": "M070",
+   "name": "ChattaMesh",
+   "city": "Chattanooga",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://chattame.sh/",
+   "discord": "https://discord.gg/6M7HyhPJFq",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Chattanooga",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Tennessee"
+   ]
+  },
+  {
+   "id": "M257",
+   "name": "Memphis Mesh",
+   "city": "Memphis",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://memphismesh.com/",
+   "discord": "https://discord.gg/TdsanZHYJM",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Greater Memphis",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Tennessee"
+   ]
+  },
+  {
+   "id": "M194",
+   "name": "Meshville",
+   "city": "Nashville",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://meshville.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/215355547760075",
+   "other": "https://chat.whatsapp.com/LLZB1LBbE4V78aLzxgS4MY",
+   "map": "",
+   "coverage": "Nashville metro",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Tennessee"
+   ]
+  },
+  {
+   "id": "M071",
+   "name": "NashMesh",
+   "city": "Nashville",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://nashme.sh/",
+   "discord": "https://nashme.sh/discord/",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://nashme.sh/map/",
+   "coverage": "Nashville / Middle Tennessee",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Tennessee"
+   ]
+  },
+  {
+   "id": "M072",
+   "name": "TennMesh",
+   "city": "Knoxville",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://tennmesh.com/",
+   "discord": "https://discord.gg/p7bMrPhmPZ",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/877766108102231",
+   "other": "https://t.me/+ny3SblBJ8rVjMWIx",
+   "map": "",
+   "coverage": "Statewide Tennessee",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Tennessee"
+   ]
+  },
+  {
+   "id": "M258",
+   "name": "Tri-Cities Mesh",
+   "city": "Kingsport / Johnson City / Bristol",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://tricitiesmesh.net/community/",
+   "discord": "https://discord.gg/ZC9wqtxWTV",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1096862151623739",
+   "other": "",
+   "map": "",
+   "coverage": "Northeast Tennessee, Tri-Cities region",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Tennessee"
+   ]
+  },
+  {
+   "id": "M073",
+   "name": "UCMesh (Upper Cumberland Mesh)",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://ucme.sh/",
+   "discord": "https://discord.gg/caGqhYjJDF",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Upper Cumberland (14 counties of Middle Tennessee)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Tennessee"
+   ]
+  },
+  {
+   "id": "M074",
+   "name": "AngeloMesh",
+   "city": "San Angelo",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://angelomesh.com/",
+   "discord": "https://discord.gg/Kw53pzwyuQ",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "San Angelo / Concho Valley",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M075",
+   "name": "Austin Mesh",
+   "city": "Austin",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://www.austinmesh.org/",
+   "discord": "https://discord.gg/6a5Sv2s9bG",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Austin",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M196",
+   "name": "Central Texas Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://discord.gg/StsH5BncsW",
+   "discord": "https://discord.gg/StsH5BncsW",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Central Texas",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M076",
+   "name": "Central Texas MeshCore",
+   "city": "Waco",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://discord.gg/rcq3MDDZHN",
+   "discord": "https://discord.gg/rcq3MDDZHN",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Waco / Central Texas",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M077",
+   "name": "Comchan",
+   "city": "Austin",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://comchan.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/ComchanNet/",
+   "other": "https://comchan.net/community/",
+   "map": "https://explorer.comchan.net/",
+   "coverage": "Austin and Central Texas",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M197",
+   "name": "Cypress, Texas Meshtastic Club",
+   "city": "Cypress",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://discord.gg/KzuwNRwE6q",
+   "discord": "https://discord.gg/KzuwNRwE6q",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Greater Houston",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M199",
+   "name": "El Paso Mesh Community",
+   "city": "El Paso",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://elpmesh.org/",
+   "discord": "https://discord.gg/jC7CxhbAD2",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "El Paso and the Borderland",
+   "notes": "Current onboarding focuses on MeshCore. Also listed in the Meshtastic project directory.",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M078",
+   "name": "ETX Mesh",
+   "city": "Whitehouse / Tyler",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://www.facebook.com/groups/1218766212926298",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1218766212926298",
+   "other": "",
+   "map": "",
+   "coverage": "Whitehouse / Tyler (East Texas)",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M080",
+   "name": "Houston Mesh",
+   "city": "Houston",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://houmesh.com/",
+   "discord": "https://discord.gg/QmxBtkmct7",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://houmesh.com/discord/",
+   "map": "",
+   "coverage": "Houston",
+   "notes": "The website and Texas directory publish Houston Discord links.",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M081",
+   "name": "Meshcore Texas",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Discussion group",
+   "url": "https://www.facebook.com/groups/1675466243142688/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1675466243142688/",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Texas Facebook group",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M082",
+   "name": "MeshCore TX",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Coordination hub",
+   "url": "https://meshcoretx.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Texas (settings guide and directory)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M283",
+   "name": "MeshCoreLBK",
+   "city": "Lubbock",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://discord.gg/mzr24afFZv",
+   "discord": "https://discord.gg/mzr24afFZv",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Texas South Plains",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M083",
+   "name": "MeshTexas",
+   "city": "San Antonio",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://meshtexas.org/",
+   "discord": "https://discord.gg/MCEbb56CPa",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://livemap.meshtexas.org/",
+   "coverage": "Statewide Texas",
+   "notes": "Also serves South Texas. Former STX Mesh and South Texas Mesh groups meet here.",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M084",
+   "name": "NTX Mesh",
+   "city": "Dallas / Fort Worth",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://ntxmesh.com/",
+   "discord": "https://discord.gg/nGeQ8cbSM3",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://ntxmesh.com/coverage-map/",
+   "coverage": "DFW / North Texas",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M085",
+   "name": "Rusk County Mesh",
+   "city": "Henderson",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://ruskcountymesh.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Rusk County (Henderson)",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M086",
+   "name": "Texas MeshCore Network",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Discussion group",
+   "url": "https://www.facebook.com/groups/1204906347939737",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/1204906347939737",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Texas Facebook group",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M260",
+   "name": "The Woodlands Mesh Project",
+   "city": "The Woodlands / Conroe",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://thewoodlandsmesh.net/join/",
+   "discord": "https://discord.gg/hPK5tA6m2s",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "North Houston",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M259",
+   "name": "West Texas Pathfinders",
+   "city": "Lubbock",
+   "protocol": "meshcore",
+   "type": "Club / institution",
+   "url": "https://westtexaspathfinders.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/westtexaspathfinders",
+   "other": "",
+   "map": "",
+   "coverage": "South Plains",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M087",
+   "name": "WTX Mesh",
+   "city": "Amarillo",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://wtxmesh.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/927409826607862/",
+   "other": "https://web.libera.chat/",
+   "map": "",
+   "coverage": "Amarillo / Texas Panhandle",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Texas"
+   ]
+  },
+  {
+   "id": "M262",
+   "name": "Green Mountain Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://greenmountainmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Vermont"
+   ]
+  },
+  {
+   "id": "M263",
+   "name": "VERSO Mesh Network",
+   "city": "Burlington",
+   "protocol": "meshtastic",
+   "type": "Club / institution",
+   "url": "https://verso-uvm.github.io/mesh-vermont/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "University of Vermont and surrounding communities",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Vermont"
+   ]
+  },
+  {
+   "id": "M202",
+   "name": "Albemarle Mesh",
+   "city": "Charlottesville",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://albemarlemesh.com/",
+   "discord": "https://discord.gg/7etcWxwatE",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Albemarle County",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Virginia"
+   ]
+  },
+  {
+   "id": "M201",
+   "name": "MadisonMesh",
+   "city": "Madison",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://madisonmesh.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Madison County",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Virginia"
+   ]
+  },
+  {
+   "id": "M284",
+   "name": "NovaMesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.novamesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "https://groups.io/g/NoVa-Meshtastic",
+   "map": "",
+   "coverage": "Northern Virginia",
+   "notes": "The group site also links to r/novamesh.",
+   "review": "reviewed",
+   "states": [
+    "Virginia"
+   ]
+  },
+  {
+   "id": "M089",
+   "name": "Roanoke VA Mesh",
+   "city": "Roanoke",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://roanokemesh.org/",
+   "discord": "https://discord.gg/exm4uQcsgD",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Roanoke / Blue Ridge",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Virginia"
+   ]
+  },
+  {
+   "id": "M090",
+   "name": "VAMesh",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://www.vamesh.com/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Statewide Virginia",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Virginia"
+   ]
+  },
+  {
+   "id": "M203",
+   "name": "Virginia Peninsula Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://vpmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.vpmesh.org/map",
+   "coverage": "Hampton Roads / Virginia Peninsula",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Virginia"
+   ]
+  },
+  {
+   "id": "M093",
+   "name": "Kitsap MeshCore Group",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://www.facebook.com/groups/822078637266703/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/822078637266703/",
+   "other": "",
+   "map": "",
+   "coverage": "Kitsap Peninsula",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "Washington"
+   ]
+  },
+  {
+   "id": "M204",
+   "name": "LINC – Lincoln County Mesh Messaging",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://lincme.sh/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://facebook.com/lincmesh",
+   "other": "",
+   "map": "",
+   "coverage": "Lincoln County",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Washington"
+   ]
+  },
+  {
+   "id": "M094",
+   "name": "Puget Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://pugetmesh.org/",
+   "discord": "https://discord.gg/ANvUg3AyZt",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://pugetmesh.org/aredn/map/",
+   "coverage": "Puget Sound",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Washington"
+   ]
+  },
+  {
+   "id": "M285",
+   "name": "Tacoma.localmesh",
+   "city": "Tacoma",
+   "protocol": "meshtastic",
+   "type": "Local project / resource",
+   "url": "https://tacoma.localmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Tacoma area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Washington"
+   ]
+  },
+  {
+   "id": "M096",
+   "name": "VashonMesh",
+   "city": "Vashon",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://vashonmesh.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Vashon and Maury Islands",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Washington"
+   ]
+  },
+  {
+   "id": "M265",
+   "name": "WV Mesh Net",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://www.wvmesh.net/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "West Virginia",
+   "notes": "Search-indexed group site. Direct access could not be confirmed.",
+   "review": "unconfirmed",
+   "states": [
+    "West Virginia"
+   ]
+  },
+  {
+   "id": "M209",
+   "name": "dc414",
+   "city": "Milwaukee",
+   "protocol": "meshtastic",
+   "type": "Club / institution",
+   "url": "https://www.dc414.org/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Milwaukee area",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Wisconsin"
+   ]
+  },
+  {
+   "id": "M097",
+   "name": "Madison Mesh",
+   "city": "Madison",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://madmesh.net/",
+   "discord": "https://discord.gg/fd3JUZc2CN",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://msn.meshmapper.net/",
+   "coverage": "Madison",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Wisconsin"
+   ]
+  },
+  {
+   "id": "M208",
+   "name": "Meshconsin",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://meshconsin.org/",
+   "discord": "https://discord.gg/f3cU7kPbHg",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Wisconsin",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Wisconsin"
+   ]
+  },
+  {
+   "id": "M268",
+   "name": "Waukesha Mesh",
+   "city": "Waukesha",
+   "protocol": "meshtastic",
+   "type": "Local project / resource",
+   "url": "https://waukeshamesh.com/",
+   "discord": "https://discord.gg/f3cU7kPbHg",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "https://map.waukeshamesh.com/",
+   "coverage": "Waukesha County",
+   "notes": "Uses the regional Meshconsin Discord.",
+   "review": "reviewed",
+   "states": [
+    "Wisconsin"
+   ]
+  },
+  {
+   "id": "M210",
+   "name": "WyomingMesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Mesh community",
+   "url": "https://wyomingmesh.org/",
+   "discord": "https://discord.gg/5XZ2HRxx",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Wyoming",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Wyoming"
+   ]
+  },
+  {
+   "id": "M190",
+   "name": "PR Mesh",
+   "city": "",
+   "protocol": "both",
+   "type": "Mesh community",
+   "url": "https://prmsh.com/",
+   "discord": "https://discord.gg/3v6rRhNRpD",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Puerto Rico",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "Puerto Rico"
+   ]
+  },
+  {
+   "id": "M287",
+   "name": "Eastern US MeshCore",
+   "city": "",
+   "protocol": "meshcore",
+   "type": "Mesh community",
+   "url": "https://www.eastme.sh/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Eastern U.S. regional network",
+   "notes": "",
+   "review": "reviewed",
+   "states": [
+    "U.S. regional / national"
+   ]
+  },
+  {
+   "id": "M286",
+   "name": "Meshtastic USA Community",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://www.facebook.com/groups/meshtasticusa/",
+   "discord": "",
+   "discord_members_only": false,
+   "facebook": "https://www.facebook.com/groups/meshtasticusa/",
+   "other": "",
+   "map": "",
+   "coverage": "United States",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "U.S. regional / national"
+   ]
+  },
+  {
+   "id": "M098",
+   "name": "Midwest Mesh",
+   "city": "",
+   "protocol": "meshtastic",
+   "type": "Discussion group",
+   "url": "https://discord.gg/wYwD56K439",
+   "discord": "https://discord.gg/wYwD56K439",
+   "discord_members_only": false,
+   "facebook": "",
+   "other": "",
+   "map": "",
+   "coverage": "Midwestern U.S.",
+   "notes": "",
+   "review": "directory",
+   "states": [
+    "U.S. regional / national"
+   ]
+  }
+ ]
+}

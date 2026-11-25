@@ -52,7 +52,7 @@ run(async (t) => {
   const seeed = catalog.items.find((i) => /^seeed-t1000e-/.test(i.id));
   const antenna = catalog.items.find((i) => i.category === 'antenna');
   const fits = catalog.items.find((i) => i.id === 'atlavox-m1');
-  const pages = ['radios.php', seeed.page, antenna.page, fits.page, 'prices.html', 'alerts.html', 'index.html', 'index.html?cat=antennas'];
+  const pages = ['radios.php', seeed.page, antenna.page, fits.page, 'prices.html', 'alerts.html', 'index.html', 'index.html?cat=antennas', 'groups.php', 'groups.php?state=texas', 'groups.php?state=new-york'];
   for (const width of [1280, 1000, 390]) {
     const ctx = await t.openContext({ viewport: { width, height: 900 } });
     await t.mockCatalog(ctx, (data) => { const now = new Date().toISOString(); data.items.forEach((i) => { i.result = { ...i.result, status: 'in_stock', observed_at: now }; }); });

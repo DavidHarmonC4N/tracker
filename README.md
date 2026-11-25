@@ -324,3 +324,14 @@ If the checks stop, prices and stock quietly go out of date, so the owner is tol
 - **Seller trouble:** every listing from a seller (at least two) has needed review for 3 hours. The message names the seller and the first error.
 - **Once only, then recovery:** each problem is reported once, and "Checker is back" or "Seller recovered" is sent when it clears. A seller failure that clears within 3 hours says nothing.
 - **How it runs:** on catalog requests, at most every five minutes (`health.check` in the data folder), so it needs no cron. It uses the owner alert channels. The staging guard applies, but muting does not: a mute is for stock noise, and these messages say the stock data itself is going stale, so they are sent even while muted (as their own message, separate from stock alerts). The Alerts panel in Admin shows the current state.
+
+### Group directory
+
+`groups.php` lists 234 local Meshtastic and MeshCore groups across the U.S., from `includes/groups.json`. It is server-rendered, so it works without JavaScript and search engines can read it.
+
+- **Pages:** `groups.php` (a tile map of the states, a find form, and a list of every state), and `groups.php?state=<slug>` for each of the 53 states and regions. Filters are a plain GET form (`q`, `protocol`, `discord=1`), and a filtered or unknown-state page is `noindex`. The sitemap lists the directory and every state page.
+- **Caution on every page:** the list was found by an automated search and nobody here has checked the groups or their pages. The site is not responsible for what is on them and does not endorse any group (`GROUPS_DISCLAIMER` in `includes/groups.php`, shown at the top and the bottom).
+- **Outside links:** every link opens in a new tab with `rel="noopener noreferrer nofollow"`, is https only, and is cleaned on load (`groups_url()`), so a bad row can never put a broken or unsafe link on the page. A Discord link that needs existing membership is shown as a greyed "members only" label, not a join button. A site the research could not open is marked "Website not confirmed".
+- **Map:** a tile map drawn on the server (`groups_map_svg()`). Every state is one tile of the same size, so small states stay clickable, and tiles are shaded by how many groups they have.
+- **Data:** regenerate `includes/groups.json` from the research spreadsheet with `python3 tests/tools/import-groups.py <sheet.xlsx>` (needs openpyxl), then run the tests. A group that serves several states is one entry listing each state.
+- **Still to come:** an admin panel to add, edit and hide groups, a way for visitors to send corrections, and a monthly link check.
