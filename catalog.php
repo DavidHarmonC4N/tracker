@@ -20,6 +20,7 @@ try {
     try {
         if (config()['data_dir'] !== '') {
             maybe_dispatch_runner(data_dir());
+            maybe_check_health(data_dir());
         }
     } catch (Throwable $trigger) {
         error_log('Offgrid trigger: ' . $trigger->getMessage());

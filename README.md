@@ -315,3 +315,12 @@ Each radio can carry `antenna_port` (`sma`, `rp-sma`, `n`, `ufl` or `none`, see 
 - **Antenna pages** list radios whose port matches (`antenna_fitting_radios()`). Cables and NMO antennas list none.
 - **Connector words:** `antenna_connector_key()` reads the seller's wording ("SMA male", "N-Type", "U.FL to RP-SMA female"). RP-SMA is never read as SMA. Nothing is guessed when the connector is unknown.
 - **Sellers:** the starter list also has antennas from Atlavox, RAKwireless, ameriDroid, SpecFive and Muzi Works. Their connectors, bands and lengths were taken from the product pages. Every one is read automatically from the store's product feed.
+
+### Checker health alerts
+
+If the checks stop, prices and stock quietly go out of date, so the owner is told (`includes/health.php`):
+
+- **Stalled checker:** no runner check-in for 3 hours (or no server cron run, for a site checked by its own cron). The message says how long and what to check: the scheduled workflow in GitHub Actions, the `OFFGRID_TOKEN` secret against `ingest_token`, and the latest run's log.
+- **Seller trouble:** every listing from a seller (at least two) has needed review for 3 hours. The message names the seller and the first error.
+- **Once only, then recovery:** each problem is reported once, and "Checker is back" or "Seller recovered" is sent when it clears. A seller failure that clears within 3 hours says nothing.
+- **How it runs:** on catalog requests, at most every five minutes (`health.check` in the data folder), so it needs no cron. It uses the owner alert channels, so muting and the staging guard apply. The Alerts panel in Admin shows the current state.

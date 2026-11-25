@@ -748,6 +748,8 @@ $reading = $editor['result'] ?? [];
       <ul class="event-list">
         <li><strong>Email</strong> · <?= $alertEmail === '' ? 'not set' : h($maskedEmail !== '' ? $maskedEmail : 'invalid address') ?><?= $alertEmail !== '' ? ' · from ' . h(notify_from_address() ?: 'the host\'s default sender (set notify_from)') : '' ?></li>
         <li><strong>Private topic / webhook</strong> · <?= $alertHook === '' ? 'not set' : h($hookHost . (ntfy_owner_topic() !== '' ? ' · topic …' . substr($alertHook, -4) . ' · tap buttons ' . (ntfy_endpoint() !== '' ? 'on' : 'off (set ntfy_token and base_url)') : '')) ?></li>
+        <?php $health = health_evaluate($state, time()); ?>
+        <li><strong>Health alerts</strong> · on: you are told once if no checker reports for <?= h(HEALTH_STALL_AFTER / 3600) ?> hours, or if every listing from a seller keeps failing. Now: <?= $health['stalled'] ? 'stalled since ' . h(when(gmdate(DATE_ATOM, (int)$health['last']))) : ($health['last'] ? 'running, last check-in ' . h(when(gmdate(DATE_ATOM, (int)$health['last']))) : 'waiting for the first check') ?><?= $health['sellers'] ? '; seller trouble: ' . h(implode(', ', array_keys($health['sellers']))) : '' ?></li>
         <li><strong>Public topic</strong> · <?= ntfy_public_base() === '' ? 'off' : h(ntfy_public_base()) . ' · each radio also has its own topic' ?></li>
         <?php if (alerts_muted($state)): ?><li><strong>Muted</strong> until <?= h(gmdate('D H:i', (int)$state['alerts_muted_until'])) ?> UTC for owner alerts. Public topics are not affected.
           <form method="post" style="display:inline"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="unmute_alerts">Unmute</button></form></li><?php endif; ?>
