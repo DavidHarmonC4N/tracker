@@ -40,7 +40,7 @@ try {
             'observed_at'=>$item['result']['observed_at'] ?? null,
             'low'=>$summary['low'], 'high'=>$summary['high'], 'points'=>$points];
     }
-    echo json_encode(['now'=>time(), 'items'=>$items], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
+    echo json_encode(['now'=>time(), 'staging'=>is_staging(), 'items'=>$items], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
 } catch (Throwable $error) {
     error_log('Offgrid history: ' . $error->getMessage());
     http_response_code(503);

@@ -289,6 +289,13 @@ async function load() {
     if (!response.ok) throw new Error('history');
     const data = await response.json();
     nowMs = (data.now || Math.floor(Date.now() / 1000)) * 1000;
+    if (data.staging === true && !byId('staging-bar')) {
+      const bar = el('div', 'staging-bar', 'STAGING · a private test copy, not the live site');
+      bar.id = 'staging-bar';
+      bar.setAttribute('role', 'note');
+      document.body.prepend(bar);
+      document.title = '[STAGING] ' + document.title;
+    }
     items = prepare(data.items || []);
     loadedAt = Date.now();
     chooseDefaults();

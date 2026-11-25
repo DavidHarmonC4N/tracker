@@ -1,0 +1,115 @@
+name: Deploy to staging
+
+# Sends a branch to the PRIVATE staging copy of the site on the host, so changes can be tried on the real server before
+# they go live. Nothing runs until the STAGING_* secrets exist (see the README section "Staging site").
+#
+# Safety rules built into this workflow:
+#   * it refuses to run if the staging folder is the same as, or contains, the production folder;
+#   * it refuses to upload anything unless the staging address already answers 401 (password protected);
+#   * it never uploads config.php, .htaccess or .htpasswd, so the staging settings and password stay on the host;
+#   * it adds a robots.txt that blocks crawlers, and checks again afterwards that nothing is public.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only list what would upload (no files are changed)'
+        type: boolean
+        default: false
+  push:
+    branches: [staging]
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check settings
+        id: cfg
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER_NAME: ${{ secrets.DEPLOY_USER }}
+          PASS: ${{ secrets.DEPLOY_PASSWORD }}
+          PROD_DIR: ${{ secrets.DEPLOY_DIR }}
+          STAGING_DIR: ${{ secrets.STAGING_DEPLOY_DIR }}
+          STAGING_URL: ${{ secrets.STAGING_URL }}
+          OFFGRID_URL: ${{ secrets.OFFGRID_URL }}
+        run: bash .github/scripts/staging-guard.sh
+
+      - uses: shivammathur/setup-php@v2
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          php-version: '8.3'
+          tools: none
+
+      - name: Stop if config.php or any file holds a secret
+        if: steps.cfg.outputs.ok == 'true'
+        run: php .github/scripts/check-config.php
+
+      - name: Stop on broken PHP or JavaScript
+        if: steps.cfg.outputs.ok == 'true'
+        run: |
+          status=0
+          while IFS= read -r f; do php -l "$f" > /dev/null || status=1; done < <(git ls-files '*.php')
+          for f in assets/*.js; do node --check "$f" || status=1; done
+          exit $status
+
+      - name: Staging must already be password protected
+        if: steps.cfg.outputs.ok == 'true'
+        env:
+          STAGING_URL: ${{ secrets.STAGING_URL }}
+        run: |
+          url="${STAGING_URL%/}/"
+          code=$(curl -s -m 30 -A "OffgridStagingCheck/1.0" -o /dev/null -w "%{http_code}" "$url")
+          if [ "$code" != "401" ]; then
+            echo "::error::The staging address answered HTTP $code instead of 401, so it is not password protected. Nothing was uploaded. Protect the folder on the host first (README, 'Staging site')."
+            exit 1
+          fi
+          echo "Staging answers 401 without a password. Good."
+
+      - name: Block crawlers (added to this upload only, never committed)
+        if: steps.cfg.outputs.ok == 'true'
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > robots.txt
+
+      - name: Upload to staging
+        if: steps.cfg.outputs.ok == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          protocol: ${{ secrets.DEPLOY_PROTOCOL || 'ftps' }}
+          server-dir: ${{ secrets.STAGING_DEPLOY_DIR }}
+          dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          state-name: .ht-deploy-state-staging.json
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            .claude/**
+            .taste-skill/**
+            .githooks/**
+            .well-known/**
+            runner/**
+            tests/**
+            README.md
+            config.php
+            .htaccess
+            .htaccess.hardened
+            .htpasswd
+
+      - name: Check staging is private and working
+        if: steps.cfg.outputs.ok == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+        env:
+          STAGING_USER: ${{ secrets.STAGING_USER }}
+          STAGING_PASSWORD: ${{ secrets.STAGING_PASSWORD }}
+        run: bash .github/scripts/staging-check.sh "${{ secrets.STAGING_URL }}"

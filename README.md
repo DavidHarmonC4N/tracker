@@ -216,3 +216,32 @@ bash tests/run.sh browser prices   # only browser tests whose file name contains
 - Each file prints `PASS` or `FAIL` lines and ends with `ALL PASSED` or a failure count; `run.sh` exits non-zero if any file fails.
 - GitHub runs the same command on every push and pull request (`.github/workflows/tests.yml`). The deploy workflow does not wait for it, and `tests/` is never uploaded to the host.
 - To add a test, copy a file in `tests/php/` or `tests/browser/`; the browser helper in `tests/browser/lib.js` sets up the page, the checks and the JavaScript-error watch.
+
+## Staging site (a private test copy on the host)
+
+A staging copy lets you try a branch on the real server before it goes live. It is a second copy of the site in its own folder, with its own settings and its own data, behind a password. Visitors and search engines cannot reach it, and it can never send you alerts or start the real U.S. runner.
+
+**One-time setup on the host** (these steps need your host's control panel; the repository cannot do them for you):
+
+1. **Make a folder for it.** The simplest choice is a subfolder of the live site, such as `public_html/staging/` (so the address is `https://your-site/staging/`). A subdomain with its own folder also works.
+2. **Password protect that folder first.** In cPanel this is *Directory Privacy*: choose the folder, tick "Password protect this directory", and add a user and password. Without cPanel, put an `AuthType Basic` rule and a `.htpasswd` file in the folder. The staging workflow will refuse to upload anything until the folder answers HTTP 401 without a password.
+3. **Give it its own data folder**, outside every web folder, such as `/home/you/offgrid-staging-data/`. Never reuse the live data folder.
+4. **Create `config.php` inside the staging folder** by copying the template, then set: `data_dir` to the staging data folder, a new `setup_key` (32 or more random characters), `base_url` to the staging address, and **`'staging' => true`**. Leave `notify_email`, `notify_webhook`, `ingest_token`, `github_repo` and `github_token` empty. The staging copy ignores them anyway.
+5. **Add these GitHub repository secrets** (Settings, Secrets and variables, Actions). The upload reuses your existing `DEPLOY_HOST`, `DEPLOY_USER` and `DEPLOY_PASSWORD`.
+
+| Secret | What to put |
+|---|---|
+| `STAGING_DEPLOY_DIR` | The FTP path of the staging folder, such as `/public_html/staging/`. It must not be the same as `DEPLOY_DIR`. |
+| `STAGING_URL` | The staging address, such as `https://your-site/staging/`. |
+| `STAGING_USER`, `STAGING_PASSWORD` | Optional. The Directory Privacy user and password, so the workflow can also check that staging itself works. |
+
+**Using it:** open the **Actions** tab, choose **Deploy to staging**, press **Run workflow**, and pick the branch to try. Pushing to a branch named `staging` deploys it automatically. Then open the staging address, enter the password, and visit `admin.php` to set the staging admin password the first time.
+
+**What is different about a staging copy:**
+
+- Every page shows a **STAGING** bar and the tab title starts with `[STAGING]`.
+- It sends `X-Robots-Tag: noindex` and the deploy adds a `robots.txt` that blocks crawlers.
+- It starts from the starter listings with its own empty history. It never receives live data, and nothing it does reaches the live site.
+- Alerts, the GitHub runner trigger and runner uploads are switched off in code when `staging` is true, so copied-in live settings cannot cause side effects.
+- The staging workflow refuses to run if the staging folder is the same as, or contains, the live folder, or if the staging address equals the live address. It never uploads `config.php`, `.htaccess` or `.htpasswd`, and after every upload it checks again that the site answers 401 to the public.
+- Use **Check now** in the staging admin to fetch real prices from the host; staging checks run from the host's own server (there is no U.S. runner there).

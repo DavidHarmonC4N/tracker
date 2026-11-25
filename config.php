@@ -33,5 +33,8 @@ return [
     'github_workflow' => 'check.yml',
     'github_ref' => 'main',
     // Leave false on a public host. True permits loopback HTTP for local testing only.
+    // Set to true ONLY in the config.php of a staging copy of the site. A staging copy shows a STAGING banner, asks search engines
+    // not to index it, and should have its own data_dir and setup_key and no notify, ingest or GitHub settings (see the README).
+    'staging' => false,
     'local_test' => false,
 ];

@@ -24,6 +24,9 @@ if (!is_array($config)) {
             $problems[] = "config.php: '$key' has a value. Only the blank template belongs in the repository; put real values in the config.php on your host.";
         }
     }
+    if (($config['staging'] ?? false) !== false) {
+        $problems[] = "config.php: 'staging' must be false in the repository. Set it only in the config.php on the staging host.";
+    }
     if (($config['local_test'] ?? false) !== false) {
         $problems[] = "config.php: 'local_test' must be false in the repository.";
     }

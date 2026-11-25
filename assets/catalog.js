@@ -642,6 +642,16 @@ function sortRows(list, sort) {
   return list;
 }
 
+// A staging copy of the site says so on every page, so nobody mistakes it for the live catalog.
+function markStaging(data) {
+  if (!data || data.staging !== true || document.getElementById('staging-bar')) return;
+  const bar = el('div', 'staging-bar', 'STAGING · a private test copy, not the live site');
+  bar.id = 'staging-bar';
+  bar.setAttribute('role', 'note');
+  document.body.prepend(bar);
+  if (!document.title.startsWith('[STAGING]')) document.title = '[STAGING] ' + document.title;
+}
+
 function draw() {
   document.body.classList.toggle('picks-mode', picksView);
   if (picksView) { drawPicks(); return; }
@@ -824,6 +834,7 @@ async function refresh() {
     const signature = JSON.stringify([data, data.items.map(displayStatus)]);
     if (signature === lastSignature) return;
     lastSignature = signature;
+    markStaging(data);
     rows = data.items;
     byId('total').textContent = rows.length;
     byId('available').textContent = rows.filter((row) => displayStatus(row) === 'in_stock').length;

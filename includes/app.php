@@ -161,7 +161,14 @@ function change_state(string $dir, callable $change): mixed {
     }
 }
 
+function is_staging(): bool {
+    return (config()['staging'] ?? false) === true;
+}
+
 function common_headers(): void {
+    if (is_staging()) {
+        header('X-Robots-Tag: noindex, nofollow, noarchive');
+    }
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: no-referrer');
     header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
@@ -298,7 +305,7 @@ function endpoint_result(): array {
         $public['seller_paused'] = !$public['manual'] && ($state['cooldowns'][$host] ?? 0) > $now;
         $items[] = $public;
     }
-    return ['items'=>$items,'configured'=>$configured,'last_run'=>$state['last_run'],
+    return ['items'=>$items,'configured'=>$configured,'staging'=>is_staging(),'last_run'=>$state['last_run'],
         'interval_minutes'=>max(30, (int)config()['interval_minutes'])];
 }
 
@@ -362,6 +369,9 @@ function base_url(): string {
  * The webhook receives a plain-text POST (works with an ntfy.sh topic URL). Failures never break the caller.
  */
 function notify(string $subject, string $body): void {
+    if (is_staging()) {
+        return; // a staging copy never sends alerts, even with production settings copied into it
+    }
     $subject = trim(preg_replace('/[\x00-\x1f\x7f]+/', ' ', $subject));
     $body = preg_replace('/\r\n?/', "\n", $body);
     try {
@@ -467,5 +477,8 @@ function rate_limit_update(string $dir, callable $change): bool {
 }
 
 function ingest_enabled(): bool {
+    if (is_staging()) {
+        return false; // the real U.S. runner must never write into a staging copy
+    }
     return strlen((string)(config()['ingest_token'] ?? '')) >= 32;
 }

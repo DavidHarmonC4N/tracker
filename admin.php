@@ -398,11 +398,12 @@ $reading = $editor['result'] ?? [];
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= $auth && !empty($state['submissions']) ? '(' . h(count($state['submissions'])) . ') ' : '' ?>Admin · Offgrid Comms Tracker</title>
+<title><?= is_staging() ? '[STAGING] ' : '' ?><?= $auth && !empty($state['submissions']) ? '(' . h(count($state['submissions'])) . ') ' : '' ?>Admin · Offgrid Comms Tracker</title>
 <link rel="stylesheet" href="assets/styles.css?v=20261126-addurl">
 <script src="assets/admin.js?v=2" defer></script>
 </head>
 <body>
+<?php if (is_staging()): ?><div class="staging-bar" role="note">STAGING · a private test copy, not the live site</div><?php endif; ?>
 <header class="mast"><div class="wrap mast-inner">
 <a class="brand" href="index.html"><span class="brand-icon" aria-hidden="true"><i></i></span> OFFGRID <span>COMMS</span></a>
 <a class="quiet" href="index.html">Public catalog</a>

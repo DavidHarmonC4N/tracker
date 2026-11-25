@@ -14,6 +14,7 @@ $GLOBALS['tests_failed'] = 0;
 
 function check(string $name, bool $condition, string $detail = ''): void {
     $GLOBALS[$condition ? 'tests_passed' : 'tests_failed']++;
+    $detail = trim(str_replace(["\r", "\n"], ['', ' | '], $detail)); // one line per check, so a real FAIL stands out
     echo ($condition ? 'PASS ' : 'FAIL ') . $name . ($detail !== '' ? '  ' . $detail : '') . "\n";
 }
 
@@ -34,8 +35,8 @@ function finish(): never {
 }
 
 /** The site the tests run against: a copy made by tests/run.sh (SITE_DIR), or the repository itself. */
-function load_site(): string {
-    $root = getenv('SITE_DIR') ?: dirname(__DIR__, 2);
+function load_site(?string $folder = null): string {
+    $root = $folder ?: (getenv('SITE_DIR') ?: dirname(__DIR__, 2));
     define('OFFGRID_APP', true);
     chdir($root);
     require $root . '/includes/app.php';

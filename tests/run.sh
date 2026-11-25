@@ -25,9 +25,11 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# make_site NAME DATA_DIR  ->  copies the site (no tests, no git) and writes a test config.php
+# make_site NAME DATA_DIR [staging]  ->  copies the site (no tests, no git) and writes a test config.php
 make_site() {
-  local dest="$WORK/$1" data="$2"
+  local dest="$WORK/$1" data="$2" staging="${3:-false}" token=""
+  # Only the staging copy gets a (fake) GitHub token, to prove the staging guard ignores it. Other copies must never call GitHub.
+  [ "$staging" = "true" ] && token="not-a-real-token"
   mkdir -p "$dest"
   tar -C "$ROOT" --exclude=.git --exclude=.github --exclude=tests --exclude=node_modules --exclude=runner -cf - . | tar -C "$dest" -xf -
   cat > "$dest/config.php" <<PHP
@@ -36,8 +38,8 @@ if (!defined('OFFGRID_APP')) { http_response_code(404); exit; }
 return [
     'data_dir' => '$data', 'setup_key' => '0123456789abcdef0123456789abcdef0123', 'base_url' => '', 'interval_minutes' => 60,
     'batch_size' => 6, 'notify_email' => '', 'notify_webhook' => '',
-    'ingest_token' => '0123456789abcdef0123456789abcdef0123abcd', 'github_repo' => '', 'github_token' => '',
-    'github_workflow' => 'check.yml', 'github_ref' => 'main', 'local_test' => true,
+    'ingest_token' => '0123456789abcdef0123456789abcdef0123abcd', 'github_repo' => 'example/example', 'github_token' => '$token',
+    'github_workflow' => 'check.yml', 'github_ref' => 'main', 'staging' => $staging, 'local_test' => true,
 ];
 PHP
 }
@@ -61,12 +63,13 @@ serve() { # serve DIR PORT
 
 run_php() {
   echo "== PHP tests"
-  mkdir -p "$WORK/unit-data"
+  mkdir -p "$WORK/unit-data" "$WORK/staging-data"
   make_site unit "$WORK/unit-data"
+  make_site staging "$WORK/staging-data" true
   for f in "$ROOT"/tests/php/*.test.php; do
     [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]] && continue
     echo "-- $(basename "$f")"
-    SITE_DIR="$WORK/unit" php "$f" || STATUS=1
+    SITE_DIR="$WORK/unit" STAGING_SITE_DIR="$WORK/staging" php "$f" || STATUS=1
   done
 }
 

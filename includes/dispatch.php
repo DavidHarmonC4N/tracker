@@ -9,6 +9,9 @@ require_once __DIR__ . '/scanner.php';
 
 /** Lets the site start the GitHub workflow itself, so the runner does not depend on GitHub's schedule. */
 function github_trigger_enabled(): bool {
+    if (is_staging()) {
+        return false; // a staging copy never starts the real runner
+    }
     $c = config();
     return (string)($c['github_token'] ?? '') !== ''
         && preg_match('~^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$~D', (string)($c['github_repo'] ?? '')) === 1;
