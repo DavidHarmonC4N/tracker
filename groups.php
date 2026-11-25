@@ -13,7 +13,7 @@ common_headers();
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: public, max-age=300');
 
-$data = groups_load();
+$data = groups_current();
 $all = $data['groups'];
 $states = groups_states($all);
 $bySlug = [];

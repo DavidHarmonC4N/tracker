@@ -560,3 +560,11 @@ nav.crumbs { display: block; gap: 0; }
 .proto.both { border-color: var(--amber); color: var(--amber); }
 
 #groups > h2 { margin: 0 0 .9rem; }
+
+/* Admin sections and the group form */
+.admin-tabs { display: flex; gap: .4rem; margin: 0 0 1rem; border-bottom: 1px solid var(--edge); }
+.admin-tabs a { padding: .55rem 1rem; border: 1px solid transparent; border-bottom: 0; color: var(--dim); text-decoration: none; font: 700 .8rem var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+.admin-tabs a[aria-current="page"] { background: var(--panel); border-color: var(--edge); color: var(--green); }
+.states-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: .2rem .8rem; margin: 1rem 0 0; padding: .8rem; border: 1px solid var(--edge); }
+.states-grid legend { padding: 0 .4rem; color: var(--dim); font: .8rem var(--mono); text-transform: uppercase; }
+.states-grid label { margin: 0; }

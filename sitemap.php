@@ -35,7 +35,7 @@ try {
     error_log('Offgrid sitemap: ' . $error->getMessage());
 }
 $file = static fn(string $name): int => (int)(@filemtime(__DIR__ . '/' . $name) ?: 0);
-$groupData = groups_load();
+$groupData = groups_current();
 $groupMod = $groupData['verified'] !== '' ? (int)strtotime($groupData['verified']) : $file('groups.php');
 $groupPages = ['groups.php' => $groupMod];
 foreach (groups_states($groupData['groups']) as $groupState) {

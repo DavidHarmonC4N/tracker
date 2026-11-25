@@ -77,24 +77,31 @@ function groups_load(?string $file = null): array {
     $verified = is_array($raw) && is_string($raw['verified'] ?? null) && preg_match('/^\d{4}-\d{2}-\d{2}$/D', $raw['verified']) ? $raw['verified'] : '';
     $groups = [];
     foreach (is_array($raw['groups'] ?? null) ? $raw['groups'] : [] as $g) {
-        if (!is_array($g) || !isset(GROUP_PROTOCOLS[$g['protocol'] ?? '']) || !is_string($g['id'] ?? null) || !preg_match('/^[A-Za-z0-9_-]{1,20}$/D', $g['id'])) {
-            continue;
+        if (is_array($g) && ($clean = groups_clean($g)) !== null) {
+            $groups[] = $clean;
         }
-        $name = groups_text($g['name'] ?? '', 80);
-        $url = groups_url($g['url'] ?? '');
-        $states = array_values(array_filter(array_map(static fn($s) => groups_text($s, 40), is_array($g['states'] ?? null) ? $g['states'] : []), static fn($s) => $s !== ''));
-        if ($name === '' || $url === '' || !$states) {
-            continue;
-        }
-        $groups[] = [
-            'id'=>$g['id'], 'name'=>$name, 'city'=>groups_text($g['city'] ?? '', 60), 'protocol'=>$g['protocol'], 'type'=>groups_text($g['type'] ?? '', 40),
-            'url'=>$url, 'discord'=>groups_url($g['discord'] ?? ''), 'discord_members_only'=>($g['discord_members_only'] ?? false) === true,
-            'facebook'=>groups_url($g['facebook'] ?? ''), 'other'=>groups_url($g['other'] ?? ''), 'map'=>groups_url($g['map'] ?? ''),
-            'coverage'=>groups_text($g['coverage'] ?? '', 110), 'notes'=>groups_text($g['notes'] ?? '', 160),
-            'review'=>in_array($g['review'] ?? '', ['reviewed', 'directory', 'unconfirmed'], true) ? $g['review'] : 'directory', 'states'=>$states,
-        ];
     }
     return $cache[$file] = ['verified'=>$verified, 'groups'=>$groups];
+}
+
+/** One group, cleaned: every field checked and trimmed, every link made safe. Null when it cannot be shown (no name, no https main link, no state). */
+function groups_clean(array $g): ?array {
+    if (!isset(GROUP_PROTOCOLS[$g['protocol'] ?? '']) || !is_string($g['id'] ?? null) || !preg_match('/^[A-Za-z0-9_-]{1,20}$/D', $g['id'])) {
+        return null;
+    }
+    $name = groups_text($g['name'] ?? '', 80);
+    $url = groups_url($g['url'] ?? '');
+    $states = array_values(array_filter(array_map(static fn($s) => groups_text($s, 40), is_array($g['states'] ?? null) ? $g['states'] : []), static fn($s) => $s !== ''));
+    if ($name === '' || $url === '' || !$states) {
+        return null;
+    }
+    return [
+        'id'=>$g['id'], 'name'=>$name, 'city'=>groups_text($g['city'] ?? '', 60), 'protocol'=>$g['protocol'], 'type'=>groups_text($g['type'] ?? '', 40),
+        'url'=>$url, 'discord'=>groups_url($g['discord'] ?? ''), 'discord_members_only'=>($g['discord_members_only'] ?? false) === true,
+        'facebook'=>groups_url($g['facebook'] ?? ''), 'other'=>groups_url($g['other'] ?? ''), 'map'=>groups_url($g['map'] ?? ''),
+        'coverage'=>groups_text($g['coverage'] ?? '', 110), 'notes'=>groups_text($g['notes'] ?? '', 160),
+        'review'=>in_array($g['review'] ?? '', ['reviewed', 'directory', 'unconfirmed'], true) ? $g['review'] : 'directory', 'states'=>$states,
+    ];
 }
 
 /** [state name => ['slug'=>..., 'code'=>..., 'count'=>n]] for every state or region that has at least one group, in name order. */
@@ -189,4 +196,198 @@ function groups_map_svg(array $states, string $selected, string $page = 'groups.
             : '<a href="' . h($page . '?state=' . $s['slug']) . '#groups"><title>' . h($s['name'] . ': ' . $s['count'] . ($s['count'] === 1 ? ' group' : ' groups')) . '</title>' . $tile . '</a>';
     }
     return $out . '</svg>';
+}
+
+// ---- Admin: the list in the file is the starting point, and changes made in Admin are kept in tracker.json on top of it.
+// $store is ['edits'=>[id => group], 'added'=>[group, ...], 'hidden'=>[id => true], 'updated'=>unix time].
+
+const GROUP_TYPES = ['Mesh community'=>'Mesh community', 'Discussion group'=>'Discussion group', 'Club / institution'=>'Club / institution',
+    'Local project / resource'=>'Local project / resource', 'Coordination hub'=>'Coordination hub'];
+const GROUP_REVIEWS = ['reviewed'=>'Website reviewed', 'directory'=>'Directory listing only', 'unconfirmed'=>'Website not confirmed'];
+const GROUP_REGIONS = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'District of Columbia', 'Florida', 'Georgia',
+    'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi',
+    'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon',
+    'Pennsylvania', 'Puerto Rico', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'U.S. regional / national', 'Utah', 'Vermont', 'Virginia',
+    'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
+
+/**
+ * The directory with the admin's changes applied. Every group carries 'origin' (file or added), 'edited' and 'hidden'.
+ * Pass $withHidden = false for the public view.
+ */
+function groups_apply(array $base, array $store, bool $withHidden): array {
+    $out = [];
+    foreach ($base as $g) {
+        $edited = is_array($store['edits'][$g['id']] ?? null) ? groups_clean($store['edits'][$g['id']]) : null;
+        $out[] = ($edited ?? $g) + ['origin'=>'file', 'edited'=>$edited !== null, 'hidden'=>!empty($store['hidden'][$g['id']])];
+    }
+    foreach (is_array($store['added'] ?? null) ? $store['added'] : [] as $g) {
+        if (is_array($g) && ($clean = groups_clean($g)) !== null) {
+            $out[] = $clean + ['origin'=>'added', 'edited'=>false, 'hidden'=>!empty($store['hidden'][$clean['id']])];
+        }
+    }
+    return $withHidden ? $out : array_values(array_filter($out, static fn($g) => !$g['hidden']));
+}
+
+/** The directory as visitors see it: the file plus Admin's changes, hidden groups left out. Falls back to the file alone. */
+function groups_current(): array {
+    $data = groups_load();
+    $store = [];
+    try {
+        if (config()['data_dir'] !== '') {
+            $store = load_state(data_dir())['groups'] ?? [];
+        }
+    } catch (Throwable $unreadable) {
+        error_log('Offgrid groups: ' . $unreadable->getMessage());
+    }
+    if (!$store) {
+        return $data;
+    }
+    $updated = (int)($store['updated'] ?? 0);
+    return ['verified'=>$updated > 0 && gmdate('Y-m-d', $updated) > $data['verified'] ? gmdate('Y-m-d', $updated) : $data['verified'], 'groups'=>groups_apply($data['groups'], $store, false)];
+}
+
+/** A web address compared loosely, so the same group is not listed twice. */
+function groups_url_key(string $url): string {
+    $parts = parse_url(strtolower($url));
+    return preg_replace('/^www\./', '', (string)($parts['host'] ?? '')) . rtrim((string)($parts['path'] ?? ''), '/') . (isset($parts['query']) ? '?' . $parts['query'] : '');
+}
+
+/**
+ * Turns the Admin form into a group, or throws InvalidArgumentException saying what to fix. $others are the other groups,
+ * used to refuse a group whose main link is already listed.
+ */
+function groups_record_from_post(array $post, string $id, array $others): array {
+    $text = static function (string $key, int $limit, bool $required = false) use ($post): string {
+        $value = is_string($post[$key] ?? null) ? trim((string)preg_replace('/[\x00-\x1f\x7f]+/', ' ', $post[$key])) : '';
+        if (strlen($value) > $limit) {
+            throw new InvalidArgumentException('Shorten ' . str_replace('_', ' ', $key) . ' to ' . $limit . ' characters or fewer.');
+        }
+        if ($required && $value === '') {
+            throw new InvalidArgumentException('Enter the ' . str_replace('_', ' ', $key) . '.');
+        }
+        return $value;
+    };
+    $link = static function (string $key, string $label, bool $required = false) use ($post): string {
+        $value = is_string($post[$key] ?? null) ? trim($post[$key]) : '';
+        if ($value === '') {
+            if ($required) {
+                throw new InvalidArgumentException('Enter the ' . $label . '.');
+            }
+            return '';
+        }
+        if (groups_url($value) === '') {
+            throw new InvalidArgumentException('The ' . $label . ' must be a full https:// address with no spaces.');
+        }
+        return $value;
+    };
+    $protocol = is_string($post['protocol'] ?? null) ? $post['protocol'] : '';
+    if (!isset(GROUP_PROTOCOLS[$protocol])) {
+        throw new InvalidArgumentException('Choose a protocol.');
+    }
+    $type = is_string($post['type'] ?? null) && isset(GROUP_TYPES[$post['type']]) ? $post['type'] : 'Mesh community';
+    $review = is_string($post['review'] ?? null) && isset(GROUP_REVIEWS[$post['review']]) ? $post['review'] : 'directory';
+    $states = array_values(array_unique(array_filter(is_array($post['states'] ?? null) ? $post['states'] : [], static fn($s) => is_string($s) && in_array($s, GROUP_REGIONS, true))));
+    if (!$states) {
+        throw new InvalidArgumentException('Choose at least one state or region.');
+    }
+    $record = [
+        'id'=>$id, 'name'=>$text('name', 80, true), 'city'=>$text('city', 60), 'protocol'=>$protocol, 'type'=>$type, 'url'=>$link('url', 'main link', true),
+        'discord'=>$link('discord', 'Discord link'), 'discord_members_only'=>isset($post['discord_members_only']), 'facebook'=>$link('facebook', 'Facebook link'),
+        'other'=>$link('other', 'other link'), 'map'=>$link('map', 'map link'), 'coverage'=>$text('coverage', 110), 'notes'=>$text('notes', 160),
+        'review'=>$review, 'states'=>$states,
+    ];
+    foreach ($others as $other) {
+        if ($other['id'] !== $id && groups_url_key($other['url']) === groups_url_key($record['url'])) {
+            throw new InvalidArgumentException('That main link is already listed as "' . $other['name'] . '".');
+        }
+    }
+    if (groups_clean($record) === null) {
+        throw new InvalidArgumentException('That group could not be saved. Check the name, protocol, main link and states.');
+    }
+    return $record;
+}
+
+/** The next free id for a group added in Admin: A001, A002, and so on. */
+function groups_next_id(array $all): string {
+    $max = 0;
+    foreach ($all as $g) {
+        if (preg_match('/^A(\d{3,})$/D', $g['id'], $m)) {
+            $max = max($max, (int)$m[1]);
+        }
+    }
+    return 'A' . str_pad((string)($max + 1), 3, '0', STR_PAD_LEFT);
+}
+
+/** Saves an edit (a group in the file or one added earlier) or adds a new group ($id = ''). Returns a message for the notice. */
+function groups_admin_save(string $dir, array $post, string $id): string {
+    $base = groups_load()['groups'];
+    return change_state($dir, static function (&$state) use ($base, $post, $id) {
+        $store = $state['groups'] ?? [];
+        $all = groups_apply($base, $store, true);
+        $known = array_column($all, null, 'id');
+        if ($id !== '' && !isset($known[$id])) {
+            throw new InvalidArgumentException('That group no longer exists.');
+        }
+        $newId = $id !== '' ? $id : groups_next_id($all);
+        $record = groups_record_from_post($post, $newId, $all);
+        if ($id === '' || ($known[$id]['origin'] ?? '') === 'added') {
+            $added = array_values(array_filter($store['added'] ?? [], static fn($g) => ($g['id'] ?? '') !== $newId));
+            $added[] = $record;
+            $store['added'] = $added;
+        } else {
+            $store['edits'][$id] = $record;
+        }
+        $store['updated'] = time();
+        $state['groups'] = $store;
+        return ($id === '' ? 'Added ' : 'Saved ') . $record['name'] . '.';
+    });
+}
+
+function groups_admin_set_hidden(string $dir, string $id, bool $hidden): string {
+    $base = groups_load()['groups'];
+    return change_state($dir, static function (&$state) use ($base, $id, $hidden) {
+        $store = $state['groups'] ?? [];
+        $known = array_column(groups_apply($base, $store, true), null, 'id');
+        if (!isset($known[$id])) {
+            throw new InvalidArgumentException('That group no longer exists.');
+        }
+        if ($hidden) {
+            $store['hidden'][$id] = true;
+        } else {
+            unset($store['hidden'][$id]);
+        }
+        $store['updated'] = time();
+        $state['groups'] = $store;
+        return ($hidden ? 'Hid ' : 'Showing ') . $known[$id]['name'] . ($hidden ? ' from the public directory.' : ' in the public directory.');
+    });
+}
+
+/** Puts a group from the file back as it was, dropping the edit made in Admin. */
+function groups_admin_restore(string $dir, string $id): string {
+    return change_state($dir, static function (&$state) use ($id) {
+        $store = $state['groups'] ?? [];
+        if (!isset($store['edits'][$id])) {
+            throw new InvalidArgumentException('That group has no edit to undo.');
+        }
+        unset($store['edits'][$id]);
+        $store['updated'] = time();
+        $state['groups'] = $store;
+        return 'Restored the original listing.';
+    });
+}
+
+/** Deletes a group added in Admin. Groups from the file can only be hidden. */
+function groups_admin_delete(string $dir, string $id): string {
+    return change_state($dir, static function (&$state) use ($id) {
+        $store = $state['groups'] ?? [];
+        $before = count($store['added'] ?? []);
+        $store['added'] = array_values(array_filter($store['added'] ?? [], static fn($g) => ($g['id'] ?? '') !== $id));
+        if (count($store['added']) === $before) {
+            throw new InvalidArgumentException('Only a group added in Admin can be deleted. Hide a group from the list instead.');
+        }
+        unset($store['hidden'][$id]);
+        $store['updated'] = time();
+        $state['groups'] = $store;
+        return 'Deleted the group.';
+    });
 }

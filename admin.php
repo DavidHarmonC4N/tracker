@@ -102,6 +102,7 @@ try {
     $addurl = is_array($_SESSION['addurl'] ?? null) ? $_SESSION['addurl'] : null;
     $editId = field($_GET,'edit');
     $reviewId = field($_GET,'review');
+    $view = field($_GET,'view') === 'groups' ? 'groups' : 'listings';
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!hash_equals($token, field($_POST,'token'))) {
@@ -145,6 +146,19 @@ try {
             $_SESSION = [];
             session_destroy();
             go();
+        }
+        if (in_array($action, ['group_save', 'group_hide', 'group_show', 'group_restore', 'group_delete'], true)) {
+            // The group directory (includes/admin-groups.php). Each action says what it did, then returns to the right page.
+            $groupId = field($_POST,'id');
+            $back = '?view=groups&edit=' . rawurlencode($groupId);
+            $_SESSION['notice'] = match ($action) {
+                'group_save' => groups_admin_save($dir, $_POST, $groupId),
+                'group_hide' => groups_admin_set_hidden($dir, $groupId, true),
+                'group_show' => groups_admin_set_hidden($dir, $groupId, false),
+                'group_restore' => groups_admin_restore($dir, $groupId),
+                'group_delete' => groups_admin_delete($dir, $groupId),
+            };
+            go($action === 'group_save' || $action === 'group_delete' ? '?view=groups' : $back);
         }
         if ($action === 'test_alert') {
             if (is_staging()) {
@@ -482,7 +496,7 @@ $reading = $editor['result'] ?? [];
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= is_staging() ? '[STAGING] ' : '' ?><?= $auth && !empty($state['submissions']) ? '(' . h(count($state['submissions'])) . ') ' : '' ?>Admin · Offgrid Comms Tracker</title>
-<link rel="stylesheet" href="assets/styles.css?v=20261202-groups">
+<link rel="stylesheet" href="assets/styles.css?v=20261203-admingroups">
 <script src="assets/admin.js?v=3" defer></script>
 </head>
 <body>
@@ -498,6 +512,9 @@ $reading = $editor['result'] ?? [];
   <form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button name="action" value="logout" class="quiet">Sign out</button></form>
   <?php endif; ?>
 </div>
+<?php if ($auth && !$blocking): ?>
+<nav class="admin-tabs" aria-label="Admin sections"><a href="admin.php"<?= $view === 'listings' ? ' aria-current="page"' : '' ?>>Radios and antennas</a><a href="admin.php?view=groups"<?= $view === 'groups' ? ' aria-current="page"' : '' ?>>Groups</a></nav>
+<?php endif; ?>
 <?php if ($notice): ?><p class="notice" role="status"><?= h($notice) ?></p><?php endif; ?>
 <?php if ($failure): ?><p class="notice danger" role="alert"><?= h($failure) ?></p><?php endif; ?>
 <?php if ($blocking): ?>
@@ -512,6 +529,8 @@ $reading = $editor['result'] ?? [];
     <label><?= $setup ? 'New password (12–72 bytes)' : 'Password' ?><input name="password" type="password" autocomplete="<?= $setup ? 'new-password' : 'current-password' ?>" <?= $setup ? 'minlength="12" maxlength="72"' : '' ?> required></label>
     <button class="primary" name="action" value="<?= $setup ? 'setup' : 'login' ?>"><?= $setup ? 'Create password' : 'Sign in' ?></button>
   </form>
+<?php elseif ($view === 'groups'):
+    require __DIR__ . '/includes/admin-groups.php'; ?>
 <?php elseif ($showVariant):
     $product = $addurl['read']['product'];
     $taken = [];
