@@ -424,7 +424,7 @@ nav a[aria-current="page"] { color: var(--green); }
 .guide-step ul { margin: 0; padding-left: 1.2rem; display: grid; gap: .55rem; line-height: 1.55; }
 .guide-step li::marker { color: #627447; }
 .guide-step a { color: var(--green); text-underline-offset: .18em; }
-.num { display: inline-grid; place-items: center; width: 2rem; height: 2rem; flex: none; border-radius: 50%; background: var(--green); color: #192111; font: 800 .95rem var(--mono); }
+.guide-step h2 .num { display: inline-grid; place-items: center; width: 2rem; height: 2rem; flex: none; border-radius: 50%; background: var(--green); color: #192111; font: 800 .95rem var(--mono); }
 .badges-row { margin: 0; padding-bottom: 0; border-bottom: 0; }
 .topicbox { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; padding: .8rem; border: 1px solid #455437; border-radius: 8px; background: #11160f; }
 .topic { flex: 1 1 16rem; min-width: 0; padding: .5rem .7rem; border-radius: 6px; background: #0b0f0a; color: var(--green); font: 700 1rem var(--mono); overflow-wrap: anywhere; user-select: all; }
@@ -463,3 +463,16 @@ p.footer-head { display: block; }
 @media (min-width: 700px) { #chart { min-height: 22rem; } }
 
 @media (max-width: 700px) { #subtitle { min-height: 3.3em; } #tablewrap { min-height: 21rem; } }
+
+/* Per-radio pages */
+.crumbs { margin: 1.2rem 0 0; color: var(--dim); font: .82rem var(--mono); }
+.crumbs a { color: var(--green); text-underline-offset: .18em; }
+.rnote { margin: .6rem 0 0; color: var(--dim); }
+.rfigure { margin: 0; }
+.rsvg { display: block; width: 100%; max-width: 720px; height: auto; }
+.facts-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .8rem 1.4rem; margin: 0; }
+.facts-list div { padding-bottom: .6rem; border-bottom: 1px solid var(--edge); }
+.facts-list dt { color: var(--dim); font: 700 .72rem var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.facts-list dd { margin: .2rem 0 0; font-weight: 600; }
+.rlist { margin: 0; padding-left: 1.2rem; display: grid; gap: .5rem; line-height: 1.5; }
+.card .details { display: block; margin-top: -.2rem; color: var(--green); font: .78rem var(--mono); text-underline-offset: .18em; }

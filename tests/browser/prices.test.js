@@ -42,6 +42,8 @@ run(async (t) => {
   t.ok('lines are labelled with names and latest prices', /LILYGO T-Deck/.test(await p.textContent('#chart svg')) && /\$67\.97/.test(await p.textContent('#chart svg')));
   const rows = await p.$$eval('.ptable tbody tr', (r) => r.map((x) => x.textContent.replace(/\s+/g, ' ').trim()));
   t.ok('the table lists every radio', rows.length === 4);
+  const cell = await p.$eval('.ptable td.num', (e) => { const c = getComputedStyle(e); return { display: c.display, radius: c.borderRadius, bg: c.backgroundColor }; });
+  t.ok('price cells are plain table cells, not the round step badges from the Phone alerts page', cell.display === 'table-cell' && cell.radius === '0px' && /rgba\(0, 0, 0, 0\)|transparent/.test(cell.bg), JSON.stringify(cell));
   t.ok('a radio at its low says Lowest seen', rows.some((r) => /LILYGO T-Deck.*Lowest seen/.test(r)));
   t.ok('a radio whose price never moved says No change', rows.some((r) => /WisMesh Tag Navy.*No change/.test(r)));
   t.ok('an out-of-stock radio is marked in the table', rows.some((r) => /WisMesh Tag Navy.*\(out\)/.test(r)));
