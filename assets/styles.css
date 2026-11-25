@@ -328,3 +328,7 @@ nav.footer-col { display: block; font-size: .87rem; color: var(--dim); }
 .group.folded { margin-bottom: 1rem; }
 .group.folded .group-head { margin-bottom: 0; border-bottom-color: transparent; }
 @media (prefers-reduced-motion: reduce) { .fold .chev svg { transition: none; } }
+
+/* Card titles: balance the lines and keep model names such as T1000-E together */
+.card h3 { text-wrap: balance; overflow-wrap: break-word; hyphens: manual; }
+.titlerow > div:first-child { flex: 1; min-width: 0; }
