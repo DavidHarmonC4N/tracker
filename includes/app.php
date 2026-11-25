@@ -137,17 +137,24 @@ function h(string|int|null $value): string {
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+/** Optional one-line reasons shown under a field, used by the Add by link screen. [field => [tag, text]] */
+function field_hint(string $key): string {
+    $hint = $GLOBALS['field_hints'][$key] ?? null;
+    return $hint ? '<span class="why"><i>' . h($hint[0]) . '</i> · ' . h($hint[1]) . '</span>' : '';
+}
+
 function select_box(string $key, string $label, array $options, array $values): void {
-    echo '<label>' . h($label) . '<select name="' . h($key) . '" required>';
+    // A menu that offers a blank choice ("Not specified") must not also be required, or the browser blocks saving.
+    echo '<label>' . h($label) . '<select name="' . h($key) . '"' . (isset($options['']) ? '' : ' required') . '>';
     foreach ($options as $value=>$title) {
         echo '<option value="' . h($value) . '"' . (field($values,$key) === $value ? ' selected' : '') . '>' . h($title) . '</option>';
     }
-    echo '</select></label>';
+    echo '</select>' . field_hint($key) . '</label>';
 }
 
 function input_box(string $key, string $label, array $values, string $type = 'text', string $attributes = ''): void {
     echo '<label>' . h($label) . '<input name="' . h($key) . '" type="' . h($type)
-        . '" value="' . h(field($values,$key)) . '" ' . $attributes . '></label>';
+        . '" value="' . h(field($values,$key)) . '" ' . $attributes . '>' . field_hint($key) . '</label>';
 }
 
 function product_url(string $url): array {

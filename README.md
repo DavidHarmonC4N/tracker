@@ -191,3 +191,7 @@ These live in the **host's** `config.php`. The repository's copy is a blank temp
 Releases are named `v<major>.<minor>` plus a codename. Each major series takes the next word from the radio alphabet (v1 is the Antenna series, v2 is Beacon, then Channel, Dipole, Echo and so on). Each minor release within a series is named for a bird (v1.0 Kestrel, v1.1 Osprey, v1.2 Harrier, v1.3 Merlin, v1.4 Condor, v1.5 Peregrine).
 
 To publish a release, edit `index.html`: add a new `<div class="rel">` block at the top of the `#whats-new` section (and drop the oldest one into the "Earlier" line), then update the version in the `<summary>` line and in the `<p class="stamp">` line in the footer. Bump the `?v=` cache string on the CSS and JS links so browsers pick up the change.
+
+## Adding a listing by link
+
+In the admin, the "Add a listing by link" panel reads a store's product feed from the pasted link, lists the variants with price and stock, and opens the Add listing form already filled in. Each guess shows a short reason under the field, nothing is published until you press Save, and the first reading from the feed is saved with the listing. Referral and tracking parameters (`ref`, `utm_*` and similar) are removed from the link, and a link that is already in the catalog is refused. Stores without a feed open the form in "Product page" mode, and Etsy, DigiKey and Mouser open it as "Manual review only". The code is in `includes/addurl.php`.

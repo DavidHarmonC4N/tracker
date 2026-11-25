@@ -6,6 +6,7 @@ require __DIR__ . '/includes/app.php';
 require __DIR__ . '/includes/scanner.php';
 require __DIR__ . '/includes/dispatch.php';
 require __DIR__ . '/includes/visits.php';
+require __DIR__ . '/includes/addurl.php';
 common_headers();
 header('Cache-Control: no-store');
 header('X-Robots-Tag: noindex, nofollow');
@@ -68,6 +69,7 @@ $state = ['password'=>null,'items'=>[],'last_run'=>null,'submissions'=>[]];
 $diagnosis = null;
 $blocking = $notice = $failure = '';
 $editor = null;
+$addurl = null;
 $submission = null;
 $reviewId = '';
 $auth = false;
@@ -97,6 +99,7 @@ try {
     $auth = !$setup && !empty($_SESSION['is_admin']);
     $notice = $_SESSION['notice'] ?? '';
     unset($_SESSION['notice']);
+    $addurl = is_array($_SESSION['addurl'] ?? null) ? $_SESSION['addurl'] : null;
     $editId = field($_GET,'edit');
     $reviewId = field($_GET,'review');
 
@@ -142,6 +145,46 @@ try {
             $_SESSION = [];
             session_destroy();
             go();
+        }
+        if ($action === 'addurl_read') {
+            $found = addurl_read(field($_POST,'link'), static fn($u) => guarded_fetch($u, $dir), $state['items']);
+            if (has_listing_url($state['items'], $found['url'])) {
+                throw new InvalidArgumentException('This product link is already in the catalog.');
+            }
+            $readings = [];
+            if ($found['ok']) {
+                foreach ($found['product']['variants'] as $variant) {
+                    $readings[$variant['id']] = addurl_reading($found['body'], addurl_listing_url($found['url'], $variant['id']));
+                }
+                $readings['any'] = addurl_reading($found['body'], addurl_listing_url($found['url'], null));
+                unset($found['body']);
+            }
+            $session = ['read'=>$found, 'readings'=>$readings, 'multi'=>$found['ok'] && count($found['product']['variants']) > 1,
+                'link_variant'=>addurl_link_variant($found['url']), 'guess'=>null, 'reading'=>null];
+            if (!$found['ok']) {
+                $session['guess'] = addurl_guess($found, null, $state['items'], ingest_enabled());
+                $_SESSION['addurl'] = $session;
+                go('?add=1&from=url');
+            }
+            if (!$session['multi']) {
+                $session = addurl_choose($session, null, $state['items'], ingest_enabled());
+                $_SESSION['addurl'] = $session;
+                go('?add=1&from=url');
+            }
+            $_SESSION['addurl'] = $session;
+            go('?addurl=variant');
+        }
+        if ($action === 'addurl_pick') {
+            if (!$addurl || empty($addurl['read']['ok'])) {
+                throw new InvalidArgumentException('Paste the product link again.');
+            }
+            $choice = field($_POST,'variant_id');
+            $known = array_column($addurl['read']['product']['variants'], 'id');
+            if ($choice !== 'any' && !in_array($choice, $known, true)) {
+                throw new InvalidArgumentException('Pick one of the variants.');
+            }
+            $_SESSION['addurl'] = addurl_choose($addurl, $choice === 'any' ? null : $choice, $state['items'], ingest_enabled());
+            go('?add=1&from=url');
         }
         $id = field($_POST,'id');
         $editId = $id;
@@ -254,7 +297,8 @@ try {
         }
         $events = [];
         $eventUrl = '';
-        change_state($dir, static function (&$fresh) use ($action,$id,&$events,&$eventUrl) {
+        $fromReading = isset($_POST['from_url']) && $id === '' && is_array($addurl['reading'] ?? null) ? $addurl['reading'] : null;
+        change_state($dir, static function (&$fresh) use ($action,$id,&$events,&$eventUrl,$fromReading) {
             foreach ($fresh['items'] as $index=>$row) {
                 if ($row['id'] !== $id) {
                     continue;
@@ -284,12 +328,28 @@ try {
             if (count($fresh['items']) >= 250) {
                 throw new InvalidArgumentException('This installation supports up to 250 listings.');
             }
-            $fresh['items'][] = save_item($_POST,null);
+            $new = save_item($_POST,null);
+            if (has_listing_url($fresh['items'],$new['url'])) {
+                throw new InvalidArgumentException('This product link is already in the catalog.');
+            }
+            if ($fromReading && $fromReading['listing_url'] === $new['url'] && $new['mode'] === 'auto') {
+                // The administrator saw this reading a moment ago, so the card is right from the start.
+                $new['result'] = $fromReading['result'];
+                $new['attempted_at'] = iso_now();
+            }
+            $fresh['items'][] = $new;
         });
         announce_events($events, $eventUrl);
         $_SESSION['notice'] = match ($action) {
             'delete'=>'Listing removed.', 'queue'=>'Listing queued for the next scheduled run.', default=>'Listing saved.',
         };
+        if ($action === 'save' && isset($_POST['from_url']) && $id === '') {
+            if (isset($_POST['another']) && !empty($addurl['multi'])) {
+                $_SESSION['notice'] = 'Listing saved. Pick the next variant.';
+                go('?addurl=variant');
+            }
+            unset($_SESSION['addurl']);
+        }
         go($action === 'queue' ? '?edit=' . rawurlencode($id) : '');
         }
     }
@@ -314,8 +374,15 @@ if ($auth && !$blocking) {
 }
 $postEditor = $auth && in_array(field($_POST,'action'),['save','approve'],true);
 $showEditor = $auth && ($editor || $submission || ($postEditor && $reviewId === '') || isset($_GET['add']));
+$fromUrl = $auth && !$blocking && isset($_GET['from']) && is_array($addurl['guess'] ?? null);
+$showVariant = $auth && !$blocking && !$showEditor && ($_GET['addurl'] ?? '') === 'variant' && !empty($addurl['read']['ok']);
 $values = $postEditor ? $_POST : ($editor ?? (($submission ?? ['firmware'=>'both','kind'=>'handheld','role'=>'unspecified'])
     + ['mode'=>'auto','setup'=>'unknown']));
+if ($fromUrl && !$postEditor) {
+    $values = $addurl['guess']['values'] + $values;
+    $GLOBALS['field_hints'] = $addurl['guess']['why'];
+}
+$fromUrlPost = $postEditor && isset($_POST['from_url']);
 $reading = $editor['result'] ?? [];
 ?><!doctype html>
 <html lang="en">
@@ -323,7 +390,7 @@ $reading = $editor['result'] ?? [];
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= $auth && !empty($state['submissions']) ? '(' . h(count($state['submissions'])) . ') ' : '' ?>Admin · Offgrid Comms Tracker</title>
-<link rel="stylesheet" href="assets/styles.css?v=20261124-footer">
+<link rel="stylesheet" href="assets/styles.css?v=20261126-addurl">
 <script src="assets/admin.js?v=2" defer></script>
 </head>
 <body>
@@ -352,6 +419,52 @@ $reading = $editor['result'] ?? [];
     <label><?= $setup ? 'New password (12–72 bytes)' : 'Password' ?><input name="password" type="password" autocomplete="<?= $setup ? 'new-password' : 'current-password' ?>" <?= $setup ? 'minlength="12" maxlength="72"' : '' ?> required></label>
     <button class="primary" name="action" value="<?= $setup ? 'setup' : 'login' ?>"><?= $setup ? 'Create password' : 'Sign in' ?></button>
   </form>
+<?php elseif ($showVariant):
+    $product = $addurl['read']['product'];
+    $taken = [];
+    foreach ($product['variants'] as $variant) {
+        $taken[$variant['id']] = has_listing_url($state['items'], addurl_listing_url($addurl['read']['url'], $variant['id']));
+    }
+    $preselect = $addurl['link_variant'] ?? null;
+    if ($preselect === null || !isset($taken[$preselect]) || $taken[$preselect]) {
+        $preselect = null;
+        foreach ($product['variants'] as $variant) {
+            if ($taken[$variant['id']]) {
+                continue;
+            }
+            if ($preselect === null || $variant['available']) {
+                $preselect = $preselect === null || $variant['available'] ? $variant['id'] : $preselect;
+                if ($variant['available']) {
+                    break;
+                }
+            }
+        }
+    }
+    ?>
+  <form class="panel editor addurl" method="post">
+    <div class="section-line"><h2>Add a listing by link</h2><a class="quiet" href="admin.php">Back to admin</a></div>
+    <?= addurl_steps(2) ?>
+    <input type="hidden" name="token" value="<?= h($token) ?>">
+    <div class="prod"><b><?= h($product['title']) ?></b><span><?= h($addurl['read']['host']) ?><?= $product['vendor'] !== '' ? ' · ' . h($product['vendor']) : '' ?> · read just now from the product feed</span></div>
+    <?php if ($addurl['read']['removed']): ?>
+      <p class="anote"><b>Tidied your link:</b> removed <?= h(implode(', ', array_map(static fn($p) => explode('=', $p, 2)[0], $addurl['read']['removed']))) ?>. The listing keeps only the product address<?= $addurl['link_variant'] ? ' and ?variant=' . h($addurl['link_variant']) : '' ?>.</p>
+    <?php endif; ?>
+    <fieldset class="varlist"><legend>Which variant should we track?</legend>
+      <?php foreach ($product['variants'] as $variant): $reading = $addurl['readings'][$variant['id']] ?? null; ?>
+        <label class="var<?= $preselect === $variant['id'] ? ' pick' : '' ?><?= $taken[$variant['id']] ? ' taken' : '' ?>">
+          <input type="radio" name="variant_id" value="<?= h($variant['id']) ?>" <?= $preselect === $variant['id'] ? 'checked' : '' ?> <?= $taken[$variant['id']] ? 'disabled' : '' ?>>
+          <span><?= h(addurl_is_default_title($variant['title']) ? 'Single option' : $variant['title']) ?><?= $addurl['link_variant'] === $variant['id'] ? ' <small class="from-link">· from your link</small>' : '' ?><?= $taken[$variant['id']] ? ' <small class="from-link">· already in the catalog</small>' : '' ?></span>
+          <span class="p"><?= h(money($variant['price'])) ?></span>
+          <span class="stk <?= $variant['available'] ? 'in' : 'out' ?>"><?= $variant['available'] ? 'Available' : 'Out of stock' ?></span>
+        </label>
+      <?php endforeach; ?>
+      <label class="var">
+        <input type="radio" name="variant_id" value="any" <?= $preselect === null ? 'checked' : '' ?>>
+        <span>Any available variant <small class="from-link">· for products where the option does not matter</small></span><span></span><span></span>
+      </label>
+    </fieldset>
+    <div class="acts"><button class="primary" name="action" value="addurl_pick">Use this variant and continue</button><a class="quiet" href="admin.php">Cancel</a></div>
+  </form>
 <?php elseif ($showEditor): ?>
   <form class="panel editor" method="post">
     <div class="section-line"><h2><?= $submission ? 'Review submission' : ($editor ? 'Edit listing' : 'Add listing') ?></h2><a class="quiet" href="admin.php<?= $submission ? '#submissions' : '' ?>">Back to admin</a></div>
@@ -360,6 +473,24 @@ $reading = $editor['result'] ?? [];
     <?php endif; ?>
     <input type="hidden" name="token" value="<?= h($token) ?>">
     <input type="hidden" name="id" value="<?= h($submission['id'] ?? $editor['id'] ?? '') ?>">
+    <?php if ($fromUrl || $fromUrlPost): ?>
+      <input type="hidden" name="from_url" value="1">
+      <input type="hidden" name="action" value="save">
+    <?php endif; ?>
+    <?php if ($fromUrl): ?>
+      <?= addurl_steps(3) ?>
+      <?php if (empty($addurl['read']['ok'])): ?>
+        <div class="anote fail"><b><?= match ($addurl['read']['reason'] ?? '') {
+            'manual' => 'This seller blocks automated checks',
+            'blocked' => 'This server could not read the page',
+            default => 'Could not read a product feed',
+        } ?>.</b> <?= h($addurl['read']['message'] ?? '') ?> <?= match ($addurl['read']['reason'] ?? '') {
+            'manual' => 'The form is set to "Manual review only", and the public page will show the asterisk. Record the price and stock by hand under "Record a manual price or stock reading".',
+            'blocked' => 'The form is set to scan the page' . (($addurl['guess']['values']['checker'] ?? '') === 'remote' ? ' with the U.S. runner, which takes the first reading within the hour' : '') . '. Check the fields below.',
+            default => 'The form is filled in from the link and set to scan the page. Add page rules under "Variant and page rules" if the first checks fail.',
+        } ?></div>
+      <?php endif; ?>
+    <?php endif; ?>
     <div class="form-grid">
       <?php input_box('name','Radio name',$values,'text','required maxlength="120"');
       input_box('seller','Seller',$values,'text','required maxlength="80"');
@@ -373,7 +504,7 @@ $reading = $editor['result'] ?? [];
       select_box('mode','Check method',MODES,$values);
       if (ingest_enabled()) { select_box('checker','Checked by',CHECKERS,$values); } ?>
     </div>
-    <label>Public notes<textarea name="note" maxlength="500" rows="2"><?= h(field($values,'note')) ?></textarea></label>
+    <label>Public notes<textarea name="note" maxlength="500" rows="2"><?= h(field($values,'note')) ?></textarea><?= field_hint('note') ?></label>
     <?php if (!$submission): ?><label class="inline"><input type="checkbox" name="paused" <?= !empty($values['paused']) ? 'checked' : '' ?>> Hide listing and pause checks</label><?php endif; ?>
     <details <?= field($values,'scope') ? 'open' : '' ?>>
       <summary>Variant and page rules</summary>
@@ -402,7 +533,14 @@ $reading = $editor['result'] ?? [];
       </div>
       <label class="inline"><input type="checkbox" name="from_price" <?= ($postEditor ? isset($_POST['from_price']) : !empty($reading['from_price'])) ? 'checked' : '' ?>> Show this as a starting price</label>
     </details>
+    <?php if ($fromUrl && !empty($addurl['reading']) && (($values['mode'] ?? '') === 'auto')): $first = $addurl['reading']['result']; ?>
+      <p class="anote"><b>First reading is saved too:</b> <?= h(STATUSES[$first['status']] ?? $first['status']) ?><?= $first['price'] !== null ? ' · ' . h(money($first['price'])) : '' ?>, read just now from the store. The next scheduled check confirms it.</p>
+    <?php endif; ?>
+    <?php if ($fromUrl || $fromUrlPost): ?>
+      <div class="acts"><button class="primary">Save listing</button><?php if (!empty($addurl['multi'])): ?><button class="quiet" name="another" value="1">Save and add another variant</button><?php endif; ?><a class="quiet" href="admin.php">Cancel</a></div>
+    <?php else: ?>
     <button class="primary" name="action" value="<?= $submission ? 'approve' : 'save' ?>"><?= $submission ? 'Approve and publish' : 'Save listing' ?></button>
+    <?php endif; ?>
   </form>
   <?php if ($submission): ?>
   <div class="panel editor-actions">
@@ -508,6 +646,14 @@ $reading = $editor['result'] ?? [];
     </ul>
   </section>
   <?php endif; ?>
+  <section class="panel editor addurl" aria-labelledby="addurl-heading">
+    <div class="section-line"><div><h2 id="addurl-heading">Add a listing by link</h2><p class="dim">Paste a product page. The tracker reads it and fills in the form for you.</p></div><a class="quiet" href="admin.php?add=1">Add by hand</a></div>
+    <?= addurl_steps(1) ?>
+    <form method="post" class="urlrow"><input type="hidden" name="token" value="<?= h($token) ?>">
+      <label>Product link<input type="url" name="link" required maxlength="1500" placeholder="https://store.example.com/products/…"></label>
+      <button class="primary" name="action" value="addurl_read">Read this page</button></form>
+    <p class="hint">Works with Shopify stores (Rokland, Seeed, SpecFive and others). Etsy, DigiKey and Mouser open as "Checked by hand". Other pages open the form with what the link tells us.</p>
+  </section>
   <div class="panel">
     <div class="section-line"><div><h2>Watched listings</h2><p class="dim"><?= h(count($state['items'])) ?> listings · <?= !$serverAuto && $remote ? ($runnerAge === null ? 'Waiting for the U.S. runner' : 'U.S. runner last checked in ' . h(when($state['last_runner_run']))) : ($runAge === null ? 'Waiting for the first scheduled run' : 'Checker last ran ' . h(when($state['last_run']))) ?> · <?= h($failing) ?> need review · <?= h($pausedSellers) ?> seller-paused</p></div><div class="row-actions">
       <form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="diagnose">Run connection test</button></form>
