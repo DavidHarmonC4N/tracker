@@ -103,11 +103,14 @@ try {
             continue;
         }
         $line = ($job['name'] ?? '?') . ' <' . ($job['url'] ?? '') . '> ';
+        // Out of time: the rest are left alone, not reported as failed, so they are not marked as checked or flagged for review.
+        // They are claimed again on a later run.
+        if (time() >= $deadline) {
+            echo "Out of time. The remaining listing(s) wait for the next run.\n";
+            break;
+        }
         $out = ['id'=>$job['id'],'fingerprint'=>$job['fingerprint'],'ok'=>false,'error'=>'','cooldown'=>0];
         try {
-            if (time() >= $deadline) {
-                throw new ScanFailure('The runner ran out of time before this check.');
-            }
             $found = scan_item($job, $cache, $feeds[seller_bucket(product_url((string)$job['url'])['host'])] ?? null);
             $out = ['id'=>$job['id'],'fingerprint'=>$job['fingerprint'],'ok'=>true,
                 'result'=>array_intersect_key($found, array_flip(['status','price','qty','from_price','detail']))];

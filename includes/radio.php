@@ -50,6 +50,14 @@ function radio_groups(array $items): array {
     return $groups;
 }
 
+/**
+ * [listing id => lead listing id] for the listings the public catalog shows. A paused listing is not shown, so it is left out here too:
+ * the page and the alert poster must agree on each radio's topic, and both use this.
+ */
+function radio_topic_leads(array $listings): array {
+    return radio_lead_ids(array_values(array_filter($listings, static fn($i) => empty($i['paused']))));
+}
+
 /** [listing id => id of the radio's lead listing]. The lead listing names the radio's alert topic, so every warehouse shares one topic. */
 function radio_lead_ids(array $items): array {
     $map = [];
@@ -195,7 +203,8 @@ function antenna_connector_key(string $connector): string {
     if (str_contains($c, ' to ')) {
         return 'cable';
     }
-    if (str_contains($c, 'rp-sma')) {
+    // Sellers write it "RP-SMA", "RP SMA", "SMA-RP", "SMA RP" or "reverse polarity SMA". All are the reverse-polarity connector.
+    if (preg_match('/\brp[\s-]*sma|sma[\s-]*rp\b|reverse[\s-]*polarity/', $c)) {
         return 'rp-sma';
     }
     if (str_contains($c, 'sma')) {

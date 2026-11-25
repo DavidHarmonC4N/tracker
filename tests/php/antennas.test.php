@@ -53,6 +53,10 @@ check('an unknown antenna port is refused', $bad);
 
 check('connectors are read the way sellers write them', antenna_connector_key('SMA male') === 'sma' && antenna_connector_key('SMA') === 'sma' && antenna_connector_key('RP-SMA male') === 'rp-sma' && antenna_connector_key('N male') === 'n' && antenna_connector_key('N-Type') === 'n' && antenna_connector_key('NMO') === 'nmo' && antenna_connector_key('U.FL to RP-SMA female') === 'cable' && antenna_connector_key('SMA male to N male') === 'cable' && antenna_connector_key('') === '');
 check('RP-SMA is never read as SMA', antenna_connector_key('RP-SMA') === 'rp-sma');
+foreach (['RP SMA', 'rp sma male', 'SMA-RP', 'SMA RP', 'sma rp male', 'Reverse Polarity SMA', 'reverse-polarity SMA male', 'RPSMA'] as $word) {
+    check('"' . $word . '" is read as RP-SMA, not SMA', antenna_connector_key($word) === 'rp-sma');
+}
+check('plain SMA wordings stay SMA', antenna_connector_key('SMA') === 'sma' && antenna_connector_key('SMA male') === 'sma' && antenna_connector_key('SMA interface') === 'sma' && antenna_connector_key('SMA female') === 'sma');
 
 require_once $site . '/includes/radio.php';
 $groups = radio_groups($catalog['items']);
@@ -68,4 +72,12 @@ check('the list is capped', count(radio_fitting_antennas($groups, $byName('atlav
 $radios = antenna_fitting_radios($groups, $byName('atl-ant-gizont-rp'), $now, 50);
 check('an RP-SMA antenna fits the RP-SMA radios, and only those', $radios && count(array_filter($radios, static fn($e) => $e['group']['antenna_port'] !== 'rp-sma')) === 0);
 check('a cable, an NMO antenna, or a radio gets no fitting radios', antenna_fitting_radios($groups, $byName('rok-ant-pig-smn'), $now) === [] && antenna_fitting_radios($groups, $byName('rok-ant-wave'), $now) === [] && antenna_fitting_radios($groups, $byName('atlavox-m1'), $now) === []);
+
+// the alert topic follows the lead listing the page shows, so a paused lead does not move it
+$offers = static fn(array $pause) => array_map(static fn($w) => ['id'=>'t-' . $w, 'url'=>'https://shop.example.com/products/t1000e', 'warehouse'=>$w, 'paused'=>in_array($w, $pause, true), 'name'=>'T', 'seller'=>'S', 'kind'=>'tracker', 'firmware'=>'both', 'setup'=>'unknown'], ['us', 'eu', 'cn']);
+$all = radio_topic_leads($offers([]));
+check('with every listing live, the U.S. listing leads', $all['t-us'] === 't-us' && $all['t-eu'] === 't-us' && $all['t-cn'] === 't-us');
+$paused = radio_topic_leads($offers(['us']));
+check('when the lead is paused the next listing leads, for every listing that is still shown', $paused['t-eu'] === 't-eu' && $paused['t-cn'] === 't-eu' && !isset($paused['t-us']));
+check('the same list gives the same answer whether or not paused rows are passed in', radio_topic_leads($offers(['us'])) === radio_lead_ids(array_values(array_filter($offers(['us']), static fn($i) => !$i['paused']))));
 finish();

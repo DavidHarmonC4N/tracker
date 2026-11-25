@@ -351,7 +351,7 @@ function endpoint_result(): array {
         $items[] = $public;
     }
     $pages = radio_page_map(radio_groups($items));
-    $leads = radio_lead_ids($items);
+    $leads = radio_topic_leads($items);
     foreach ($items as &$entry) {
         $entry['page'] = $pages[$entry['id']] ?? '';
         $entry['topic'] = ntfy_radio_topic($publicTopic, $leads[$entry['id']] ?? (string)$entry['id']);
@@ -508,7 +508,7 @@ function notify_public_flush(array $events, array $urls): array {
     $posted = 0;
     $leads = [];
     try {
-        $leads = radio_lead_ids(config()['data_dir'] !== '' ? load_state(data_dir())['items'] : []);
+        $leads = radio_topic_leads(config()['data_dir'] !== '' ? load_state(data_dir())['items'] : []);
     } catch (Throwable $unknown) {
         error_log('Offgrid notify: radio topics fall back to one per listing: ' . $unknown->getMessage());
     }

@@ -76,6 +76,13 @@ run(async (t) => {
   await p.waitForSelector('.card');
   t.ok('Browse radios from there goes back to radios', /Radio catalog/.test(await p.textContent('#inventory-title')) && !/cat=antennas/.test(await p.evaluate(() => location.href)));
 
+  // from an antenna page, "Find it in the interactive catalog" opens the antenna catalog with results
+  await p.goto(t.SITE + await p.evaluate(async () => (await (await fetch('catalog.php')).json()).items.find((i) => i.id === 'rok-ant-alfa-10').page));
+  const finder = await p.$eval('a[href*="?q="]', (a) => a.getAttribute('href'));
+  t.ok('an antenna page links to the antenna catalog', /cat=antennas/.test(finder) && /q=/.test(finder), finder);
+  await p.click('a[href*="?q="]'); await p.waitForSelector('.card');
+  t.ok('and it finds the antenna there', /Antenna catalog/.test(await p.textContent('#inventory-title')) && (await names()).some((n) => /ALFA AOA-915-10ACM/.test(n)), (await names()).join(' | '));
+
   // phone
   const phone = await t.openContext({ viewport: { width: 390, height: 844 } });
   await t.mockCatalog(phone, (data) => { const now = new Date().toISOString(); data.items.forEach((i) => { i.result = { ...i.result, status: 'in_stock', observed_at: now }; }); });

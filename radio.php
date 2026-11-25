@@ -190,7 +190,7 @@ $feedIds = implode(',', array_map(static fn($offer) => rawurlencode((string)$off
           <?php foreach ($changes as $row): ?><tr><th scope="row" class="nw"><time datetime="<?= h(gmdate('c', $row['t'])) ?>"><?= h(gmdate('M j, Y H:i', $row['t'])) ?> UTC</time></th><td class="nw"><?= h($row['label']) ?></td><td class="num"><?= $row['price'] !== null ? h(money($row['price'])) : '·' ?></td><td class="nw"><?= h(RADIO_STATUS_LABEL[$row['status']] ?? 'Unverified') ?></td></tr><?php endforeach; ?>
           </tbody></table></div>
       <?php endif; ?>
-      <p class="dim"><a href="prices.html">Compare the price history of several radios</a> · <a href="./?q=<?= h(rawurlencode($group['name'])) ?>#inventory">Find it in the interactive catalog</a></p>
+      <p class="dim"><a href="prices.html">Compare the price history of several radios</a> · <a href="./?q=<?= h(rawurlencode($group['name'])) ?><?= $isAntenna ? '&amp;cat=antennas' : '' ?>#inventory">Find it in the interactive catalog</a></p>
     </section>
 
     <?php if ($similar): ?>
