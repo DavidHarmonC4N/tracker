@@ -92,7 +92,9 @@ function loadPicks() {
   try {
     const value = JSON.parse(localStorage.getItem(PICKS_KEY) || '{}');
     if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
-    return Object.fromEntries(Object.entries(value).filter(([id, pick]) => ID_PATTERN.test(id) && pick && typeof pick === 'object'));
+    // A pick needs a usable date: a damaged entry gets today's, so My picks never fails to draw.
+    return Object.fromEntries(Object.entries(value).filter(([id, pick]) => ID_PATTERN.test(id) && pick && typeof pick === 'object')
+      .map(([id, pick]) => [id, Number.isFinite(pick.added) ? pick : { ...pick, added: Date.now() }]));
   } catch (error) {
     return {};
   }
@@ -296,7 +298,10 @@ function drawPicks() {
       if (dirty) savePicks();
     }
   }
-  byId('list').replaceChildren(...parts);
+  const picksList = byId('list');
+  const hadPick = picksList.contains(document.activeElement) ? focusKey(document.activeElement) : undefined;
+  picksList.replaceChildren(...parts);
+  if (hadPick !== undefined) (hadPick && picksList.querySelector(hadPick)) ? picksList.querySelector(hadPick).focus({ preventScroll: true }) : picksList.focus({ preventScroll: true });
   syncPickButtons();
   writeUrlFilters();
 }
@@ -466,7 +471,8 @@ function card(row) {
   if (isManual(row)) {
     const star = el('span', 'asterisk', ' *');
     star.title = 'This seller blocks automated stock checks, so this listing is checked by hand.';
-    star.setAttribute('aria-label', '. This seller blocks automated stock checks, so this listing is checked by hand.');
+    star.setAttribute('aria-hidden', 'true');
+    sellerLine.append(el('span', 'sr', '. This seller blocks automated stock checks, so this listing is checked by hand.'));
     sellerLine.append(star);
   }
   const heading = el('h3');
@@ -496,8 +502,9 @@ function card(row) {
     price.textContent = 'See seller';
   }
   const link = el('a', 'retailer', 'View listing');
-  const url = new URL(row.url);
-  if (url.protocol === 'https:') {
+  let url = null;
+  try { url = new URL(row.url); } catch (error) { /* a damaged link gets no button */ }
+  if (url && url.protocol === 'https:') {
     link.href = url.href;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
@@ -812,12 +819,18 @@ function draw() {
     toggle.setAttribute('aria-expanded', String(showUnverified));
     toggle.addEventListener('click', () => {
       showUnverified = !showUnverified;
+      // The Unverified group starts folded. Showing it should show it, not add a closed section.
+      if (showUnverified) setFolded('unknown', false);
       restoreFocus = true;
       draw();
     });
     parts.push(toggle);
   }
-  byId('list').replaceChildren(...parts);
+  // A redraw replaces every card, which would drop keyboard focus. Remember what had it and give it back.
+  const list = byId('list');
+  const had = list.contains(document.activeElement) ? focusKey(document.activeElement) : undefined;
+  list.replaceChildren(...parts);
+  if (had !== undefined && !restoreFocus) (had && list.querySelector(had)) ? list.querySelector(had).focus({ preventScroll: true }) : list.focus({ preventScroll: true });
   syncFoldAll();
   syncPickButtons();
   byId('manual-note').hidden = !shown.some(isManual);
@@ -825,6 +838,13 @@ function draw() {
     restoreFocus = false;
     byId('unverified-toggle')?.focus();
   }
+}
+
+// A selector that finds the same control again after a redraw, or '' when there is none.
+function focusKey(node) {
+  if (node.dataset && node.dataset.pick) return '.star[data-pick="' + node.dataset.pick + '"]';
+  if (node.dataset && node.dataset.fold) return '[data-fold="' + node.dataset.fold + '"]';
+  return node.id && /^[a-z-]+$/.test(node.id) ? '#' + node.id : '';
 }
 
 // Shows the filters that belong to the chosen category and keeps the category buttons in step.

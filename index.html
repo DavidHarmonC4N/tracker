@@ -27,8 +27,8 @@
   {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://mesh.davidandlaura.net/#website","url":"https://mesh.davidandlaura.net/","name":"Offgrid Comms Tracker","description":"Live prices and stock for MeshCore and Meshtastic radios from U.S. and international sellers.","inLanguage":"en","publisher":{"@id":"https://mesh.davidandlaura.net/#organization"}},{"@type":"Organization","@id":"https://mesh.davidandlaura.net/#organization","name":"Offgrid Comms Tracker","url":"https://mesh.davidandlaura.net/","logo":{"@type":"ImageObject","url":"https://mesh.davidandlaura.net/assets/og-image.png","width":1200,"height":630}}]}
   </script>
   <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
-  <link rel="stylesheet" href="assets/styles.css?v=20261130-adminfilters">
-  <script src="assets/catalog.js?v=20261129-antennas" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=20261201-review">
+  <script src="assets/catalog.js?v=20261201-review" defer></script>
 </head>
 <body>
   <a class="skip" href="#inventory">Skip to listings</a>
@@ -123,14 +123,14 @@
           </form>
         </div>
         <p class="plain-link"><a href="radios.php">Prefer a plain list? See every radio with its price and stock</a></p>
-        <div id="list" aria-label="Radio listings"></div>
+        <div id="list" role="region" tabindex="-1" aria-label="Listings"></div>
         <p class="manual-note" id="manual-note" hidden><span class="asterisk" aria-hidden="true">*</span> These sellers block automated stock checks. Listings marked with an asterisk are checked by hand, so their price and stock may be out of date. Confirm with the seller.</p>
         <noscript><p class="panel">Enable JavaScript to filter the catalog, or <a href="radios.php">see the plain list of every radio</a>.</p></noscript>
         <details class="stock-notes">
           <summary>How stock checks work</summary>
           <p><strong>Stock check schedule.</strong> Checks run in batches every 10 minutes, with at least 20 minutes between scans of the same seller. A listing is eligible for another check after about an hour. Seller cooldowns and the queue can make that longer. “Latest stock reading” is the newest check across the whole catalog, and each radio card shows its own check time.</p>
           <p><strong>In stock</strong> is a seller’s stock report. <strong>Orderable</strong> means the seller accepts orders, but shelf stock is unconfirmed. <strong>Unverified</strong> includes listings awaiting a check, seller pauses, and older or inconclusive readings. Historical prices are marked.</p>
-          <p><strong>Manual review</strong> listings, marked with an asterisk, are from sellers that block automated checks, such as Etsy, DigiKey and Mouser. Their price and stock are entered by hand, so they can lag the seller’s page. Use the Manual review tab to see them together.</p>
+          <p><strong>Manual review</strong> listings, marked with an asterisk, are from sellers that block automated checks, such as Etsy, DigiKey and Mouser. Their price and stock are entered by hand, so they can lag the seller’s page. Use the Checked by hand quick filter to see them together.</p>
           <p><strong>Both firmware options</strong> means the hardware supports either firmware by selection or flashing. “Only” reflects what is documented for the tracked listing. Check the seller’s selected variant, frequency, shipping, and final price before ordering.</p>
         </details>
       </section>

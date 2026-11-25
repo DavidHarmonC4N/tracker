@@ -14,6 +14,12 @@ function reply(int $code, array $body): never {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($body, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+    // Alerts are sent after this returns, and a slow ntfy post must not make the runner's request time out.
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    } elseif (function_exists('litespeed_finish_request')) {
+        litespeed_finish_request();
+    }
     exit;
 }
 

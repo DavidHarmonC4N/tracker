@@ -62,7 +62,11 @@ try {
     foreach ($jobs as $job) {
         $handle = ($job['mode'] ?? '') === 'auto' ? shopify_handle((string)($job['url'] ?? '')) : null;
         if ($handle !== null) {
-            $wanted[seller_bucket(product_url($job['url'])['host'])][$handle] = true;
+            try {
+                $wanted[seller_bucket(product_url($job['url'])['host'])][$handle] = true;
+            } catch (InvalidArgumentException) {
+                continue;
+            }
         }
     }
     $feeds = [];

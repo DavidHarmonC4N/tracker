@@ -513,3 +513,10 @@ p.footer-head { display: block; }
 .admin-filters .sep { width: 1px; align-self: stretch; margin: 0 .3rem; background: var(--edge); }
 .admin-filters .chip .n { margin-left: .2rem; color: var(--dim); font-weight: 400; }
 .admin-filters .chip[aria-pressed="true"] .n { color: var(--green); }
+
+/* Review fixes */
+#list:focus { outline: none; }
+.picks-mode .cat-seg, .picks-mode #ant-warn { display: none; }
+nav.crumbs { display: block; gap: 0; }
+.pcontrols .btnlink { margin-top: 0; }
+.chip.x { text-transform: none; letter-spacing: 0; }

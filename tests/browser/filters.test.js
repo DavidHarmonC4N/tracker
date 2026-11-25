@@ -27,7 +27,7 @@ run(async (t) => {
 
   const tabs = await p.$$eval('.status-tab', (b) => b.map((x) => x.dataset.tab));
   t.ok('seven availability tabs', tabs.join() === 'available,in_stock,orderable,preorder,out_of_stock,unknown,all', tabs.join());
-  t.ok('the tabs sit on one row', (await p.$$eval('.status-tab', (b) => new Set(b.map((x) => Math.round(x.getBoundingClientRect().top))).size)) === 1);
+  t.ok('the tabs sit on one row and none is cut off', (await p.$$eval('.status-tab', (b) => new Set(b.map((x) => Math.round(x.getBoundingClientRect().top))).size)) === 1 && (await p.$eval('#status-tabs', (n) => n.scrollWidth <= n.clientWidth + 1)));
   t.ok('cards have a type icon and signal bars', (await p.$$eval('.card .ico svg', (s) => s.length)) > 0 && (await p.$$eval('.card .tag .bars', (s) => s.length)) > 0);
   t.ok('Clear all is hidden until something is active', await p.$eval('#reset', (e) => e.hidden));
 

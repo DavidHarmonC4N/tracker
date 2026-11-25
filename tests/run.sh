@@ -48,7 +48,7 @@ PHP
 }
 
 serve() { # serve DIR PORT [extra php arguments]
-  if curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$2/"; then
+  if curl -s --noproxy "*" -o /dev/null --max-time 2 "http://127.0.0.1:$2/"; then
     echo "Port $2 is already in use. Stop whatever is serving it, or set PUBLIC_PORT and ADMIN_PORT to free ports." >&2
     return 1
   fi
@@ -56,7 +56,7 @@ serve() { # serve DIR PORT [extra php arguments]
   (cd "$1" && PHP_CLI_SERVER_WORKERS=4 exec php "${@:3}" -S "127.0.0.1:$2" > "$WORK/server-$2.log" 2>&1) &
   PIDS+=($!)
   for _ in $(seq 1 40); do
-    curl -s -o /dev/null "http://127.0.0.1:$2/" && return 0
+    curl -s --noproxy "*" -o /dev/null "http://127.0.0.1:$2/" && return 0
     sleep 0.25
   done
   echo "Could not start the PHP test server on port $2" >&2
@@ -70,7 +70,7 @@ run_php() {
   make_site unit "$WORK/unit-data" false "'base_url' => 'https://mesh.example.org/',"
   make_site staging "$WORK/staging-data" true
   for f in "$ROOT"/tests/php/*.test.php; do
-    [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]] && continue
+    [ -n "$FILTER" ] && [[ "$(basename "$f")" != *"$FILTER"* ]] && continue
     echo "-- $(basename "$f")"
     SITE_DIR="$WORK/unit" STAGING_SITE_DIR="$WORK/staging" php "$f" || STATUS=1
   done
@@ -102,7 +102,7 @@ PY
   local modules="$ROOT/tests/node_modules"
   [ -d "$modules" ] && export NODE_PATH="$modules${NODE_PATH:+:$NODE_PATH}"
   for f in "$ROOT"/tests/browser/*.test.js; do
-    [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]] && continue
+    [ -n "$FILTER" ] && [[ "$(basename "$f")" != *"$FILTER"* ]] && continue
     echo "-- $(basename "$f")"
     SITE_URL="http://127.0.0.1:$PUBLIC_PORT/" ADMIN_URL="http://127.0.0.1:$ADMIN_PORT/admin.php" ALERTS_URL="http://127.0.0.1:$ALERTS_PORT/" ROOT_DIR="$ROOT" node "$f" || STATUS=1
   done

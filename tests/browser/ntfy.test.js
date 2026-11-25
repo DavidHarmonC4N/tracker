@@ -35,7 +35,7 @@ run(async (t) => {
   const all = await q.$eval('.dashact a:has-text("Phone alerts (all)")', (a) => ({ href: a.href, target: a.target }));
   t.ok('My picks links to the Phone alerts page', all.href === t.SITE + 'alerts.html' && all.target === '');
   const radios = await q.$$eval('#list .card a.ntfy-radio', (a) => a.map((x) => ({ href: x.href, text: x.textContent })));
-  t.ok('each pick links to the page for its own radio', radios.length === 3 && new Set(radios.map((r) => r.href)).size === 3 && radios.every((r, i) => r.href === t.SITE + 'alerts.html?radio=' + ids[i] || r.href.startsWith(t.SITE + 'alerts.html?radio=')), JSON.stringify(radios.map((r) => r.href)));
+  t.ok('each pick links to the page for its own radio', radios.length === 3 && new Set(radios.map((r) => r.href)).size === 3 && ids.every((id) => radios.some((r) => r.href === t.SITE + 'alerts.html?radio=' + id)), JSON.stringify(radios.map((r) => r.href)));
   t.ok('the radio link says what it is', radios.every((r) => /Phone alerts for this radio/.test(r.text)));
   t.ok('the links carry only the radio id, nothing personal', radios.every((r) => /^[^?]+\?radio=[a-z0-9_-]+$/.test(r.href)));
 

@@ -125,6 +125,7 @@ function robots_allows(string $url, string $rules): bool {
     $target = $path['path'] . (isset($path['query']) ? '?' . $path['query'] : '');
     $groups = [];
     $agents = $lines = [];
+    $sawRule = false;
     foreach (preg_split('/\R/', $rules) as $line) {
         $line = trim(explode('#', $line, 2)[0]);
         if (!str_contains($line, ':')) {
@@ -133,13 +134,18 @@ function robots_allows(string $url, string $rules): bool {
         [$key, $value] = array_map('trim', explode(':', $line, 2));
         $key = strtolower($key);
         if ($key === 'user-agent') {
-            if ($lines) {
+            // A new group starts after any rule line, even an empty "Disallow:" (which allows everything and adds no rule).
+            if ($sawRule) {
                 $groups[] = [$agents, $lines];
                 $agents = $lines = [];
+                $sawRule = false;
             }
             $agents[] = strtolower($value);
-        } elseif ($agents && in_array($key, ['allow','disallow'], true) && $value !== '') {
-            $lines[] = [$key, $value];
+        } elseif ($agents && in_array($key, ['allow','disallow'], true)) {
+            $sawRule = true;
+            if ($value !== '') {
+                $lines[] = [$key, $value];
+            }
         }
     }
     $groups[] = [$agents, $lines];
@@ -225,7 +231,17 @@ function guarded_fetch_live(string $url, string $dir): array {
     return fetch_page($url, $robots[$file]);
 }
 
+/** A price read from a seller's page, in cents. Accepts extra decimals ("59.0000") and rounds. Throws when it is not a usable price. */
+function seller_price_cents(string $value): int {
+    $clean = trim(str_replace(',', '', $value));
+    if (!preg_match('/^\d{1,7}(?:\.\d+)?$/D', $clean) || (int)round((float)$clean * 100) < 1 || (int)round((float)$clean * 100) > 99999999) {
+        throw new InvalidArgumentException('The price on the page is not a usable number: "' . substr($value, 0, 30) . '".');
+    }
+    return (int)round((float)$clean * 100);
+}
+
 function result(string $status, ?int $price, string $detail, ?int $qty = null, bool $from = false): array {
+    $price = $price !== null && $price > 0 ? $price : null; // a zero price means "ask us", not a price
     return ['status'=>$status,'price'=>$price,'qty'=>$qty,'from_price'=>$from,
         'observed_at'=>iso_now(),'source'=>'automatic','detail'=>$detail];
 }
@@ -371,7 +387,7 @@ function structured_offer(DOMXPath $xpath, array $item): ?array {
     $price = null;
     $rawPrice = $offer[$aggregate ? 'lowPrice' : 'price'] ?? null;
     if (strtoupper((string)($offer['priceCurrency'] ?? '')) === 'USD' && is_numeric($rawPrice)) {
-        $price = cents((string)$rawPrice);
+        $price = seller_price_cents((string)$rawPrice);
     }
     return $price !== null || $status !== 'unknown' ? result($status, $price, 'Seller product data', null, $aggregate) : null;
 }
@@ -425,7 +441,7 @@ function page_result(string $body, array $item): ?array {
     $priceText = selected_text($xpath, $item['price_path'], $context);
     $price = null;
     if ($priceText !== '' && preg_match_all('/\$\s*([0-9][0-9,]*\.\d{2})\b/', $priceText, $m) === 1) {
-        $price = cents(str_replace(',', '', $m[1][0]));
+        $price = seller_price_cents($m[1][0]);
     }
     return $status === 'unknown' && $price === null ? null : result($status, $price, 'Seller product page', $qty);
 }
@@ -525,7 +541,7 @@ const EVENT_LIMIT = 200;
 const REMOTE_PER_SELLER = 3;
 
 /** Compares a fresh reading with the previous live reading. Research snapshots never produce events. */
-function detect_events(array $row, array $new): array {
+function detect_events(array $row, array $new, array $history = [], ?int $now = null): array {
     $old = $row['result'];
     if (empty($old['observed_at'])) {
         return [];
@@ -542,7 +558,15 @@ function detect_events(array $row, array $new): array {
             $events[] = $base + ['type'=>'sold_out'];
         }
     }
-    if (is_int($old['price'] ?? null) && is_int($new['price'] ?? null) && $old['price'] !== $new['price']) {
+    // A price change counts only while the listing is on sale before and after: a sold-out item's price is the lowest of all its
+    // options, which is not the price anyone can pay. A price that went back to one seen in the last three days is flapping.
+    $now ??= time();
+    $onSale = in_array($was, $live, true) && in_array($is, $live, true);
+    $seen = false;
+    foreach ($history as $point) {
+        $seen = $seen || (($point[0] ?? 0) > $now - 3 * 86400 && ($point[1] ?? null) === ($new['price'] ?? 0) && $new['price'] !== $old['price']);
+    }
+    if ($onSale && is_int($old['price'] ?? null) && is_int($new['price'] ?? null) && $old['price'] !== $new['price'] && !$seen) {
         $events[] = $base + ['type'=>$new['price'] < $old['price'] ? 'price_drop' : 'price_rise',
             'from'=>$old['price'],'to'=>$new['price']];
     }
@@ -581,10 +605,10 @@ function store_scan(string $dir, string $id, string $fingerprint, string $host, 
     $url = '';
     change_state($dir, static function (&$fresh) use ($id,$fingerprint,$host,$new,$message,$stamp,$cooldownUntil,&$events,&$url) {
         if ($cooldownUntil) {
-            $fresh['cooldowns'][$host] = $cooldownUntil;
+            $fresh['cooldowns'][$host] = max($cooldownUntil, (int)($fresh['cooldowns'][$host] ?? 0)); // a short pause never shortens a long one
         }
         foreach ($fresh['items'] as &$row) {
-            if ($row['id'] !== $id || scan_fingerprint($row) !== $fingerprint) {
+            if ($row['id'] !== $id || scan_fingerprint($row) !== $fingerprint || $row['paused']) {
                 continue;
             }
             $url = $row['url'];
@@ -596,7 +620,7 @@ function store_scan(string $dir, string $id, string $fingerprint, string $host, 
                     $new['from_price'] = $row['result']['from_price'];
                     $new['price_previous'] = true;
                 }
-                $events = detect_events($row, $new);
+                $events = detect_events($row, $new, $fresh['history'][$id] ?? []);
                 $row['result'] = $new;
                 record_history($fresh, $id, $new);
             }
@@ -626,6 +650,10 @@ function check_listing(string $dir, array $item, array &$state): void {
         if ($e instanceof ScanFailure && $e->cooldown > 0) {
             $cooldownUntil = time() + min($e->cooldown, 604800);
         }
+    } catch (Throwable $e) {
+        // A page or feed in an unexpected shape must not stop the rest of the batch.
+        error_log('Offgrid check: ' . $e::class . ': ' . $e->getMessage());
+        $message = 'The page could not be read. Review the listing.';
     }
     if ($cooldownUntil) {
         $state['cooldowns'][$host] = $cooldownUntil;
@@ -715,7 +743,7 @@ function accept_results(string $dir, array $results, array $bulkHosts = [], arra
         $byId[$item['id']] = $item;
     }
     foreach (array_slice($results, 0, 60) as $r) {
-        $item = is_array($r) ? ($byId[$r['id'] ?? ''] ?? null) : null;
+        $item = is_array($r) && is_string($r['id'] ?? null) ? ($byId[$r['id']] ?? null) : null;
         if (!$item || !is_remote($item) || $item['paused'] || $item['mode'] === 'manual'
             || !is_string($r['fingerprint'] ?? null) || !hash_equals(scan_fingerprint($item), $r['fingerprint'])) {
             $summary['ignored']++;
@@ -729,7 +757,7 @@ function accept_results(string $dir, array $results, array $bulkHosts = [], arra
             $reading = is_array($r['result'] ?? null) ? $r['result'] : [];
             $price = $reading['price'] ?? null;
             $qty = $reading['qty'] ?? null;
-            if (!isset(STATUSES[$reading['status'] ?? '']) || ($price !== null && (!is_int($price) || $price < 0 || $price > 99999999))
+            if (!is_string($reading['status'] ?? null) || !isset(STATUSES[$reading['status']]) || ($price !== null && (!is_int($price) || $price < 0 || $price > 99999999))
                 || ($qty !== null && (!is_int($qty) || $qty < 0 || $qty > 999999))) {
                 $summary['ignored']++;
                 continue;

@@ -70,7 +70,7 @@ function prepare(raw) {
 
 function windowStart() {
   if (range === 'all') {
-    const first = Math.min(...items.flatMap((item) => item.priced.map((point) => point.t)), nowMs - DAY);
+    const first = minOf(items.flatMap((item) => item.priced.map((point) => point.t)).concat(nowMs - DAY));
     return Math.min(first, nowMs - DAY);
   }
   return nowMs - Number(range) * DAY;
@@ -92,6 +92,10 @@ function series(item, start) {
   out.push({ t: nowMs, p: out[out.length - 1].p });
   return out;
 }
+
+// Math.min(...array) throws once an array has about 100,000 values, which "All time" history can reach.
+const minOf = (list) => list.reduce((low, value) => (value < low ? value : low), Infinity);
+const maxOf = (list) => list.reduce((high, value) => (value > high ? value : high), -Infinity);
 
 function chooseDefaults() {
   const movers = items.filter((item) => item.moves).sort((a, b) => b.lastChange - a.lastChange);
@@ -129,7 +133,7 @@ function drawChart() {
   }
   const W = 940, H = 330, L = 58, R = 175, T = 14, B = 34;
   const all = lines.flatMap((line) => line.pts.map((point) => point.p / 100));
-  let lo = Math.min(...all), hi = Math.max(...all);
+  let lo = minOf(all), hi = maxOf(all);
   if (hi - lo < 4) { const mid = (hi + lo) / 2; lo = mid - 2; hi = mid + 2; }
   const step = niceStep(hi - lo);
   lo = Math.floor((lo - (hi - lo) * 0.06) / step) * step;
@@ -181,7 +185,7 @@ function sparkline(item, start, color) {
   const node = svg('svg', { viewBox: '0 0 110 30', width: 110, height: 30, 'aria-hidden': 'true' });
   if (pts.length < 2) return node;
   const values = pts.map((point) => point.p);
-  const lo = Math.min(...values), hi = Math.max(...values);
+  const lo = minOf(values), hi = maxOf(values);
   const X = (t) => 2 + 106 * ((t - start) / (nowMs - start || 1));
   const Y = (p) => (hi === lo ? 15 : 2 + 26 * (1 - (p - lo) / (hi - lo)));
   let d = '';
@@ -208,6 +212,7 @@ function drawTable() {
     const first = document.createElement('td');
     const toggle = el('button', 'pick');
     toggle.type = 'button';
+    toggle.dataset.id = item.id;
     toggle.setAttribute('aria-pressed', String(index >= 0));
     toggle.title = index >= 0 ? 'Hide this line' : 'Show this line';
     const dot = el('i', 'dot');
@@ -219,6 +224,8 @@ function drawTable() {
       else { selected.push(item.id); if (selected.length > MAX_LINES) selected.shift(); }
       drawChart();
       drawTable();
+      // The table is rebuilt, so put keyboard focus back on the same line's button.
+      document.querySelector('.pick[data-id="' + CSS.escape(item.id) + '"]')?.focus();
     });
     const link = el('a', 'ext', item.seller);
     try {
@@ -280,7 +287,10 @@ function render() {
   drawTable();
 }
 
-async function load() {
+let loadSeq = 0;
+// keepLines: a refresh when the tab returns keeps the lines the visitor chose, instead of choosing new ones.
+async function load(keepLines = false) {
+  const seq = ++loadSeq;
   try {
     const picks = readPicks();
     const url = scope === 'picks' ? 'history.php?ids=' + encodeURIComponent(picks.join(',')) : 'history.php?scope=instock';
@@ -288,6 +298,7 @@ async function load() {
     const response = await fetch(url, { cache: 'no-store' });
     if (!response.ok) throw new Error('history');
     const data = await response.json();
+    if (seq !== loadSeq) return; // a newer request (another scope) has started, so this answer is out of date
     nowMs = (data.now || Math.floor(Date.now() / 1000)) * 1000;
     if (data.staging === true && !byId('staging-bar')) {
       const bar = el('div', 'staging-bar', 'STAGING · a private test copy, not the live site');
@@ -298,7 +309,8 @@ async function load() {
     }
     items = prepare(data.items || []);
     loadedAt = Date.now();
-    chooseDefaults();
+    const keep = keepLines ? selected.filter((id) => items.some((item) => item.id === id)) : [];
+    if (keep.length) selected = keep; else chooseDefaults();
     render();
   } catch (error) {
     byId('subtitle').textContent = 'Price history is temporarily unavailable';
@@ -314,6 +326,6 @@ document.querySelectorAll('#range button').forEach((button) => button.addEventLi
   range = button.dataset.range;
   render();
 }));
-document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - loadedAt > 120000) load(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - loadedAt > 120000) load(true); });
 readUrl();
 load();
