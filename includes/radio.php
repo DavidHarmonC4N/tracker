@@ -44,7 +44,7 @@ function radio_groups(array $items): array {
         $slug = radio_slug($first['name'] . ' ' . $first['seller']);
         $groups[$hash] = ['key'=>(string)$key, 'hash'=>$hash, 'ref'=>($slug !== '' ? $slug . '-' : '') . $hash, 'offers'=>$offers,
             'name'=>$first['name'], 'seller'=>$first['seller'], 'location'=>$first['location'] ?? '', 'url'=>$first['url'], 'kind'=>$first['kind'],
-            'category'=>$first['category'] ?? 'radio', 'specs'=>$first['specs'] ?? null,
+            'category'=>$first['category'] ?? 'radio', 'specs'=>$first['specs'] ?? null, 'antenna_port'=>$first['antenna_port'] ?? '',
             'role'=>$first['role'] ?? 'unspecified', 'firmware'=>$first['firmware'], 'setup'=>$first['setup'], 'note'=>$first['note'] ?? ''];
     }
     return $groups;
@@ -181,6 +181,91 @@ function radio_change_rows(array $group, array $history, int $limit = 12): array
     }
     usort($rows, static fn($a, $b) => $b['t'] <=> $a['t']);
     return array_slice($rows, 0, $limit);
+}
+
+/**
+ * What an antenna's connector is, in the same terms as a radio's port: sma, rp-sma, n, nmo, ufl, or 'cable' for a cable or adapter
+ * (which names two connectors). Empty when it cannot be told. The seller's wording is read, nothing is assumed.
+ */
+function antenna_connector_key(string $connector): string {
+    $c = strtolower(trim($connector));
+    if ($c === '') {
+        return '';
+    }
+    if (str_contains($c, ' to ')) {
+        return 'cable';
+    }
+    if (str_contains($c, 'rp-sma')) {
+        return 'rp-sma';
+    }
+    if (str_contains($c, 'sma')) {
+        return 'sma';
+    }
+    if (preg_match('/^n\b/', $c)) {
+        return 'n';
+    }
+    return str_contains($c, 'nmo') ? 'nmo' : (preg_match('/u\.?fl|ipex|mhf/', $c) ? 'ufl' : '');
+}
+
+/** True for an antenna that works in the U.S. (915 MHz, or a dual 868/915 antenna). */
+function antenna_is_915(array $group): bool {
+    $band = clean_specs($group['specs'] ?? [])['band'];
+    return in_array($band, ['915', '868/915'], true);
+}
+
+/**
+ * Antennas that fit a radio's port, best first: in stock, then cheapest. A radio with a U.FL port takes a pigtail cable instead,
+ * and one with no known port, or no external port, gets none.
+ */
+function radio_fitting_antennas(array $groups, array $radio, int $now, int $limit = 6): array {
+    $port = (string)($radio['antenna_port'] ?? '');
+    if (($radio['category'] ?? 'radio') !== 'radio' || !in_array($port, ['sma', 'rp-sma', 'n', 'ufl'], true)) {
+        return [];
+    }
+    $list = [];
+    foreach ($groups as $group) {
+        if (($group['category'] ?? '') !== 'antenna') {
+            continue;
+        }
+        $specs = clean_specs($group['specs'] ?? []);
+        $key = antenna_connector_key($specs['connector']);
+        $fits = $port === 'ufl'
+            ? ($key === 'cable' && str_contains(strtolower($specs['connector']), 'u.fl') && str_contains(strtolower($specs['connector']), 'sma'))
+            : ($key === $port && $group['kind'] !== 'antenna_cable' && antenna_is_915($group));
+        if ($fits) {
+            $list[] = ['group'=>$group, 'summary'=>radio_group_summary($group, $now)];
+        }
+    }
+    return radio_sort_entries($list, $limit);
+}
+
+/** Radios whose antenna port this antenna fits. Only radios with a known port are listed. */
+function antenna_fitting_radios(array $groups, array $antenna, int $now, int $limit = 6): array {
+    $specs = clean_specs($antenna['specs'] ?? []);
+    $key = antenna_connector_key($specs['connector']);
+    if (($antenna['category'] ?? '') !== 'antenna' || !in_array($key, ['sma', 'rp-sma', 'n'], true) || $antenna['kind'] === 'antenna_cable' || !antenna_is_915($antenna)) {
+        return [];
+    }
+    $list = [];
+    foreach ($groups as $group) {
+        if (($group['category'] ?? 'radio') === 'radio' && ($group['antenna_port'] ?? '') === $key) {
+            $list[] = ['group'=>$group, 'summary'=>radio_group_summary($group, $now)];
+        }
+    }
+    return radio_sort_entries($list, $limit);
+}
+
+/** The connector of an antenna group as written for people, for example "SMA" for "SMA male". */
+function antenna_connector_label(array $group): string {
+    $connector = clean_specs($group['specs'] ?? [])['connector'];
+    return preg_replace('/\s+(?:male|female)$/i', '', $connector) ?: 'matching';
+}
+
+/** In stock first, then cheapest, then by name. */
+function radio_sort_entries(array $list, int $limit): array {
+    usort($list, static fn($a, $b) => (array_search($a['summary']['status'], RADIO_STATUS_ORDER, true) <=> array_search($b['summary']['status'], RADIO_STATUS_ORDER, true))
+        ?: ($a['summary']['price'] ?? PHP_INT_MAX) <=> ($b['summary']['price'] ?? PHP_INT_MAX) ?: strcmp($a['group']['name'], $b['group']['name']));
+    return array_slice($list, 0, $limit);
 }
 
 /** [label, value] for each antenna fact that is known. */

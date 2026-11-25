@@ -36,4 +36,36 @@ check('a radio type keeps no antenna facts', !isset(listing_fields(['kind'=>'han
 $bad = false;
 try { listing_fields(['spec_gain'=>'12 dBi <script>'] + $post); } catch (InvalidArgumentException) { $bad = true; }
 check('odd characters in an antenna fact are refused', $bad);
+
+// radio ports and what fits
+$ports = json_decode((string)file_get_contents($site . '/includes/ports.json'), true);
+check('every starter port is a known value and names a real listing', count(array_filter($ports, static fn($v, $k) => isset(ANTENNA_PORTS[$v]) && $v !== '' && isset($byId[$k]), ARRAY_FILTER_USE_BOTH)) === count($ports));
+check('the catalog gives a radio its port and an antenna none', $byId['atlavox-m1']['antenna_port'] === 'sma' && $byId['rok-ant-alfa-10']['antenna_port'] === '' && $byId['rok-tdeck']['antenna_port'] === '');
+check('a radio with the port set in Admin keeps it over the starter value', (static function () use ($seed) {
+    $rows = with_roles([['id'=>'atlavox-m1', 'kind'=>'handheld', 'antenna_port'=>'n']]);
+    return $rows[0]['antenna_port'];
+})() === 'n');
+$port = listing_fields(['antenna_port'=>'rp-sma'] + $post, 'unspecified');
+check('the form keeps the antenna port for a radio type only', listing_fields(['kind'=>'handheld', 'antenna_port'=>'rp-sma'] + $post)['antenna_port'] === 'rp-sma' && !isset($port['antenna_port']));
+$bad = false;
+try { listing_fields(['kind'=>'handheld', 'antenna_port'=>'banana'] + $post); } catch (InvalidArgumentException) { $bad = true; }
+check('an unknown antenna port is refused', $bad);
+
+check('connectors are read the way sellers write them', antenna_connector_key('SMA male') === 'sma' && antenna_connector_key('SMA') === 'sma' && antenna_connector_key('RP-SMA male') === 'rp-sma' && antenna_connector_key('N male') === 'n' && antenna_connector_key('N-Type') === 'n' && antenna_connector_key('NMO') === 'nmo' && antenna_connector_key('U.FL to RP-SMA female') === 'cable' && antenna_connector_key('SMA male to N male') === 'cable' && antenna_connector_key('') === '');
+check('RP-SMA is never read as SMA', antenna_connector_key('RP-SMA') === 'rp-sma');
+
+require_once $site . '/includes/radio.php';
+$groups = radio_groups($catalog['items']);
+$byName = static function (string $id) use ($groups, $byId) { foreach ($groups as $g) { foreach ($g['offers'] as $o) { if ($o['id'] === $id) { return $g; } } } return null; };
+$now = time();
+$sma = radio_fitting_antennas($groups, $byName('atlavox-m1'), $now, 50);
+check('an SMA radio is offered SMA antennas only, none for another connector', $sma && count(array_filter($sma, static fn($e) => antenna_connector_key($e['group']['specs']['connector']) !== 'sma')) === 0);
+check('an SMA radio is not offered a 868-only or cable product', count(array_filter($sma, static fn($e) => $e['group']['kind'] === 'antenna_cable' || ($e['group']['specs']['band'] ?? '') === '868')) === 0);
+check('an RP-SMA radio is offered RP-SMA antennas', ($rp = radio_fitting_antennas($groups, $byName('ameri-m5'), $now, 50)) && count($rp) >= 2 && count(array_filter($rp, static fn($e) => antenna_connector_key($e['group']['specs']['connector']) === 'rp-sma')) === count($rp));
+check('a radio with a U.FL port is offered pigtail cables', ($ufl = radio_fitting_antennas($groups, $byName('rok-t096'), $now, 50)) && count($ufl) >= 1 && count(array_filter($ufl, static fn($e) => $e['group']['kind'] === 'antenna_cable')) === count($ufl));
+check('a radio with no external port or an unknown port is offered nothing', radio_fitting_antennas($groups, $byName('rok-wismesh-tag'), $now) === [] && radio_fitting_antennas($groups, $byName('rok-tdeck'), $now) === []);
+check('the list is capped', count(radio_fitting_antennas($groups, $byName('atlavox-m1'), $now, 3)) === 3);
+$radios = antenna_fitting_radios($groups, $byName('atl-ant-gizont-rp'), $now, 50);
+check('an RP-SMA antenna fits the RP-SMA radios, and only those', $radios && count(array_filter($radios, static fn($e) => $e['group']['antenna_port'] !== 'rp-sma')) === 0);
+check('a cable, an NMO antenna, or a radio gets no fitting radios', antenna_fitting_radios($groups, $byName('rok-ant-pig-smn'), $now) === [] && antenna_fitting_radios($groups, $byName('rok-ant-wave'), $now) === [] && antenna_fitting_radios($groups, $byName('atlavox-m1'), $now) === []);
 finish();

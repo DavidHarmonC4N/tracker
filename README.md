@@ -306,3 +306,12 @@ A Shopify store publishes all its products at `/products.json`. When the U.S. ru
 - **The server learns which stores work.** The runner reports the stores it read in bulk (`bulk_hosts`) and the ones whose feed failed (`bulk_failed`). A store flagged as readable is claimed whole (up to 60 pages) on the next claim, other stores keep the limit of three pages a run. A flag the runner has not confirmed for 14 days expires.
 - **If a feed stops working,** the runner falls back to one page per listing for that store, for at most three pages a run, and reports the failure so the flag is dropped.
 - **Limits:** the runner claims up to 60 listings a run (it was 24), and the server accepts up to 60 results at a time.
+
+### Antennas that fit
+
+Each radio can carry `antenna_port` (`sma`, `rp-sma`, `n`, `ufl` or `none`, see `ANTENNA_PORTS`). It is blank unless a seller or the maker states it. Starter values are in `includes/ports.json`, filled in by `with_roles()` for radios saved before the field existed, and the admin form can set it per listing.
+
+- **Radio pages** list antennas whose connector matches the port (`radio_fitting_antennas()`), only 915 MHz or dual-band ones, in stock first and then cheapest. A U.FL port is pointed at U.FL to SMA pigtail cables. A radio with no external port says its antenna is built in.
+- **Antenna pages** list radios whose port matches (`antenna_fitting_radios()`). Cables and NMO antennas list none.
+- **Connector words:** `antenna_connector_key()` reads the seller's wording ("SMA male", "N-Type", "U.FL to RP-SMA female"). RP-SMA is never read as SMA. Nothing is guessed when the connector is unknown.
+- **Sellers:** the starter list also has antennas from Atlavox, RAKwireless, ameriDroid, SpecFive and Muzi Works. Their connectors, bands and lengths were taken from the product pages. Every one is read automatically from the store's product feed.

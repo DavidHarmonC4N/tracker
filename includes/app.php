@@ -10,6 +10,9 @@ const FIRMWARE = ['meshcore'=>'MeshCore only','meshtastic'=>'Meshtastic only','b
 const KINDS = ['handheld'=>'Handheld','keyboard'=>'Keyboard radio','solar'=>'Solar node','base'=>'Base station','tracker'=>'GPS tracker','board'=>'Board or kit','other'=>'Other',
     'antenna_omni'=>'Omni antenna','antenna_directional'=>'Directional antenna','antenna_whip'=>'Whip or flexible antenna','antenna_cable'=>'Cable, adapter or mount'];
 
+/** The antenna jack on a radio. Only what a seller or the maker states; blank means not known. */
+const ANTENNA_PORTS = [''=>'Not known', 'sma'=>'SMA', 'rp-sma'=>'RP-SMA', 'n'=>'N', 'ufl'=>'U.FL (IPEX)', 'none'=>'No external antenna port'];
+
 /** Antennas share the catalog with radios. They are told apart by their type. */
 function is_antenna_kind(string $kind): bool {
     return str_starts_with($kind, 'antenna_');
@@ -71,8 +74,11 @@ function seed(): array {
 
 function with_roles(array $items): array {
     $starterRoles = json_decode(file_get_contents(__DIR__ . '/roles.json'), true, 512, JSON_THROW_ON_ERROR);
+    $starterPorts = json_decode(file_get_contents(__DIR__ . '/ports.json'), true, 512, JSON_THROW_ON_ERROR);
     foreach ($items as &$item) {
         $item['role'] ??= $starterRoles[$item['id']] ?? ($item['kind'] === 'tracker' ? 'tracker' : 'unspecified');
+        // Radios saved before ports existed get the starter value until someone sets one in Admin.
+        $item['antenna_port'] ??= is_antenna_kind((string)$item['kind']) ? '' : ($starterPorts[$item['id']] ?? '');
     }
     return $items;
 }
@@ -251,6 +257,12 @@ function listing_fields(array $post, string $defaultRole = 'unspecified'): array
             throw new InvalidArgumentException('Choose a valid ' . ($key === 'kind' ? 'radio type' : $key) . '.');
         }
     }
+    if (!is_antenna_kind($row['kind'])) {
+        $row['antenna_port'] = field($post, 'antenna_port');
+        if (!isset(ANTENNA_PORTS[$row['antenna_port']])) {
+            throw new InvalidArgumentException('Choose a valid antenna port.');
+        }
+    }
     if (is_antenna_kind($row['kind'])) {
         $specs = [];
         foreach (array_keys(SPEC_FIELDS) as $key) {
@@ -322,6 +334,7 @@ function endpoint_result(): array {
         ]));
         $public['category'] = is_antenna_kind((string)$item['kind']) ? 'antenna' : 'radio';
         $public['specs'] = $public['category'] === 'antenna' ? clean_specs($item['specs'] ?? []) : null;
+        $public['antenna_port'] = $public['category'] === 'radio' && isset(ANTENNA_PORTS[$item['antenna_port'] ?? '']) ? ($item['antenna_port'] ?? '') : '';
         $public['warehouse'] = isset(WAREHOUSES[$item['warehouse'] ?? '']) ? ($item['warehouse'] ?? '') : '';
         $public['manual'] = $item['mode'] === 'manual';
         $public['check_failed'] = !empty($item['error']);

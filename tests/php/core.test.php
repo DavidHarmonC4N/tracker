@@ -75,7 +75,7 @@ check('one page can be listed once per warehouse', has_listing_url([['url'=>'htt
 
 // the public catalog exposes only public fields
 $public = endpoint_result();
-$allowed = ['id','seller','location','name','url','firmware','setup','kind','role','note','result','attempted_at','warehouse','manual','check_failed','change','low','high','was','topic','page','category','specs','seller_paused'];
+$allowed = ['id','seller','location','name','url','firmware','setup','kind','role','note','result','attempted_at','warehouse','manual','check_failed','change','low','high','was','topic','page','category','specs','antenna_port','seller_paused'];
 $extra = [];
 foreach ($public['items'] as $item) {
     $extra = array_merge($extra, array_diff(array_keys($item), $allowed));

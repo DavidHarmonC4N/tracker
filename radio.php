@@ -54,6 +54,7 @@ $series = radio_series($group, $history);
 $svg = radio_history_svg($series, $now, 'Price history for ' . $group['name'] . ' at ' . $group['seller']);
 $changes = radio_change_rows($group, $history);
 $similar = radio_similar($groups, $group, $now);
+$fitting = ($group['category'] ?? 'radio') === 'antenna' ? antenna_fitting_radios($groups, $group, $now) : radio_fitting_antennas($groups, $group, $now);
 $isAntenna = ($group['category'] ?? 'radio') === 'antenna';
 $warehouses = array_values(array_filter(array_map(static fn($o) => WAREHOUSES[$o['warehouse'] ?? ''] ?? '', $group['offers'])));
 $https = parse_url((string)$group['url'], PHP_URL_SCHEME) === 'https';
@@ -153,8 +154,23 @@ $feedIds = implode(',', array_map(static fn($offer) => rawurlencode((string)$off
         <?php endif; ?>
         <div><dt>Seller</dt><dd><?= h($group['seller']) ?><?= ($group['location'] ?? '') !== '' ? ' · ' . h($group['location']) : '' ?></dd></div>
         <?php if ($warehouses): ?><div><dt>Ships from</dt><dd><?= h(implode(', ', $warehouses)) ?></dd></div><?php endif; ?>
+        <?php if (!$isAntenna && ($group['antenna_port'] ?? '') !== ''): ?><div><dt>Antenna port</dt><dd><?= h(ANTENNA_PORTS[$group['antenna_port']] ?? '') ?></dd></div><?php endif; ?>
       </dl>
     </section>
+
+    <?php if ($fitting || (!$isAntenna && ($group['antenna_port'] ?? '') === 'none')): ?>
+    <section class="panel guide-step" aria-labelledby="fits">
+      <h2 id="fits"><?= $isAntenna ? 'Radios this antenna fits' : 'Antennas that fit' ?></h2>
+      <?php if (!$fitting): ?>
+        <p class="dim">This radio has no external antenna port. Its antenna is built in.</p>
+      <?php else: ?>
+        <p class="dim"><?php if ($isAntenna): ?>Radios with a <?= h(antenna_connector_label($group)) ?> antenna port, as stated by their sellers. Check your own radio before you order.<?php elseif (($group['antenna_port'] ?? '') === 'ufl'): ?>This radio has a U.FL (IPEX) port. Add a U.FL to SMA pigtail cable, then an SMA antenna fits.<?php else: ?>Antennas for U.S. use whose connector matches this radio's <?= h(ANTENNA_PORTS[$group['antenna_port']]) ?> port, as stated by their sellers. Check the connector before you order.<?php endif; ?></p>
+        <ul class="rlist">
+          <?php foreach ($fitting as $entry): ?><li><a href="radio.php?r=<?= h($entry['group']['ref']) ?>"><?= radios_nowrap_models(h($entry['group']['name'])) ?></a> · <?= h($entry['group']['seller']) ?> · <?= h(RADIO_STATUS_LABEL[$entry['summary']['status']]) ?><?= $entry['summary']['price'] !== null ? ' · ' . h(money($entry['summary']['price'])) : '' ?></li><?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
+    </section>
+    <?php endif; ?>
 
     <section class="panel guide-step" aria-labelledby="history">
       <h2 id="history">Price and stock history</h2>

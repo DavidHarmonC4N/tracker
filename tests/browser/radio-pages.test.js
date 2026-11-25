@@ -41,8 +41,8 @@ run(async (t) => {
   const offers = await p.$$eval('#now ~ * tbody tr, section[aria-labelledby="now"] tbody tr', (r) => r.map((x) => x.querySelector('th').textContent.trim()));
   t.ok('one row per warehouse, U.S. first', offers.length === seeed.length && /^U\.S\. warehouse/.test(offers[0]) && offers.some((o) => /^EU warehouse/.test(o)) && offers.some((o) => /^China warehouse/.test(o)), offers.join(' | '));
   t.ok('the price cells are plain cells, not round badges', await p.$eval('section[aria-labelledby="now"] td.num', (e) => { const c = getComputedStyle(e); return c.display === 'table-cell' && c.borderRadius === '0px'; }));
-  t.ok('the page has the headings people and crawlers expect', (await p.$$eval('h2', (h) => h.map((x) => x.textContent))).join('|').startsWith('Price and stock now|About this radio|Price and stock history'));
-  t.ok('the facts list names type, use, firmware, setup and seller', (await p.$$eval('.facts-list dt', (d) => d.map((x) => x.textContent))).join() === 'Type,Primary use,Firmware,Setup,Seller,Ships from');
+  t.ok('the page has the headings people and crawlers expect', (await p.$$eval('h2', (h) => h.map((x) => x.textContent))).join('|').startsWith('Price and stock now|About this radio|Antennas that fit|Price and stock history'));
+  t.ok('the facts list names type, use, firmware, setup and seller', (await p.$$eval('.facts-list dt', (d) => d.map((x) => x.textContent))).join() === 'Type,Primary use,Firmware,Setup,Seller,Ships from,Antenna port');
   const seller = await p.$eval('.pcontrols a', (a) => ({ href: a.href, target: a.target, rel: a.rel, text: a.textContent }));
   t.ok('the seller button is https, opens in a new tab and says so', seller.href.startsWith('https://') && seller.target === '_blank' && /noopener/.test(seller.rel) && /new tab/.test(seller.text));
   t.ok('the breadcrumb links home and to the full list', (await p.$eval('.crumbs', (n) => n.querySelector('a[href="./"]') !== null && n.querySelector('a[href="radios.php"]') !== null)));
