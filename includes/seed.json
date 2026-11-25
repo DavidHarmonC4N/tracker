@@ -1965,13 +1965,13 @@
     "id": "rok-wismesh-tag",
     "seller": "Rokland",
     "location": "Florida",
-    "name": "RAK WisMesh Tag · US915",
+    "name": "RAK WisMesh Tag · Navy · US915",
     "url": "https://store.rokland.com/products/wismesh-tag-from-rakwireless-mokosmart-meshtastic-compatible-card-sized-node-us915-mhz?variant=44663304552531",
     "firmware": "meshtastic",
     "setup": "meshtastic",
     "kind": "tracker",
     "role": "tracker",
-    "note": "Card-sized GPS tracker with an IP66 case and a 1000 mAh battery. Ships with Meshtastic installed.",
+    "note": "Card-sized GPS tracker with an IP66 case and a 1000 mAh battery. This tracks the Navy color; the Black color is a separate variant.",
     "mode": "auto",
     "checker": "remote",
     "variant": "",
@@ -1982,13 +1982,13 @@
     "paused": false,
     "late": true,
     "result": {
-      "status": "in_stock",
-      "price": 5000,
+      "status": "out_of_stock",
+      "price": 4600,
       "qty": null,
       "from_price": false,
       "observed_at": null,
       "source": "research",
-      "detail": "Research snapshot · Rokland listed $50.00 in stock, Nov 25, 2026"
+      "detail": "Research snapshot · Navy out of stock at $46.00, Nov 25, 2026"
     },
     "attempted_at": null,
     "error": null
