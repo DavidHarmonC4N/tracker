@@ -22,6 +22,9 @@ return [
     'notify_email' => '',
     // An https URL that accepts a plain-text POST, such as an ntfy.sh topic: https://ntfy.sh/your-private-topic
     'notify_webhook' => '',
+    // Optional. The address alert emails come from. Leave empty to use alerts@ your site's own domain. Use an address on a domain your
+    // host sends mail for; mail that claims to come from somewhere else is often sent to spam.
+    'notify_from' => '',
     // Optional: lets the U.S. runner (see README) report checks to ingest.php. Use a unique random key of at
     // least 32 characters and put the same value in the OFFGRID_TOKEN secret on GitHub. Leave empty to turn off.
     'ingest_token' => '',

@@ -146,6 +146,22 @@ try {
             session_destroy();
             go();
         }
+        if ($action === 'test_alert') {
+            if (is_staging()) {
+                throw new InvalidArgumentException('This is a staging copy. Staging never sends alerts.');
+            }
+            $results = notify_send('Test alert', "This is a test alert from your Offgrid Comms Tracker admin.\nIf you can read this, alerts are working.\n" . base_url() . 'index.html');
+            if (!$results) {
+                throw new InvalidArgumentException('Alerts are off. Add notify_email or notify_webhook to the config.php on your host, then try again.');
+            }
+            alert_log_record($dir, 'Test alert', $results);
+            $lines = array_map(static fn($r) => ucfirst($r['channel']) . ': ' . $r['message'], $results);
+            if (array_filter($results, static fn($r) => !$r['ok'])) {
+                throw new InvalidArgumentException('Test alert problem. ' . implode(' ', $lines));
+            }
+            $_SESSION['notice'] = 'Test alert sent. ' . implode(' ', $lines);
+            go();
+        }
         if ($action === 'addurl_read') {
             $found = addurl_read(field($_POST,'link'), static fn($u) => guarded_fetch($u, $dir), $state['items']);
             // Seeed lists one page per warehouse, so a link that exists only as warehouse listings is not blocked here;
@@ -637,6 +653,35 @@ $reading = $editor['result'] ?? [];
     <p class="dim">PHP <?= h(PHP_VERSION) ?> · cURL <?= h(function_exists('curl_version') ? curl_version()['version'] : 'missing') ?> · <?= h(function_exists('curl_version') ? curl_version()['ssl_version'] : '') ?></p>
   </section>
   <?php endif; ?>
+  <?php
+    $alertEmail = trim((string)(config()['notify_email'] ?? ''));
+    $alertHook = trim((string)(config()['notify_webhook'] ?? ''));
+    $maskedEmail = $alertEmail !== '' && str_contains($alertEmail, '@') ? substr($alertEmail, 0, 1) . '***@' . substr(strrchr($alertEmail, '@'), 1) : '';
+    $hookHost = $alertHook !== '' ? (string)(parse_url($alertHook, PHP_URL_HOST) ?: 'invalid address') : '';
+    $alertLog = array_reverse(array_slice($state['alert_log'] ?? [], -5));
+  ?>
+  <section class="panel" aria-labelledby="alerts-heading">
+    <div class="section-line"><div><h2 id="alerts-heading">Alerts</h2><p class="dim">Back in stock, price drops and new submissions. Several changes in one run arrive as one message.</p></div>
+      <form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="test_alert">Send test alert</button></form></div>
+    <?php if (is_staging()): ?>
+      <p class="dim">This is a staging copy, so it never sends alerts.</p>
+    <?php elseif ($alertEmail === '' && $alertHook === ''): ?>
+      <p class="notice" role="status">Alerts are off. Add <code>notify_email</code> (an email address) or <code>notify_webhook</code> (an https:// address, such as a private ntfy.sh topic) to the config.php on your host. A webhook is the more reliable choice on shared hosting.</p>
+    <?php else: ?>
+      <ul class="event-list">
+        <li><strong>Email</strong> · <?= $alertEmail === '' ? 'not set' : h($maskedEmail !== '' ? $maskedEmail : 'invalid address') ?><?= $alertEmail !== '' ? ' · from ' . h(notify_from_address() ?: 'the host\'s default sender (set notify_from)') : '' ?></li>
+        <li><strong>Webhook</strong> · <?= $alertHook === '' ? 'not set' : h($hookHost) ?></li>
+      </ul>
+    <?php endif; ?>
+    <?php if ($alertLog): ?>
+      <p class="dim">Latest results</p>
+      <ul class="event-list">
+        <?php foreach ($alertLog as $entry): ?>
+          <li><span class="<?= $entry['ok'] ? '' : 'danger' ?>"><?= $entry['ok'] ? 'Sent' : 'Failed' ?></span> · <?= h(ucfirst($entry['channel'])) ?> · <?= h(when($entry['t'])) ?><br><?= h($entry['subject']) ?><br><span class="dim"><?= h($entry['message']) ?></span></li>
+        <?php endforeach; ?>
+      </ul>
+    <?php endif; ?>
+  </section>
   <?php $visits = null; try { $visits = visits_touch($dir, false, '', ''); } catch (Throwable) {} ?>
   <?php if ($visits && $visits['days']): ?>
   <section class="panel" aria-labelledby="visits-heading">

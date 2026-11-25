@@ -19,7 +19,7 @@ $config = require $root . '/config.php';
 if (!is_array($config)) {
     $problems[] = 'config.php did not return a list of settings.';
 } else {
-    foreach (['data_dir','setup_key','base_url','notify_email','notify_webhook','ingest_token','github_token'] as $key) {
+    foreach (['data_dir','setup_key','base_url','notify_email','notify_webhook','notify_from','ingest_token','github_token'] as $key) {
         if (($config[$key] ?? '') !== '') {
             $problems[] = "config.php: '$key' has a value. Only the blank template belongs in the repository; put real values in the config.php on your host.";
         }

@@ -141,7 +141,10 @@ Each scan is compared with the previous live reading. The tracker records when a
 - Cards show a **Back in stock** or **Price dropped** badge for 7 days.
 - `feed.php` is a public RSS feed of recent changes. The catalog footer links to it.
 - Admin shows the 10 most recent changes and a visitor count for the last 14 days.
-- Optional owner alerts: set `notify_email` and/or `notify_webhook` in the host's `config.php`. The webhook is an HTTPS URL that accepts a plain-text POST, such as a private ntfy.sh topic. Alerts are sent for back-in-stock, price drops, and new submissions. Many shared hosts limit or filter `mail()`, so a webhook is more reliable.
+- Optional owner alerts: set `notify_email` and/or `notify_webhook` in the host's `config.php`. Alerts are sent for back-in-stock, price drops, and new submissions. Several changes found in one run arrive as **one message**, not one each. In the admin, the **Alerts** panel shows what is set up (the email is masked), a **Send test alert** button that reports exactly what happened, and the latest results, including failures.
+  - **Email** is sent from `alerts@` your site's own domain, or from `notify_from` if you set it. Use an address on a domain your host sends mail for, because mail that claims to come from elsewhere is often filtered as spam. "Handed to the host's mail system" does not prove delivery, so check the inbox and the spam folder after a test. If the domain has more than two labels in its registrable part (such as `example.co.uk`), set `notify_from` yourself.
+  - **Webhook** is an HTTPS URL that accepts a plain-text POST, such as a private ntfy.sh topic. The test shows whether it answered with success. Many shared hosts limit or filter `mail()`, so a webhook is more reliable.
+  - A staging copy never sends alerts.
 
 ## Review public submissions
 
@@ -173,6 +176,7 @@ These live in the **host's** `config.php`. The repository's copy is a blank temp
 | `batch_size` | Listings the server cron checks per run | Default 6, maximum 10 |
 | `notify_email` | Email address for owner alerts | Optional |
 | `notify_webhook` | HTTPS URL that takes a plain-text POST | Optional. An ntfy.sh topic works. |
+| `notify_from` | Address alert emails come from | Optional. Default is `alerts@` your domain. |
 | `ingest_token` | Key the U.S. runner uses to report checks | 32+ random characters. Must equal the `OFFGRID_TOKEN` secret. Empty turns the runner off. |
 | `github_repo` | `OWNER/REPOSITORY` of this repository | For starting the runner from the site |
 | `github_token` | Fine-grained token with Actions read and write on that one repository | Optional. Empty turns site-started runs off. |

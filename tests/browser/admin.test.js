@@ -1,5 +1,6 @@
 'use strict';
 // Admin: first-time setup and sign-in, "Add a listing by link" (store feed stubbed by tests/run.sh), duplicate guards.
+const fs = require('fs');
 const { run } = require('./lib');
 
 const PASSWORD = 'correct horse battery staple';
@@ -27,6 +28,18 @@ run(async (t) => {
   }
   t.ok('signed in: the Add by link panel is there', (await p.$('#addurl-heading')) !== null);
   t.ok('the old cron warning banner is gone', !/scheduled checker/i.test(await p.textContent('body')));
+
+  // alerts: the panel, the test button, and what actually went out (run.sh points sendmail at a file)
+  t.ok('the Alerts panel shows the address masked and the sender', /o\*\*\*@example\.com/.test(await p.textContent('#alerts-heading + p, .panel[aria-labelledby="alerts-heading"]')) && /alerts@example\.org/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));
+  t.ok('the full address is never shown on the page', !/owner@example\.com/.test(await p.textContent('body')));
+  await p.click('button[value="test_alert"]'); await p.waitForLoadState();
+  t.ok('Send test alert reports what happened', /Test alert sent/.test(await p.textContent('.notice')) && /not proof of delivery/.test(await p.textContent('.notice')), (await p.textContent('.notice')).trim().slice(0, 120));
+  t.ok('the result appears under Latest results', /Sent\s*·\s*Email/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')) && /Test alert/.test(await p.textContent('.panel[aria-labelledby="alerts-heading"]')));
+  if (process.env.MAIL_CAPTURE) {
+    const mail = fs.existsSync(process.env.MAIL_CAPTURE) ? fs.readFileSync(process.env.MAIL_CAPTURE, 'utf8') : '';
+    t.ok('the email went to the owner from the configured sender', /To: owner@example\.com/.test(mail) && /From: Offgrid Comms Tracker <alerts@example\.org>/.test(mail), mail.split('\n').slice(0, 3).join(' | '));
+    t.ok('the email says it is a test and links to the site', /If you can read this, alerts are working/.test(mail) && /index\.html/.test(mail));
+  }
 
   // duplicates and bad links
   const before = (await catalog()).length;

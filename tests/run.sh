@@ -25,9 +25,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# make_site NAME DATA_DIR [staging]  ->  copies the site (no tests, no git) and writes a test config.php
+# make_site NAME DATA_DIR [staging] [extra settings]  ->  copies the site (no tests, no git) and writes a test config.php.
+# The extra settings are PHP array entries such as "'notify_email' => 'a@b.c'," and override the defaults.
 make_site() {
-  local dest="$WORK/$1" data="$2" staging="${3:-false}" token=""
+  local dest="$WORK/$1" data="$2" staging="${3:-false}" extra="${4:-}" token=""
   # Only the staging copy gets a (fake) GitHub token, to prove the staging guard ignores it. Other copies must never call GitHub.
   [ "$staging" = "true" ] && token="not-a-real-token"
   mkdir -p "$dest"
@@ -40,17 +41,18 @@ return [
     'batch_size' => 6, 'notify_email' => '', 'notify_webhook' => '',
     'ingest_token' => '0123456789abcdef0123456789abcdef0123abcd', 'github_repo' => 'example/example', 'github_token' => '$token',
     'github_workflow' => 'check.yml', 'github_ref' => 'main', 'staging' => $staging, 'local_test' => true,
+    $extra
 ];
 PHP
 }
 
-serve() { # serve DIR PORT
+serve() { # serve DIR PORT [extra php arguments]
   if curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$2/"; then
     echo "Port $2 is already in use. Stop whatever is serving it, or set PUBLIC_PORT and ADMIN_PORT to free ports." >&2
     return 1
   fi
   # exec makes the background job php itself, so cleanup stops the server and not just a shell around it.
-  (cd "$1" && PHP_CLI_SERVER_WORKERS=4 exec php -S "127.0.0.1:$2" > "$WORK/server-$2.log" 2>&1) &
+  (cd "$1" && PHP_CLI_SERVER_WORKERS=4 exec php "${@:3}" -S "127.0.0.1:$2" > "$WORK/server-$2.log" 2>&1) &
   PIDS+=($!)
   for _ in $(seq 1 40); do
     curl -s -o /dev/null "http://127.0.0.1:$2/" && return 0
@@ -64,7 +66,7 @@ serve() { # serve DIR PORT
 run_php() {
   echo "== PHP tests"
   mkdir -p "$WORK/unit-data" "$WORK/staging-data"
-  make_site unit "$WORK/unit-data"
+  make_site unit "$WORK/unit-data" false "'base_url' => 'https://mesh.example.org/',"
   make_site staging "$WORK/staging-data" true
   for f in "$ROOT"/tests/php/*.test.php; do
     [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]] && continue
@@ -79,7 +81,9 @@ run_browser() {
   mkdir -p "$WORK/public-data" "$WORK/admin-data"
   make_site public ""
   # Admin site: a real data folder. Its store fetch is replaced by a fixture so no test touches a real shop.
-  make_site admin "$WORK/admin-data"
+  # The admin copy has alerts set up, and its "sendmail" writes each message to a file the test can read.
+  export MAIL_CAPTURE="$WORK/mail.eml"
+  make_site admin "$WORK/admin-data" false "'notify_email' => 'owner@example.com', 'notify_from' => 'alerts@example.org',"
   python3 - "$WORK/admin/admin.php" "$ROOT/tests/fixtures/rokland-wismesh.json" <<'PY' || { echo "Could not stub the store fetch in the admin copy" >&2; STATUS=1; return; }
 import sys
 path, fixture = sys.argv[1], sys.argv[2]
@@ -90,7 +94,7 @@ if src.count(needle) != 1:
 open(path, "w").write(src.replace(needle, "static fn($u) => [200, (string)file_get_contents('" + fixture + "')]"))
 PY
   serve "$WORK/public" "$PUBLIC_PORT" || { STATUS=1; return; }
-  serve "$WORK/admin" "$ADMIN_PORT" || { STATUS=1; return; }
+  serve "$WORK/admin" "$ADMIN_PORT" -d "sendmail_path=cat > $MAIL_CAPTURE" || { STATUS=1; return; }
   local modules="$ROOT/tests/node_modules"
   [ -d "$modules" ] && export NODE_PATH="$modules${NODE_PATH:+:$NODE_PATH}"
   for f in "$ROOT"/tests/browser/*.test.js; do

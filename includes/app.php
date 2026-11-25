@@ -80,7 +80,7 @@ function load_state(string $dir): array {
     $path = $dir . '/tracker.json';
     if (!is_file($path)) {
         return ['password'=>null,'items'=>seed(),'attempts'=>[],'last_run'=>null,'cooldowns'=>[],'host_next_scan'=>[],
-            'submissions'=>[],'submission_attempts'=>[],'events'=>[],'history'=>[],'last_runner_run'=>null,
+            'submissions'=>[],'submission_attempts'=>[],'events'=>[],'history'=>[],'alert_log'=>[],'last_runner_run'=>null,
             'seeded'=>array_column(array_filter(seed(), static fn($i) => !empty($i['late'])), 'id')];
     }
     $state = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
@@ -92,7 +92,7 @@ function load_state(string $dir): array {
         $cooldowns[$key] = max($cooldowns[$key] ?? 0, (int)$until);
     }
     $state['cooldowns'] = $cooldowns;
-    return $state + ['submissions'=>[],'submission_attempts'=>[],'host_next_scan'=>[],'events'=>[],'history'=>[],'last_runner_run'=>null];
+    return $state + ['submissions'=>[],'submission_attempts'=>[],'host_next_scan'=>[],'events'=>[],'history'=>[],'alert_log'=>[],'last_runner_run'=>null];
 }
 
 const HISTORY_POINTS = 120;
@@ -365,36 +365,141 @@ function base_url(): string {
 }
 
 /**
- * Optional alerts to the site owner. Configure notify_email and/or notify_webhook in config.php.
- * The webhook receives a plain-text POST (works with an ntfy.sh topic URL). Failures never break the caller.
+ * Owner alerts. Configure notify_email and/or notify_webhook in config.php (README: "Alerts").
+ *
+ * notify() queues an alert. Everything queued during one request is sent together when the request ends, as one digest,
+ * so a runner pass that finds twenty changes sends one message, not twenty. notify_send() sends right away and reports
+ * what happened for each channel, which is what the admin "Send test alert" button uses.
+ * Failures never break the caller; they are recorded in the alert log shown in the admin.
  */
 function notify(string $subject, string $body): void {
+    static $queue = [];
+    static $registered = false;
     if (is_staging()) {
         return; // a staging copy never sends alerts, even with production settings copied into it
     }
+    $queue[] = [$subject, $body];
+    if (!$registered) {
+        $registered = true;
+        register_shutdown_function(static function () use (&$queue) {
+            if (!$queue) {
+                return;
+            }
+            [$subject, $body] = notify_digest($queue);
+            $queue = [];
+            $results = notify_send($subject, $body);
+            try {
+                if (config()['data_dir'] !== '') {
+                    alert_log_record(data_dir(), $subject, $results);
+                }
+            } catch (Throwable $failure) {
+                error_log('Offgrid notify log: ' . $failure->getMessage());
+            }
+        });
+    }
+}
+
+/** Joins queued alerts into one subject and body. One alert is sent as it is. */
+function notify_digest(array $queue): array {
+    if (count($queue) === 1) {
+        return [(string)$queue[0][0], (string)$queue[0][1]];
+    }
+    $parts = array_map(static fn($item) => trim((string)$item[1]), $queue);
+    return [count($queue) . ' updates: ' . $queue[0][0] . ' and ' . (count($queue) - 1) . ' more', implode("\n\n", $parts)];
+}
+
+/** The address alerts are sent from: notify_from in config.php, or alerts@ the site's own domain. */
+function notify_from_address(): string {
+    $set = trim((string)(config()['notify_from'] ?? ''));
+    if ($set !== '' && filter_var($set, FILTER_VALIDATE_EMAIL)) {
+        return $set;
+    }
+    $host = strtolower((string)(parse_url(base_url(), PHP_URL_HOST) ?: ($_SERVER['SERVER_NAME'] ?? '')));
+    $host = preg_replace('/^www\./', '', $host);
+    if (filter_var($host, FILTER_VALIDATE_IP)) {
+        return ''; // an IP address has no domain to send from
+    }
+    $labels = array_values(array_filter(explode('.', $host), 'strlen'));
+    // Use the registrable domain (two labels) so the address matches what the host's mail system signs for.
+    $domain = count($labels) >= 2 ? implode('.', array_slice($labels, -2)) : '';
+    return $domain !== '' && preg_match('/^[a-z0-9.-]+$/D', $domain) ? 'alerts@' . $domain : '';
+}
+
+/** Sends an alert now. Returns one entry per channel: ['channel'=>'email'|'webhook', 'ok'=>bool, 'message'=>string]. */
+function notify_send(string $subject, string $body): array {
+    $results = [];
+    if (is_staging()) {
+        return $results;
+    }
     $subject = trim(preg_replace('/[\x00-\x1f\x7f]+/', ' ', $subject));
     $body = preg_replace('/\r\n?/', "\n", $body);
-    try {
-        $email = (string)(config()['notify_email'] ?? '');
-        if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            @mail($email, '=?UTF-8?B?' . base64_encode('[Offgrid] ' . $subject) . '?=', $body,
-                "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8");
+    $email = trim((string)(config()['notify_email'] ?? ''));
+    if ($email !== '') {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $results[] = ['channel'=>'email', 'ok'=>false, 'message'=>'notify_email in config.php is not a valid address.'];
+        } else {
+            $from = notify_from_address();
+            $headers = "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nX-Mailer: Offgrid Comms Tracker"
+                . ($from !== '' ? "\r\nFrom: Offgrid Comms Tracker <$from>\r\nReply-To: $from" : '');
+            $encoded = '=?UTF-8?B?' . base64_encode('[Offgrid] ' . $subject) . '?=';
+            $sent = false;
+            $problem = '';
+            try {
+                // Hosts that use sendmail want the envelope sender set too; some refuse the extra argument, so try without.
+                $sent = $from !== '' && @mail($email, $encoded, $body, $headers, '-f' . $from);
+                if (!$sent) {
+                    $sent = @mail($email, $encoded, $body, $headers);
+                }
+                if (!$sent) {
+                    $problem = (string)(error_get_last()['message'] ?? '');
+                }
+            } catch (Throwable $failure) {
+                $problem = $failure->getMessage();
+            }
+            $results[] = $sent
+                ? ['channel'=>'email', 'ok'=>true, 'message'=>'Handed to the host\'s mail system' . ($from !== '' ? ' from ' . $from : '') . '. That is not proof of delivery: check the inbox and the spam folder.']
+                : ['channel'=>'email', 'ok'=>false, 'message'=>'The host\'s mail system refused it' . ($problem !== '' ? ': ' . $problem : '') . '. Use a webhook such as an ntfy.sh topic instead, or ask the host to enable mail().'];
         }
-        $hook = (string)(config()['notify_webhook'] ?? '');
-        if ($hook !== '' && str_starts_with($hook, 'https://') && function_exists('curl_init')) {
+    }
+    $hook = trim((string)(config()['notify_webhook'] ?? ''));
+    if ($hook !== '') {
+        if (!str_starts_with($hook, 'https://') || !function_exists('curl_init')) {
+            $results[] = ['channel'=>'webhook', 'ok'=>false, 'message'=>'notify_webhook must be an https:// address, and PHP needs cURL.'];
+        } else {
             $curl = curl_init($hook);
             curl_setopt_array($curl, [
                 CURLOPT_POST => true, CURLOPT_POSTFIELDS => $body, CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 5, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_FOLLOWLOCATION => false,
+                CURLOPT_TIMEOUT => 8, CURLOPT_CONNECTTIMEOUT => 4, CURLOPT_FOLLOWLOCATION => false,
                 CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
                 CURLOPT_HTTPHEADER => ['Title: ' . preg_replace('/[^\x20-\x7e]/', '', $subject), 'Content-Type: text/plain; charset=utf-8'],
             ]);
             curl_exec($curl);
+            $code = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+            $error = curl_error($curl);
             curl_close($curl);
+            $results[] = $code >= 200 && $code < 300
+                ? ['channel'=>'webhook', 'ok'=>true, 'message'=>'Accepted (HTTP ' . $code . ').']
+                : ['channel'=>'webhook', 'ok'=>false, 'message'=>$error !== '' ? 'Could not reach it: ' . $error : 'The webhook answered HTTP ' . $code . '.'];
         }
-    } catch (Throwable $failure) {
-        error_log('Offgrid notify: ' . $failure->getMessage());
     }
+    return $results;
+}
+
+const ALERT_LOG_LIMIT = 20;
+
+/** Keeps the last few alert results so the admin can show whether alerts are working. */
+function alert_log_record(string $dir, string $subject, array $results): void {
+    if (!$results) {
+        return;
+    }
+    $stamp = iso_now();
+    change_state($dir, static function (&$state) use ($subject, $results, $stamp) {
+        foreach ($results as $result) {
+            $state['alert_log'][] = ['t'=>$stamp, 'subject'=>mb_substr($subject, 0, 120), 'channel'=>$result['channel'],
+                'ok'=>$result['ok'], 'message'=>mb_substr($result['message'], 0, 300)];
+        }
+        $state['alert_log'] = array_slice($state['alert_log'], -ALERT_LOG_LIMIT);
+    });
 }
 
 /**
