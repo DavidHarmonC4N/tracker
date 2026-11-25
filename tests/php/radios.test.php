@@ -3,7 +3,7 @@ declare(strict_types=1);
 // The plain radio list (radios.php): the status rule, escaping, link safety, grouping, and the shared header and footer.
 require dirname(__DIR__) . '/lib/harness.php';
 $site = load_site();
-require $site . '/includes/radios.php';
+require_once $site . '/includes/radios.php';
 
 $now = time();
 $fresh = gmdate('c', $now - 600);

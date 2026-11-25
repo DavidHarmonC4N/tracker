@@ -18,9 +18,18 @@ header('Content-Type: application/xml; charset=utf-8');
 header('Cache-Control: public, max-age=3600');
 
 $latest = 0;
+$radios = [];
 try {
-    foreach (endpoint_result()['items'] as $item) {
+    $items = endpoint_result()['items'];
+    foreach ($items as $item) {
         $latest = max($latest, (int)strtotime((string)($item['result']['observed_at'] ?? '')));
+    }
+    foreach (radio_groups($items) as $group) {
+        $seen = 0;
+        foreach ($group['offers'] as $offer) {
+            $seen = max($seen, (int)strtotime((string)($offer['result']['observed_at'] ?? '')));
+        }
+        $radios['radio.php?r=' . $group['ref']] = $seen;
     }
 } catch (Throwable $error) {
     error_log('Offgrid sitemap: ' . $error->getMessage());
@@ -32,7 +41,7 @@ $pages = [
     'radios.php'  => max($latest, $file('radios.php')),
     'prices.html' => max($latest, $file('prices.html')),
     'alerts.html' => $file('alerts.html'),
-];
+] + $radios;
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 foreach ($pages as $path => $modified) {
     echo '  <url><loc>' . htmlspecialchars($base . $path, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</loc>'

@@ -17,7 +17,7 @@ run(async (t) => {
   t.ok('the names a crawler reads match the catalog', catalog.items.every((i) => names.includes(i.name)));
   t.ok('it has one h1 and a heading for each availability group', (await page.$$('h1')).length === 1 && (await page.$$('h2[id^="g-"]')).length >= 1);
   t.ok('every table has a caption and header cells', (await page.$$eval('table.rtable', (tb) => tb.every((x) => x.querySelector('caption') && x.querySelectorAll('thead th[scope="col"]').length === 7))));
-  const links = await page.$$eval('table.rtable a', (a) => a.map((x) => ({ target: x.target, rel: x.rel, https: x.href.startsWith('https://') })));
+  const links = await page.$$eval('table.rtable td a', (a) => a.map((x) => ({ target: x.target, rel: x.rel, https: x.href.startsWith('https://') })));
   t.ok('every listing link is https and opens in a new tab', links.length > 40 && links.every((l) => l.https && l.target === '_blank' && /noopener/.test(l.rel)));
   const head = await raw('radios.php');
   t.ok('it has a unique title, a description and Open Graph tags', /<title>All MeshCore and Meshtastic Radios/.test(head.text) && /<meta name="description" content="\d+ MeshCore/.test(head.text) && /property="og:title"/.test(head.text));
@@ -36,12 +36,14 @@ run(async (t) => {
   const map = await raw('sitemap.php');
   t.ok('the sitemap is XML', map.status === 200 && /xml/.test(map.type) && /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/.test(map.text));
   const locs = [...map.text.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  t.ok('it lists the four public pages with absolute addresses', locs.length === 4 && locs.every((l) => /^https?:\/\//.test(l)) && locs.some((l) => l.endsWith('radios.php')) && locs.some((l) => l.endsWith('prices.html')) && locs.some((l) => l.endsWith('alerts.html')), locs.join(' '));
+  t.ok('it lists the four main pages and every radio page, with absolute addresses', locs.length > 40 && locs.every((l) => /^https?:\/\//.test(l)) && locs.some((l) => l.endsWith('radios.php')) && locs.some((l) => l.endsWith('prices.html')) && locs.some((l) => l.endsWith('alerts.html')) && locs.filter((l) => /radio\.php\?r=/.test(l)).length === locs.length - 4, locs.length + ' urls');
   t.ok('it leaves out private pages and index.html', !locs.some((l) => /admin|submit|ingest|index\.html/.test(l)));
-  t.ok('every page has a valid lastmod time', [...map.text.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].length === 4 && [...map.text.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].every((m) => !Number.isNaN(Date.parse(m[1]))));
+  t.ok('it has no duplicate addresses', new Set(locs).size === locs.length);
+  const mods = [...map.text.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((m) => m[1]);
+  t.ok('every lastmod is a valid time, and the four main pages have one (a radio never checked has none)', mods.length >= 4 && mods.length <= locs.length && mods.every((m) => !Number.isNaN(Date.parse(m))) && [...map.text.matchAll(/<url><loc>([^<]+)<\/loc>(<lastmod>)?/g)].filter((m) => !/radio\.php\?r=/.test(m[1])).every((m) => m[2]));
   const parser = await (await t.openContext()).newPage();
   const parsed = await parser.evaluate((x) => { const d = new DOMParser().parseFromString(x, 'application/xml'); return { error: !!d.querySelector('parsererror'), urls: d.querySelectorAll('urlset > url > loc').length }; }, map.text);
-  t.ok('the sitemap parses as valid XML with four urls', !parsed.error && parsed.urls === 4, JSON.stringify(parsed));
+  t.ok('the sitemap parses as valid XML with every url', !parsed.error && parsed.urls === locs.length, JSON.stringify(parsed));
   const llms = await raw('llms.txt');
   t.ok('llms.txt describes the site and points to the plain list', llms.status === 200 && /^# Offgrid Comms Tracker/.test(llms.text) && /radios\.php/.test(llms.text));
 

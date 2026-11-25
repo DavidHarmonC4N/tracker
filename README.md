@@ -274,3 +274,12 @@ A staging copy lets you try a branch on the real server before it goes live. It 
 - The home page has `WebSite` and `Organization` structured data (JSON-LD) and a descriptive title and description. `radios.php` has `CollectionPage` data.
 - **Search Console:** add the property `https://mesh.davidandlaura.net/`, verify it with an HTML tag or file (add the tag to the `<head>` of `index.html`, or put the file in the repository root), then submit `sitemap.php` and use URL inspection on the four pages.
 - Not done here because they need the host's `.htaccess`, which the deploy never touches: a 301 from `index.html` to `/`, and HSTS with the other security headers on static pages.
+
+### Per-radio pages
+
+`radio.php?r=<name>-<code>` is a page for one radio: what it is, price and stock now (one row per warehouse), the recorded price history (a chart drawn on the server, plus a table of changes), and similar radios. It is plain HTML and needs no JavaScript.
+
+- **One page per product link.** Listings that share a product page (Seeed lists the same page once per warehouse) are one radio, so there are no near-duplicate pages. `includes/radio.php` does the grouping.
+- **Stable addresses.** The last eight characters are a code made from the product link; the name part is only for readers. If a listing is renamed, the old address answers with a 301 to the new one. An unknown or malformed address is a 404 that is not indexed.
+- **Where they are linked:** from each catalog card ("Details and price history"), from the plain list at `radios.php`, from the breadcrumb, and from the sitemap, which lists every radio page with its latest check time.
+- **No Product or Offer markup on purpose.** The offers belong to other sellers, and Google's merchant rules expect that markup only where the item is sold. The pages carry `WebPage` and `BreadcrumbList` data.

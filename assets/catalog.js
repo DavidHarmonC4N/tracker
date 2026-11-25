@@ -484,7 +484,14 @@ function card(row) {
   const badge = changeBadge(row, status);
   if (badge) result.append(badge);
   if (row.note) result.append(el('p', 'note', row.note));
-  result.append(end, el('p', 'observed', detail));
+  const note = el('p', 'observed', detail);
+  result.append(end, note);
+  if (/^radio\.php\?r=[a-z0-9-]+$/.test(row.page || '')) {
+    const more = el('a', 'details', 'Details and price history');
+    more.href = row.page;
+    more.setAttribute('aria-label', 'Details and price history for ' + row.name);
+    result.append(more);
+  }
   return result;
 }
 

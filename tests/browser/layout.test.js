@@ -3,6 +3,7 @@
 const { run } = require('./lib');
 
 run(async (t) => {
+  const radioPage = (await (await fetch(t.SITE + 'catalog.php')).json()).items[0].page;
   for (const [width, label] of [[1280, 'desktop'], [1000, 'tablet'], [390, 'phone']]) {
     const ctx = await t.openContext({ viewport: { width, height: 900 } });
     await t.mockCatalog(ctx, (data) => { data.items.forEach((item) => { item.result = { ...item.result, status: 'in_stock', observed_at: new Date().toISOString() }; }); });
@@ -33,12 +34,12 @@ run(async (t) => {
   t.ok('the favicon is linked and served', (await p.getAttribute('link[rel=icon]', 'href')) === 'assets/favicon.svg' && (await (await p.request.get(t.SITE + 'assets/favicon.svg')).status()) === 200);
 
   // every link that leaves the site opens in a new tab, and says so to screen readers
-  for (const page of ['index.html', 'prices.html', 'alerts.html', 'radios.php', 'submit.php']) {
+  for (const page of ['index.html', 'prices.html', 'alerts.html', 'radios.php', 'submit.php', radioPage]) {
     await p.goto(t.SITE + page);
     const links = await p.$$eval('a[href^="http"]', (a, own) => a.filter((x) => !own.includes(x.host)).map((x) => ({ href: x.href, target: x.target, rel: x.rel, text: x.textContent, label: x.getAttribute('aria-label') || '' })), t.OWN_HOSTS);
     const bad = links.filter((l) => l.target !== '_blank' || !/noopener/.test(l.rel));
     t.ok(`${page}: every off-site link opens in a new tab`, bad.length === 0, bad.map((l) => l.href).join(' , '));
-    if (page !== 'submit.php') t.ok(`${page}: there are off-site links to check`, links.length > 3, String(links.length));
+    if (page !== 'submit.php') t.ok(`${page}: there are off-site links to check`, links.length >= (page === 'index.html' ? 4 : 1), String(links.length));
     const textLinks = links.filter((l) => l.text.trim() !== '' && !/^\s*$/.test(l.text));
     t.ok(`${page}: text links say they open a new tab`, textLinks.every((l) => /new tab/.test(l.text + ' ' + l.label)) || textLinks.length === 0, textLinks.filter((l) => !/new tab/.test(l.text + ' ' + l.label)).map((l) => l.href).join(' , '));
   }

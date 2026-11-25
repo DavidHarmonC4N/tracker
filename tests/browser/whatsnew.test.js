@@ -5,7 +5,8 @@ const { run } = require('./lib');
 run(async (t) => {
   const ctx = await t.openContext({}, { unfold: false });
   const p = t.watch(await ctx.newPage());
-  const pages = ['index.html', 'prices.html', 'alerts.html', 'radios.php'];
+  const radioPage = (await (await fetch(t.SITE + 'catalog.php')).json()).items[0].page;
+  const pages = ['index.html', 'prices.html', 'alerts.html', 'radios.php', radioPage];
   const stamps = [];
   for (const page of pages) {
     await p.goto(t.SITE + page); await p.waitForSelector('#whats-new');

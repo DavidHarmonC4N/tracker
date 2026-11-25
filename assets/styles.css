@@ -476,3 +476,11 @@ p.footer-head { display: block; }
 .facts-list dd { margin: .2rem 0 0; font-weight: 600; }
 .rlist { margin: 0; padding-left: 1.2rem; display: grid; gap: .5rem; line-height: 1.5; }
 .card .details { display: block; margin-top: -.2rem; color: var(--green); font: .78rem var(--mono); text-underline-offset: .18em; }
+
+/* Text wrapping: model numbers and short table cells stay whole; headings balance; paragraphs avoid a lone last word */
+.nb { white-space: nowrap; }
+.rtable .nw, .rtable .nw a { white-space: nowrap; }
+.rwide { min-width: 60rem; }
+.rwide tbody th[scope="row"] { min-width: 16rem; text-wrap: balance; }
+.guide h1, .guide h2 { text-wrap: balance; }
+.guide p, .guide li, .rtable small { text-wrap: pretty; }

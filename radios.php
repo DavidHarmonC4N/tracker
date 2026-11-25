@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 define('OFFGRID_APP', true);
 require __DIR__ . '/includes/app.php';
-require __DIR__ . '/includes/radios.php';
+require_once __DIR__ . '/includes/radios.php';
 
 common_headers();
 header('Content-Type: text/html; charset=utf-8');

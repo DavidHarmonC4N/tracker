@@ -307,6 +307,11 @@ function endpoint_result(): array {
         $public['seller_paused'] = !$public['manual'] && ($state['cooldowns'][$host] ?? 0) > $now;
         $items[] = $public;
     }
+    $pages = radio_page_map(radio_groups($items));
+    foreach ($items as &$entry) {
+        $entry['page'] = $pages[$entry['id']] ?? '';
+    }
+    unset($entry);
     return ['items'=>$items,'configured'=>$configured,'staging'=>is_staging(),'public_topic'=>$publicTopic,'last_run'=>$state['last_run'],
         'interval_minutes'=>max(30, (int)config()['interval_minutes'])];
 }
@@ -664,3 +669,4 @@ function ingest_enabled(): bool {
 }
 
 require_once __DIR__ . '/ntfy.php';
+require_once __DIR__ . '/radio.php';
