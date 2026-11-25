@@ -41,7 +41,7 @@ run(async (t) => {
 
   // quick filters
   await p.click('[data-chip="lowest"]');
-  t.ok('the Lowest seen chip filters to those radios and is saved in the link', (await names()).length === 2 && /lowest=1/.test(p.url()));
+  t.ok('the Lowest seen chip filters to those radios and is saved in the link', (await names()).length === 2 && /lowest=1/.test((await p.evaluate(() => location.href))));
   await p.click('[data-chip="lowest"]'); await p.click('[data-chip="limited"]');
   t.ok('the Limited stock chip filters to the one radio', (await names()).length === 1);
   await p.click('[data-chip="limited"]');
@@ -57,7 +57,7 @@ run(async (t) => {
   const shown = (await names()).length;
   const prices = await p.$$eval('.card .price', (e) => e.map((x) => parseFloat(x.lastChild.textContent.replace(/[^0-9.]/g, ''))));
   t.ok('the price filter keeps only radios between $40 and $60', shown > 0 && shown < total && prices.every((v) => v >= 40 && v <= 60), prices.slice(0, 4).join(','));
-  t.ok('the range is saved in the link', /min=40/.test(p.url()) && /max=60/.test(p.url()));
+  t.ok('the range is saved in the link', /min=40/.test((await p.evaluate(() => location.href))) && /max=60/.test((await p.evaluate(() => location.href))));
   t.ok('an active chip shows the range', (await p.$$eval('#active-chips .chip', (c) => c.map((x) => x.textContent))).some((x) => /Price: \$40 to \$60/.test(x)));
   await p.click('#active-chips .chip');
   t.ok('removing that chip clears both boxes', (await p.inputValue('#pmin')) === '' && (await p.inputValue('#pmax')) === '' && (await names()).length === total);
@@ -78,7 +78,7 @@ run(async (t) => {
 
   // links
   await p.click('[data-chip="lowest"]'); await p.fill('#pmin', '30'); await p.fill('#pmax', '45');
-  await p.goto(p.url()); await p.waitForSelector('#list > *');
+  await p.goto(await p.evaluate(() => location.href)); await p.waitForSelector('#list > *'); // read the address from the page: page.url() can lag behind replaceState
   t.ok('filters come back from the link', (await p.inputValue('#pmin')) === '30' && (await p.inputValue('#pmax')) === '45' && (await p.getAttribute('[data-chip="lowest"]', 'aria-pressed')) === 'true');
   await p.goto(t.SITE + 'index.html?min=abc&max=-5&status=bogus'); await p.waitForSelector('.card');
   t.ok('junk values in the link are ignored', (await p.inputValue('#pmin')) === '' && (await p.inputValue('#pmax')) === '' && (await p.$eval('.status-tab.active', (b) => b.dataset.tab)) === 'available');

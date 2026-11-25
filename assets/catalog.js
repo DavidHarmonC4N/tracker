@@ -664,11 +664,6 @@ function pageLink(className, text, href, hint) {
   return link;
 }
 
-function showNtfyFooter() {
-  const item = byId('ntfy-footer');
-  if (item) item.hidden = !publicTopic;
-}
-
 function draw() {
   document.body.classList.toggle('picks-mode', picksView);
   if (picksView) { drawPicks(); return; }
@@ -853,7 +848,6 @@ async function refresh() {
     lastSignature = signature;
     markStaging(data);
     publicTopic = typeof data.public_topic === 'string' && /^https:\/\//.test(data.public_topic) ? data.public_topic : '';
-    showNtfyFooter();
     rows = data.items;
     byId('total').textContent = rows.length;
     byId('available').textContent = rows.filter((row) => displayStatus(row) === 'in_stock').length;

@@ -5,7 +5,7 @@ const { run } = require('./lib');
 run(async (t) => {
   const ctx = await t.openContext({}, { unfold: false });
   const p = t.watch(await ctx.newPage());
-  const pages = ['index.html', 'prices.html', 'alerts.html'];
+  const pages = ['index.html', 'prices.html', 'alerts.html', 'radios.php'];
   const stamps = [];
   for (const page of pages) {
     await p.goto(t.SITE + page); await p.waitForSelector('#whats-new');
@@ -15,7 +15,7 @@ run(async (t) => {
     t.ok(`${page}: the closed row shows a version and codename`, /^v\d+\.\d+$/.test(version) && code.length > 2, version + ' ' + code);
     await p.click('#whats-new summary');
     t.ok(`${page}: it opens on click`, await p.$eval('#whats-new', (e) => e.open));
-    const releases = await p.$$eval('#whats-new .rel h3', (h) => h.map((x) => x.textContent.replace(/\s+/g, ' ').trim()));
+    const releases = await p.$$eval('#whats-new .rel .rel-title', (h) => h.map((x) => x.textContent.replace(/\s+/g, ' ').trim()));
     t.ok(`${page}: the newest release matches the closed row`, releases[0].toLowerCase().replace(/\s/g, '').startsWith((version + code).toLowerCase()), releases[0]);
     t.ok(`${page}: three releases are listed, newest first`, releases.length === 3);
     const versions = releases.map((r) => r.match(/v(\d+)\.(\d+)/)).map((m) => Number(m[1]) * 1000 + Number(m[2]));

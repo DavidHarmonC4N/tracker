@@ -31,7 +31,7 @@ run(async (t) => {
   await p.reload(); await p.waitForSelector('.card');
   t.ok('picks survive a reload', (await p.textContent('#picks-n')) === '3');
   await p.click('#picks-btn');
-  t.ok('My picks opens with view=picks in the link', /view=picks/.test(p.url()) && (await p.$('.dashhead h2')) !== null);
+  t.ok('My picks opens with view=picks in the link', /view=picks/.test((await p.evaluate(() => location.href))) && (await p.$('.dashhead h2')) !== null);
   t.ok('the tabs and filters are hidden in My picks', !(await p.$eval('#status-tabs', (e) => e.offsetParent !== null)) && !(await p.$eval('.filter-row', (e) => e.offsetParent !== null)));
   t.ok('all three picks are shown', (await p.$$('#list .card')).length === 3);
   const changes = await p.$$eval('.change', (e) => e.map((x) => x.textContent));

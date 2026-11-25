@@ -12,7 +12,7 @@ run(async (t) => {
   t.ok('the live site shows no staging bar', (await p.$('#staging-bar')) === null && !/^\[STAGING\]/.test(await p.title()));
   const response = await p.request.get(t.SITE + 'catalog.php');
   t.ok('the live catalog says staging is false', (await response.json()).staging === false);
-  t.ok('the live site does not send a noindex header', !response.headers()['x-robots-tag']);
+  t.ok('the live data feed is marked noindex, and the pages are not', response.headers()['x-robots-tag'] === 'noindex' && !(await p.request.get(t.SITE + 'index.html')).headers()['x-robots-tag']);
 
   // a staging copy (the catalog says so)
   const staged = await t.openContext();

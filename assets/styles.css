@@ -309,7 +309,7 @@ nav.footer-col { display: block; font-size: .87rem; color: var(--dim); }
 .wn[open] .chev { transform: rotate(180deg); }
 .wn .body { padding: .2rem 1rem 1rem; border-top: 1px solid var(--edge); }
 .wn .rel { padding: .85rem 0; border-bottom: 1px solid var(--edge); }
-.wn .rel h3 { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0 0 .5rem; font-size: 1rem; }
+.wn .rel-title, .wn .rel h3 { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0 0 .5rem; font-size: 1rem; }
 .wn .rel ul { margin: 0; padding-left: 1.1rem; font-size: .92rem; line-height: 1.55; }
 .wn .rel li::marker { color: #627447; }
 .wn .newtag { font: 800 .68rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--green); border: 1px solid var(--green); border-radius: 999px; padding: .05rem .45rem; }
@@ -438,3 +438,28 @@ nav a[aria-current="page"] { color: var(--green); }
 .sample-body { margin-top: .2rem !important; color: var(--dim); font-size: .9rem; }
 @media (max-width: 620px) { .guide .lead { font-size: 1rem; } .topic { flex-basis: 100%; } }
 .guide-step .copy-status:empty { display: none; }
+
+/* Plain-list link and the footer labels that are no longer headings */
+.plain-link { margin: 0 0 .9rem; font-size: .9rem; }
+.plain-link a { color: var(--green); text-underline-offset: .18em; }
+p.footer-head { display: block; }
+
+/* Plain radio list */
+.rgroup { margin: 1.4rem 0 2rem; }
+.rgroup h2 { margin: 0 0 .2rem; font-size: 1.35rem; }
+.rtable-wrap { position: relative; overflow-x: auto; margin-top: .6rem; border: 1px solid var(--edge); border-radius: 8px; }
+.rtable { width: 100%; min-width: 46rem; border-collapse: collapse; font-size: .92rem; }
+.rtable th, .rtable td { padding: .6rem .7rem; border-bottom: 1px solid var(--edge); text-align: left; vertical-align: top; }
+.rtable thead th { position: sticky; top: 0; background: var(--panel); font: 700 .72rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+.rtable tbody th { font-weight: 700; }
+.rtable small { display: block; margin-top: .15rem; color: var(--dim); font: .76rem var(--mono); font-weight: 400; }
+.rtable .num { font: 700 .95rem var(--mono); white-space: nowrap; }
+.rtable a { color: var(--green); text-underline-offset: .18em; }
+.rtable tr:last-child > * { border-bottom: 0; }
+
+/* Price history: reserve the space the chart and table fill, so the footer does not jump when they load */
+#chart { min-height: 9rem; }
+#tablewrap { min-height: 14rem; }
+@media (min-width: 700px) { #chart { min-height: 22rem; } }
+
+@media (max-width: 700px) { #subtitle { min-height: 3.3em; } #tablewrap { min-height: 21rem; } }

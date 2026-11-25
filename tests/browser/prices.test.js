@@ -51,7 +51,7 @@ run(async (t) => {
   await p.click('.pick:has-text("ThinkNode M9")');
   t.ok('showing it again restores the line', (await lines()) === 4);
   await p.click('#range [data-range="7"]');
-  t.ok('7 days updates the subtitle and the link', /last 7 days/.test(await p.textContent('#subtitle')) && /range=7/.test(p.url()));
+  t.ok('7 days updates the subtitle and the link', /last 7 days/.test(await p.textContent('#subtitle')) && /range=7/.test((await p.evaluate(() => location.href))));
   await p.click('#range [data-range="all"]');
   t.ok('All time works', /all recorded history/.test(await p.textContent('#subtitle')));
   await p.click('#range [data-range="30"]');

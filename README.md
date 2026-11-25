@@ -209,7 +209,7 @@ These live in the **host's** `config.php`. The repository's copy is a blank temp
 
 Releases are named `v<major>.<minor>` plus a codename. Each major series takes the next word from the radio alphabet (v1 is the Antenna series, v2 is Beacon, then Channel, Dipole, Echo and so on). Each minor release within a series is named for a bird (v1.0 Kestrel, v1.1 Osprey, v1.2 Harrier, v1.3 Merlin, v1.4 Condor, v1.5 Peregrine).
 
-To publish a release, edit `index.html`, `prices.html` and `alerts.html` (all three carry the same footer): add a new `<div class="rel">` block at the top of the `#whats-new` section (and drop the oldest one into the "Earlier" line), then update the version in the `<summary>` line and in the `<p class="stamp">` line in the footer. Bump the `?v=` cache string on the CSS and JS links so browsers pick up the change.
+To publish a release, edit `index.html`, `prices.html` and `alerts.html` (all three carry the same footer; `radios.php` reads the footer from `index.html`): add a new `<div class="rel">` block at the top of the `#whats-new` section (and drop the oldest one into the "Earlier" line), then update the version in the `<summary>` line and in the `<p class="stamp">` line in the footer. Bump the `?v=` cache string on the CSS and JS links so browsers pick up the change.
 
 ## Adding a listing by link
 
@@ -264,3 +264,13 @@ A staging copy lets you try a branch on the real server before it goes live. It 
 - Alerts, the GitHub runner trigger and runner uploads are switched off in code when `staging` is true, so copied-in live settings cannot cause side effects.
 - The staging workflow refuses to run if the staging folder is the same as, or contains, the live folder, or if the staging address equals the live address. It never uploads `config.php`, `.htaccess` or `.htpasswd`, and after every upload it checks again that the site answers 401 to the public.
 - Use **Check now** in the staging admin to fetch real prices from the host; staging checks run from the host's own server (there is no U.S. runner there).
+
+## Search engines and AI tools (SEO)
+
+- **`radios.php`** is a plain, server-rendered list of every radio with its price, stock, seller, warehouse and last check. The home page's catalog is built by JavaScript, which most crawlers and AI tools do not run, so this page puts the same facts in the HTML. It reuses the home page's header and footer, so it cannot drift from them.
+- **`robots.txt`** allows crawlers and blocks only the private endpoints. It deliberately does **not** block `catalog.php` or `history.php`, because search engines need them to render the catalog and price history. Those two send `X-Robots-Tag: noindex` so they are not indexed as pages. Its `Sitemap:` line names the production address: change it if the domain changes. The staging deploy replaces it with a block-everything file.
+- **`sitemap.php`** lists the four public pages with a `lastmod` taken from the live data, and is named in `robots.txt`. Submit it in Google Search Console.
+- **`llms.txt`** is an optional plain summary for AI tools (Google ignores it). **`favicon.ico`** and **`assets/apple-touch-icon.png`** are generated from `assets/favicon.svg`.
+- The home page has `WebSite` and `Organization` structured data (JSON-LD) and a descriptive title and description. `radios.php` has `CollectionPage` data.
+- **Search Console:** add the property `https://mesh.davidandlaura.net/`, verify it with an HTML tag or file (add the tag to the `<head>` of `index.html`, or put the file in the repository root), then submit `sitemap.php` and use URL inspection on the four pages.
+- Not done here because they need the host's `.htaccess`, which the deploy never touches: a 301 from `index.html` to `/`, and HSTS with the other security headers on static pages.

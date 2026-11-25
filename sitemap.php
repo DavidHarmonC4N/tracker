@@ -1,0 +1,41 @@
+<?php
+declare(strict_types=1);
+
+// The sitemap (referenced from robots.txt). Built from the live data so each page's lastmod is its latest real change.
+
+define('OFFGRID_APP', true);
+require __DIR__ . '/includes/app.php';
+
+common_headers();
+$base = base_url();
+if ($base === '' || is_staging()) {
+    http_response_code(404);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Not found.\n";
+    exit;
+}
+header('Content-Type: application/xml; charset=utf-8');
+header('Cache-Control: public, max-age=3600');
+
+$latest = 0;
+try {
+    foreach (endpoint_result()['items'] as $item) {
+        $latest = max($latest, (int)strtotime((string)($item['result']['observed_at'] ?? '')));
+    }
+} catch (Throwable $error) {
+    error_log('Offgrid sitemap: ' . $error->getMessage());
+}
+$file = static fn(string $name): int => (int)(@filemtime(__DIR__ . '/' . $name) ?: 0);
+// Pages built from live data change when the data does; static pages change when their file does.
+$pages = [
+    ''            => max($latest, $file('index.html')),
+    'radios.php'  => max($latest, $file('radios.php')),
+    'prices.html' => max($latest, $file('prices.html')),
+    'alerts.html' => $file('alerts.html'),
+];
+echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+foreach ($pages as $path => $modified) {
+    echo '  <url><loc>' . htmlspecialchars($base . $path, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</loc>'
+        . ($modified ? '<lastmod>' . gmdate('c', $modified) . '</lastmod>' : '') . '</url>' . "\n";
+}
+echo '</urlset>' . "\n";

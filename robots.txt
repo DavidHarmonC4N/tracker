@@ -1,0 +1,11 @@
+# Offgrid Comms Tracker
+# Everything public is open to crawlers. Only the private endpoints are listed.
+# catalog.php and history.php are NOT blocked on purpose: search engines need them to render the catalog and price history.
+User-agent: *
+Disallow: /admin.php
+Disallow: /ingest.php
+Disallow: /check.php
+Disallow: /ntfy.php
+Disallow: /visit.php
+
+Sitemap: https://mesh.davidandlaura.net/sitemap.php

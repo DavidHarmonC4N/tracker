@@ -7,6 +7,7 @@ require __DIR__ . '/includes/app.php';
 common_headers();
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: public, max-age=60');
+header('X-Robots-Tag: noindex'); // a data feed for the page, not a page to index
 
 /**
  * Public price history. ?scope=instock returns every available listing, ?ids=a,b,c returns just those (up to 60).

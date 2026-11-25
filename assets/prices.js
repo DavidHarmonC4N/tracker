@@ -289,10 +289,6 @@ async function load() {
     if (!response.ok) throw new Error('history');
     const data = await response.json();
     nowMs = (data.now || Math.floor(Date.now() / 1000)) * 1000;
-    const phone = byId('ntfy-footer');
-    if (phone && typeof data.public_topic === 'string' && /^https:\/\//.test(data.public_topic)) {
-      phone.hidden = false;
-    }
     if (data.staging === true && !byId('staging-bar')) {
       const bar = el('div', 'staging-bar', 'STAGING · a private test copy, not the live site');
       bar.id = 'staging-bar';

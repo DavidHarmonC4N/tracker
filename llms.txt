@@ -1,0 +1,12 @@
+# Offgrid Comms Tracker
+
+> A free, community buyer's guide that tracks price and stock for MeshCore and Meshtastic radios from U.S. and international sellers. Stock is checked about once an hour. The site receives no commissions.
+
+## Main pages
+- [All radios (plain list with price and stock)](https://mesh.davidandlaura.net/radios.php): every tracked radio, grouped by availability.
+- [Interactive catalog](https://mesh.davidandlaura.net/): filter by use, firmware, warehouse, radio type and price.
+- [Price history](https://mesh.davidandlaura.net/prices.html): how prices and stock have moved over time.
+- [Phone alerts](https://mesh.davidandlaura.net/alerts.html): get a free ntfy alert on restocks and price drops.
+
+## Feeds
+- [Stock and price changes (RSS)](https://mesh.davidandlaura.net/feed.php)

@@ -8,6 +8,7 @@ require __DIR__ . '/includes/dispatch.php';
 common_headers();
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+header('X-Robots-Tag: noindex'); // a data feed for the page, not a page to index
 try {
     echo json_encode(endpoint_result(), JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
     // Send the response first, then (rarely) ask GitHub to start the U.S. runner.

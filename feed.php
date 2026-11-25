@@ -44,7 +44,7 @@ try {
 } catch (Throwable $failure) {
     error_log('Offgrid feed: ' . $failure->getMessage());
 }
-$site = base_url() . 'index.html';
+$site = base_url() !== '' ? base_url() : 'index.html';
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
 <rss version="2.0"><channel>

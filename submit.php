@@ -75,8 +75,8 @@ try {
 </head>
 <body>
   <header class="mast"><div class="wrap mast-inner">
-    <a class="brand" href="index.html"><span class="brand-icon" aria-hidden="true"><i></i></span> OFFGRID <span>COMMS</span></a>
-    <a class="quiet" href="index.html#inventory">Catalog</a>
+    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true"><i></i></span> OFFGRID <span>COMMS</span></a>
+    <a class="quiet" href="./#inventory">Catalog</a>
   </div></header>
   <main class="wrap admin-area submission-area">
     <div class="admin-heading"><h1>Submit a listing</h1></div>
