@@ -1,0 +1,51 @@
+name: Probe antenna sellers (temporary)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Look for LoRa antennas in each store feed
+        run: |
+          python3 - <<'PY'
+          import json, re, urllib.request
+          hosts = ['store.rakwireless.com','muziworks.com','heltec.org','ameridroid.com','specfive.com','lilygo.cc','canopysignal.com',
+                   'atlavox.com','district47.com','store.mrmeshtastic.com','shop.sensecap.io','sensecapstore.com','thepihut.com',
+                   'www.adafruit.com','www.sparkfun.com','a2ztech.com','shop.pimoroni.com','www.waveshare.com','buymeshtastic.com',
+                   'www.seeedstudio.com','store.rokland.com','nebra.com','www.helium-miner.com','shop.nebra.com','www.mikrotik.com',
+                   'store.muzi.works','muzi.works','shop.rakwireless.com','www.rakwireless.com']
+          kw = re.compile(r'antenna|yagi|whip', re.I)
+          band = re.compile(r'915|868|lora|900|meshtastic|helium', re.I)
+          for host in hosts:
+              found = []
+              total = 0
+              status = ''
+              for page in (1, 2, 3):
+                  url = 'https://%s/products.json?limit=250&page=%d' % (host, page)
+                  try:
+                      req = urllib.request.Request(url, headers={'User-Agent': 'OffgridCommsTracker-Probe/1.0'})
+                      with urllib.request.urlopen(req, timeout=20) as r:
+                          data = json.load(r)
+                      status = 'ok'
+                  except Exception as e:
+                      status = type(e).__name__ + ' ' + str(e)[:60]
+                      break
+                  products = data.get('products', [])
+                  total += len(products)
+                  for p in products:
+                      text = p['title'] + ' ' + p.get('product_type', '') + ' ' + ' '.join(p.get('tags', []))
+                      if kw.search(p['title'] + ' ' + p.get('product_type', '')) and band.search(text):
+                          v = p['variants'][0]
+                          found.append('%s | %s | %s | %s | variants=%d' % (p['handle'], p['title'][:70], v['price'], v['available'], len(p['variants'])))
+                  if len(products) < 250:
+                      break
+              print('## %s  %s  products=%d  lora-antennas=%d' % (host, status, total, len(found)))
+              for line in found[:40]:
+                  print('   ' + line)
+          PY
