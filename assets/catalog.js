@@ -157,7 +157,7 @@ function pickCard(row) {
     const added = 'Added ' + formatDay.format(new Date(pick.added)) + (Number.isInteger(pick.price) ? ' at ' + formatMoney.format(pick.price / 100) : '');
     const hist = el('p', 'hist', added);
     node.querySelector('.facts').after(hist);
-    if (row.topic) hist.after(externalLink('ntfy-radio', 'Phone alerts for this radio', row.topic, 'Opens ntfy, where you can subscribe from the app. Free, no account.'));
+    if (publicTopic && row.topic) hist.after(pageLink('ntfy-radio', 'Phone alerts for this radio', 'alerts.html?radio=' + encodeURIComponent(row.id), 'How to get alerts for just this radio. Free, no account.'));
   }
   return node;
 }
@@ -219,7 +219,7 @@ function drawPicks() {
     feed.rel = 'noopener';
     feed.title = 'Stock and price changes for these radios only. Add the address to any feed reader.';
     actions.append(link, feed);
-    if (publicTopic) actions.append(externalLink('sbtn', 'Phone alerts (all)', publicTopic, 'Opens ntfy, where you can subscribe from the app. Free, no account.'));
+    if (publicTopic) actions.append(pageLink('sbtn', 'Phone alerts (all)', 'alerts.html', 'How to get a phone alert for every restock and price drop. Free, no account.'));
     if (!sharedIds) {
       const history = el('a', 'sbtn', 'Price history');
       history.href = 'prices.html?scope=picks';
@@ -656,22 +656,17 @@ function markStaging(data) {
   if (!document.title.startsWith('[STAGING]')) document.title = '[STAGING] ' + document.title;
 }
 
-// Phone alerts through ntfy: shown only when the owner has set a public topic.
-function externalLink(className, text, href, hint) {
+// Phone alerts through ntfy: shown only when the owner has set a public topic. The links go to the "Phone alerts" page.
+function pageLink(className, text, href, hint) {
   const link = el('a', className, text);
   link.href = href;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
   link.title = hint;
-  link.append(el('span', 'sr', ' (opens in a new tab)'));
   return link;
 }
 
 function showNtfyFooter() {
   const item = byId('ntfy-footer');
-  if (!item) return;
-  item.hidden = !publicTopic;
-  if (publicTopic) byId('ntfy-link').href = publicTopic;
+  if (item) item.hidden = !publicTopic;
 }
 
 function draw() {

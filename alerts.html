@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Free phone alerts when a MeshCore or Meshtastic radio comes back in stock or its price drops. No account needed.">
+  <meta name="theme-color" content="#121511">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://mesh.davidandlaura.net/alerts.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Offgrid Comms Tracker">
+  <meta property="og:title" content="Phone alerts · Offgrid Comms Tracker">
+  <meta property="og:description" content="Free phone alerts when a MeshCore or Meshtastic radio comes back in stock or its price drops. No account needed.">
+  <meta property="og:url" content="https://mesh.davidandlaura.net/alerts.html">
+  <meta property="og:image" content="https://mesh.davidandlaura.net/assets/og-image.png?v=20261124-inventory">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Offgrid Comms Tracker: prices and stock for MeshCore and Meshtastic radios from U.S. and international sellers">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Phone alerts · Offgrid Comms Tracker">
+  <meta name="twitter:description" content="Free phone alerts when a MeshCore or Meshtastic radio comes back in stock or its price drops. No account needed.">
+  <meta name="twitter:image" content="https://mesh.davidandlaura.net/assets/og-image.png?v=20261124-inventory">
+  <title>Phone alerts · Offgrid Comms Tracker</title>
+  <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
+  <link rel="stylesheet" href="assets/styles.css?v=20261127-alerts">
+  <script src="assets/alerts.js?v=20261127-alerts" defer></script>
+</head>
+<body>
+  <a class="skip" href="#alerts">Skip to phone alerts</a>
+  <header class="mast">
+    <div class="wrap mast-inner">
+      <a class="brand" href="index.html"><span class="brand-icon" aria-hidden="true"><i></i></span> OFFGRID <span>COMMS</span></a>
+      <nav aria-label="Site navigation"><a href="index.html#inventory">Catalog</a><a href="prices.html">Price history</a><a href="index.html#offline-tools">Mesh tools</a><a class="quiet" href="submit.php">Submit a listing</a><a class="quiet coffee" href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">Buy me a coffee<span class="sr"> (opens in a new tab)</span></a><a href="admin.php">Admin</a></nav>
+    </div>
+  </header>
+  <main class="wrap guide" id="alerts">
+    <div class="pagehead">
+      <div><p class="eyebrow">OFFGRID COMMS TRACKER</p><h1>Phone alerts</h1>
+        <p class="lead">Get a notification on your phone when a radio comes back in stock or its price drops. It is free, there is no account to make and no email to give, and it works through <strong>ntfy</strong>, a free, open-source notification app.</p></div>
+    </div>
+
+    <p class="anote" id="alerts-off" hidden><b>Phone alerts are not turned on for this site yet.</b> The steps below show how they will work. In the meantime you can follow changes with the <a href="feed.php">RSS feed</a>.</p>
+
+    <ol class="guide-steps">
+      <li class="panel guide-step" id="install">
+        <h2><span class="num" aria-hidden="true">1</span>Install the ntfy app</h2>
+        <p>ntfy is a separate app made by Philipp Heckel, not by this site. Look for the one called just <strong>ntfy</strong>.</p>
+        <div class="app-badges badges-row">
+          <a class="badge-link" href="https://apps.apple.com/us/app/ntfy/id1625396347" target="_blank" rel="noopener noreferrer"><img src="assets/app-store-badge.svg" alt="Download ntfy on the App Store (opens in a new tab)" width="120" height="40"></a>
+          <a class="badge-link badge-play" href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener noreferrer"><img src="assets/google-play-badge.png" alt="Get ntfy on Google Play (opens in a new tab)" width="155" height="60"></a>
+        </div>
+        <p class="dim">Android without Google Play: ntfy is also on <a href="https://f-droid.org/packages/io.heckel.ntfy/" target="_blank" rel="noopener noreferrer">F-Droid<span class="sr"> (opens in a new tab)</span></a>. No phone handy? You can read the alerts in a browser instead, from the <strong>Open in your browser</strong> link in step 2.</p>
+      </li>
+
+      <li class="panel guide-step" id="subscribe">
+        <h2><span class="num" aria-hidden="true">2</span>Follow all alerts</h2>
+        <p>In the app, tap the <strong>+</strong> button, type this topic name, and tap <strong>Subscribe</strong>. Leave the server as the default, <code>ntfy.sh</code>.</p>
+        <div class="topicbox">
+          <code id="topic-name" class="topic" aria-label="Topic name">Loading…</code>
+          <button type="button" class="sbtn" id="copy-topic" disabled>Copy name</button>
+          <a class="sbtn" id="open-topic" href="#" target="_blank" rel="noopener noreferrer" hidden>Open in your browser<span class="sr"> (opens in a new tab)</span></a>
+        </div>
+        <p class="copy-status" id="copy-status" role="status"></p>
+        <p class="dim">That is all. The next restock or price drop on any radio in the catalog arrives on your phone.</p>
+      </li>
+
+      <li class="panel guide-step" id="radios">
+        <h2><span class="num" aria-hidden="true">3</span>Or follow only some radios</h2>
+        <p>Too many alerts? Every radio has its own topic. Star the radios you care about on the catalog, open <strong>My picks</strong>, and choose <strong>Phone alerts for this radio</strong> on a pick. It opens this page with that radio's topic, ready to subscribe to.</p>
+        <div class="topicbox radio-box" id="radio-box" hidden>
+          <p class="radio-name" id="radio-name"></p>
+          <code id="radio-topic" class="topic" aria-label="Topic name for this radio"></code>
+          <button type="button" class="sbtn" id="copy-radio">Copy name</button>
+          <a class="sbtn" id="open-radio" href="#" target="_blank" rel="noopener noreferrer">Open in your browser<span class="sr"> (opens in a new tab)</span></a>
+        </div>
+        <p class="copy-status" id="radio-status" role="status"></p>
+      </li>
+    </ol>
+
+    <section class="panel guide-step" aria-labelledby="receive">
+      <h2 id="receive">What an alert looks like</h2>
+      <div class="sample" aria-label="Example alert">
+        <p class="sample-top"><span class="sample-app">ntfy</span> · example</p>
+        <p class="sample-title">LILYGO T-Deck at Rokland dropped from $74.95 to $67.97</p>
+        <p class="sample-body">Confirm stock and the selected variant with the seller.</p>
+      </div>
+      <ul>
+        <li><strong>Tap the alert</strong> and it opens that radio's page at the seller.</li>
+        <li><strong>Restocks</strong> arrive as high priority, so they stand out. Price drops arrive as normal ones.</li>
+        <li><strong>Several changes at once</strong> arrive as one message, not a pile of them.</li>
+        <li><strong>Not instant to the second.</strong> Stock is checked about once an hour, so an alert can lag a little behind the seller's page.</li>
+      </ul>
+    </section>
+
+    <section class="panel guide-step" aria-labelledby="know">
+      <h2 id="know">Good to know</h2>
+      <ul>
+        <li><strong>The topic is public.</strong> Anyone who knows the name can read it, and anyone could also post to it, so only trust an alert after you check the seller's own page. This site posts public facts only: what changed, which radio, which seller.</li>
+        <li><strong>We do not know who follows.</strong> There are no accounts and no sign-ups here. The ntfy service sees your phone's address the way any online service does.</li>
+        <li><strong>To stop alerts,</strong> open the topic in the ntfy app and choose to unsubscribe, or mute it from the app's menu.</li>
+        <li><strong>Not affiliated.</strong> ntfy is its own project. This site only posts to it.</li>
+        <li><strong>Prefer a feed reader?</strong> The <a href="feed.php">RSS feed</a> carries the same changes, and <strong>My picks</strong> has a personal feed for just your radios.</li>
+      </ul>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <section class="footer-about" aria-labelledby="footer-about-title">
+        <h2 class="footer-head" id="footer-about-title">Offgrid Comms Tracker</h2>
+        <p>I host this community tracker on my personal site at <a href="https://mesh.davidandlaura.net/">mesh.davidandlaura.net</a>. I receive no commissions or other compensation from seller links.</p>
+      </section>
+      <nav class="footer-col" aria-labelledby="footer-explore-title">
+        <h2 class="footer-head" id="footer-explore-title">Explore</h2>
+        <ul>
+          <li><a href="index.html#inventory">Radio catalog</a></li>
+          <li><a href="prices.html">Price history</a></li>
+          <li><a href="index.html#offline-tools">Mesh tools and links</a></li>
+          <li><a href="submit.php">Submit a listing</a></li>
+          <li><a href="feed.php">Stock alerts (RSS)</a></li>
+          <li><a href="alerts.html" aria-current="page">Phone alerts (ntfy)</a></li>
+        </ul>
+      </nav>
+      <section class="footer-col" aria-labelledby="footer-support-title">
+        <h2 class="footer-head" id="footer-support-title">Support</h2>
+        <p>This tracker is free to use. If you find it helpful, you can chip in.</p>
+        <a  class="quiet coffee" href="https://buymeacoffee.com/offgridcomms" target="_blank" rel="noopener noreferrer">Buy me a coffee<span class="sr"> (opens in a new tab)</span></a>
+      </section>
+      <details class="wn" id="whats-new">
+        <summary><span class="ver">v1.8</span><span class="code">Swift</span><span class="sum">What’s new</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="body">
+        <div class="rel"><h3><span class="ver">v1.8</span><span class="code">Swift</span><span class="newtag">New</span></h3><ul><li>Phone alerts: a free way to get a notification when a radio comes back in stock or its price drops, with a step-by-step page</li><li>Follow every alert, or just the radios you picked, with the free ntfy app</li><li>Store links for the ntfy app on iPhone and Android</li></ul></div>
+        <div class="rel"><h3><span class="ver">v1.7</span><span class="code">Falcon</span></h3><ul><li>Price history page: step charts of how prices have moved for your picks or for everything in stock</li><li>Price range filter, plus Lowest seen and Limited stock quick filters</li><li>Cards show Lowest seen, Limited stock and recent price drops</li><li>Links that leave this site now open in a new tab</li></ul></div>
+        <div class="rel"><h3><span class="ver">v1.6</span><span class="code">Albatross</span></h3><ul><li>Roll up any section to hide it: fold In stock, Orderable, Out of stock and the Seeed warehouse groups, with Collapse all and Expand all</li><li>Out of stock and Unverified start folded, and your choices are remembered on your device</li><li>The page refreshes the moment you return to the tab, and My picks shows the latest stock reading</li><li>RAK WisMesh Tag (Navy) added from Rokland</li></ul></div>
+          <p class="more">Earlier: v1.5 Peregrine (My picks watchlist) · v1.4 Condor (one-row tabs, quick filters, icons and flags) · v1.3 Merlin (Seeed warehouses, T-Deck, visitor counter) · v1.2 Harrier (U.S. checker and automatic deploys) · v1.1 Osprey (change history and RSS) · v1.0 Kestrel (first public catalog)</p>
+          <p class="more">Versions: the Antenna series is v1.x. Each release is named for a bird. The next major series starts at v2.0, named Beacon.</p>
+        </div>
+      </details>
+      <div class="footer-bottom">
+        <p class="footer-pricing">Prices are in USD before tax and shipping. Confirm stock and the selected variant with the seller. Sellers marked with an asterisk block automated checks, so their listings are checked by hand.</p>
+        <p class="footer-legal">Google Play and the Google Play logo are trademarks of Google LLC. App Store is a service mark of Apple Inc. MeshCore is made by its own developers and is not affiliated with this tracker.</p>
+        <p class="stamp">v1.8 “Swift” · Antenna series · 73 de <span class="call">KY4DEH</span></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

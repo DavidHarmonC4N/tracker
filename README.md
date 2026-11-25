@@ -155,6 +155,8 @@ Each scan is compared with the previous live reading. The tracker records when a
 3. **A public topic (optional, off by default).** Set `notify_public_topic` to a topic address of your choice, for example `https://ntfy.sh/offgrid-comms-tracker`. It carries only public news: back in stock and price drops. Each radio also gets its own topic (the public name, a dash and eight characters), so a visitor can follow only the radios they care about, with no account. The site then shows **Phone alerts (ntfy)** in the footer, and **Phone alerts (all)** and **Phone alerts for this radio** in My picks. The admin Alerts panel has **Send test post to the public topic**.
    - **Know the risk:** anyone who knows a topic name can post to it, so someone could send followers a fake alert with a link to anywhere. The site only posts public facts, and the notification's tap opens the seller's page, but followers cannot tell a fake from a real post. If that ever happens, change the topic name, or use a reserved topic (an ntfy account feature) or your own ntfy server, where only you can post.
 
+The **Phone alerts** page (`alerts.html`) explains all of this to visitors, with store links for the ntfy app. It reads the public topic from the site, so the topic name is never written into the repository. The footer and My picks link to it once `notify_public_topic` is set.
+
 Typed commands are not supported: your host has no always-running process to listen to a topic, so the buttons do the two-way part.
 
 ## Review public submissions
@@ -207,7 +209,7 @@ These live in the **host's** `config.php`. The repository's copy is a blank temp
 
 Releases are named `v<major>.<minor>` plus a codename. Each major series takes the next word from the radio alphabet (v1 is the Antenna series, v2 is Beacon, then Channel, Dipole, Echo and so on). Each minor release within a series is named for a bird (v1.0 Kestrel, v1.1 Osprey, v1.2 Harrier, v1.3 Merlin, v1.4 Condor, v1.5 Peregrine).
 
-To publish a release, edit `index.html` and `prices.html` (both carry the same footer): add a new `<div class="rel">` block at the top of the `#whats-new` section (and drop the oldest one into the "Earlier" line), then update the version in the `<summary>` line and in the `<p class="stamp">` line in the footer. Bump the `?v=` cache string on the CSS and JS links so browsers pick up the change.
+To publish a release, edit `index.html`, `prices.html` and `alerts.html` (all three carry the same footer): add a new `<div class="rel">` block at the top of the `#whats-new` section (and drop the oldest one into the "Earlier" line), then update the version in the `<summary>` line and in the `<p class="stamp">` line in the footer. Bump the `?v=` cache string on the CSS and JS links so browsers pick up the change.
 
 ## Adding a listing by link
 

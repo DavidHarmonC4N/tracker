@@ -291,7 +291,6 @@ async function load() {
     nowMs = (data.now || Math.floor(Date.now() / 1000)) * 1000;
     const phone = byId('ntfy-footer');
     if (phone && typeof data.public_topic === 'string' && /^https:\/\//.test(data.public_topic)) {
-      byId('ntfy-link').href = data.public_topic;
       phone.hidden = false;
     }
     if (data.staging === true && !byId('staging-bar')) {

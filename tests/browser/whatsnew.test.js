@@ -5,7 +5,7 @@ const { run } = require('./lib');
 run(async (t) => {
   const ctx = await t.openContext({}, { unfold: false });
   const p = t.watch(await ctx.newPage());
-  const pages = ['index.html', 'prices.html'];
+  const pages = ['index.html', 'prices.html', 'alerts.html'];
   const stamps = [];
   for (const page of pages) {
     await p.goto(t.SITE + page); await p.waitForSelector('#whats-new');
@@ -28,7 +28,7 @@ run(async (t) => {
     t.ok(`${page}: the footer stamp names the same release`, stamp.includes(version) && stamp.includes(code), stamp);
     t.ok(`${page}: the call sign is in the footer`, /KY4DEH/.test(stamp));
   }
-  t.ok('both pages show the same stamp', stamps[0] === stamps[1]);
+  t.ok('every page shows the same stamp', new Set(stamps).size === 1);
   const phone = await t.browser.newContext({ viewport: { width: 390, height: 844 } });
   const m = t.watch(await phone.newPage(), 'phone: ');
   await m.goto(t.SITE + 'index.html'); await m.waitForSelector('#whats-new'); await m.click('#whats-new summary');

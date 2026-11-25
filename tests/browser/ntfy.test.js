@@ -27,17 +27,17 @@ run(async (t) => {
   const q = t.watch(await on.newPage(), 'on: ');
   await q.goto(t.SITE + 'index.html'); await q.waitForSelector('#list > *');
   t.ok('the footer offers phone alerts', !(await q.$eval('#ntfy-footer', (e) => e.hidden)));
-  const footer = await q.$eval('#ntfy-link', (a) => ({ href: a.href, target: a.target, rel: a.rel, text: a.textContent }));
-  t.ok('it opens the public topic in a new tab, and says so', footer.href === TOPIC && footer.target === '_blank' && /noopener/.test(footer.rel) && /new tab/.test(footer.text), JSON.stringify(footer));
+  const footer = await q.$eval('#ntfy-link', (a) => ({ href: a.href, target: a.target, text: a.textContent }));
+  t.ok('the footer link goes to the Phone alerts page, on this site', footer.href === t.SITE + 'alerts.html' && footer.target === '' && /Phone alerts/.test(footer.text), JSON.stringify(footer));
 
   await q.click('#picks-btn');
   await q.waitForSelector('.dashhead');
   const all = await q.$eval('.dashact a:has-text("Phone alerts (all)")', (a) => ({ href: a.href, target: a.target }));
-  t.ok('My picks links to the public topic', all.href === TOPIC && all.target === '_blank');
-  const radios = await q.$$eval('#list .card a.ntfy-radio', (a) => a.map((x) => ({ href: x.href, target: x.target, rel: x.rel, text: x.textContent })));
-  t.ok('each pick links to its own radio topic', radios.length === 3 && new Set(radios.map((r) => r.href)).size === 3 && radios.every((r) => r.href.startsWith(TOPIC + '-') && r.target === '_blank' && /noopener/.test(r.rel)), JSON.stringify(radios.map((r) => r.href)));
-  t.ok('the radio link says what it is and that it opens a new tab', radios.every((r) => /Phone alerts for this radio/.test(r.text) && /new tab/.test(r.text)));
-  t.ok('phone alerts links add no personal data', radios.every((r) => !/[?&]/.test(r.href)));
+  t.ok('My picks links to the Phone alerts page', all.href === t.SITE + 'alerts.html' && all.target === '');
+  const radios = await q.$$eval('#list .card a.ntfy-radio', (a) => a.map((x) => ({ href: x.href, text: x.textContent })));
+  t.ok('each pick links to the page for its own radio', radios.length === 3 && new Set(radios.map((r) => r.href)).size === 3 && radios.every((r, i) => r.href === t.SITE + 'alerts.html?radio=' + ids[i] || r.href.startsWith(t.SITE + 'alerts.html?radio=')), JSON.stringify(radios.map((r) => r.href)));
+  t.ok('the radio link says what it is', radios.every((r) => /Phone alerts for this radio/.test(r.text)));
+  t.ok('the links carry only the radio id, nothing personal', radios.every((r) => /^[^?]+\?radio=[a-z0-9_-]+$/.test(r.href)));
 
   // a topic that is not https is never shown
   const bad = await t.openContext();
@@ -52,7 +52,7 @@ run(async (t) => {
   const h = t.watch(await history.newPage(), 'history: ');
   await h.goto(t.SITE + 'prices.html?scope=instock'); await h.waitForSelector('#subtitle');
   await h.waitForFunction(() => !document.getElementById('ntfy-footer').hidden);
-  t.ok('the price history page offers phone alerts too', (await h.$eval('#ntfy-link', (a) => a.href)) === TOPIC);
+  t.ok('the price history page offers phone alerts too', (await h.$eval('#ntfy-link', (a) => a.href)) === t.SITE + 'alerts.html');
 
   const phone = await t.browser.newContext({ viewport: { width: 390, height: 844 } });
   await t.mockCatalog(phone, withTopics);

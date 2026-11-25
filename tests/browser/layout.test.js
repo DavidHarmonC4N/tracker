@@ -33,7 +33,7 @@ run(async (t) => {
   t.ok('the favicon is linked and served', (await p.getAttribute('link[rel=icon]', 'href')) === 'assets/favicon.svg' && (await (await p.request.get(t.SITE + 'assets/favicon.svg')).status()) === 200);
 
   // every link that leaves the site opens in a new tab, and says so to screen readers
-  for (const page of ['index.html', 'prices.html', 'submit.php']) {
+  for (const page of ['index.html', 'prices.html', 'alerts.html', 'submit.php']) {
     await p.goto(t.SITE + page);
     const links = await p.$$eval('a[href^="http"]', (a, own) => a.filter((x) => !own.includes(x.host)).map((x) => ({ href: x.href, target: x.target, rel: x.rel, text: x.textContent, label: x.getAttribute('aria-label') || '' })), t.OWN_HOSTS);
     const bad = links.filter((l) => l.target !== '_blank' || !/noopener/.test(l.rel));
