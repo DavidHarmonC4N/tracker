@@ -105,7 +105,7 @@ Set up:
 2. Add the repository secrets `OFFGRID_TOKEN` (the same key) and `OFFGRID_URL`.
 3. Make sure the site files, including `ingest.php`, are on the host.
 4. In the repository **Actions** tab, run **U.S. stock checker** once with **Run workflow**. The log lists each listing claimed and its result.
-5. In Admin, edit a listing and set **Checked by** to **U.S. runner**, or use **Move failing to U.S. runner** on the list to move listings that are failing or paused. The server cron then skips those listings.
+5. In Admin, edit a listing and set **Checked by** to **U.S. runner**, or use **Move failing to U.S. runner** on the list to move listings that are failing or paused. If you have no server cron, use **Move all N to U.S. runner**: a listing still set to "This server" is never checked without a cron, so this moves every automatic listing to the runner in one step. The server cron then skips those listings.
 
 ### Start the runner from your site (recommended)
 

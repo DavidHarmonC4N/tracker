@@ -277,6 +277,26 @@ try {
             $_SESSION['notice'] = 'U.S. runner started on GitHub. Results appear in a minute or two.';
             go();
         }
+        if ($action === 'route_all') {
+            if (!ingest_enabled()) {
+                throw new InvalidArgumentException('Set ingest_token in config.php first.');
+            }
+            // With no server cron, a listing still set to "This server" is never checked. Move every automatic one to the runner.
+            $moved = change_state($dir, static function (&$fresh) {
+                $count = 0;
+                foreach ($fresh['items'] as &$row) {
+                    if ($row['paused'] || $row['mode'] === 'manual' || is_remote($row)) {
+                        continue;
+                    }
+                    $row['checker'] = 'remote';
+                    $count++;
+                }
+                unset($row);
+                return $count;
+            });
+            $_SESSION['notice'] = $moved ? $moved . ' listing(s) moved to the U.S. runner. It picks them up on its next runs.' : 'Every automatic listing is already on the U.S. runner.';
+            go();
+        }
         if ($action === 'route_failing') {
             if (!ingest_enabled()) {
                 throw new InvalidArgumentException('Set ingest_token in config.php first.');
@@ -745,6 +765,7 @@ $reading = $editor['result'] ?? [];
       <form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="diagnose">Run connection test</button></form>
       <?php if ($pausedSellers || $failing): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="clear_pauses" data-confirm="Clear all seller pauses and queue every automatic listing?">Clear seller pauses</button></form><?php endif; ?>
       <?php if (github_trigger_enabled()): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="dispatch">Run U.S. checker now</button></form><?php endif; ?>
+      <?php if (ingest_enabled() && $serverAuto): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="route_all" data-confirm="Move <?= h($serverAuto) ?> automatic listing(s) from this server to the U.S. runner?">Move all <?= h($serverAuto) ?> to U.S. runner</button></form><?php endif; ?>
       <?php if (ingest_enabled() && ($failing || $pausedSellers)): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="route_failing" data-confirm="Move failing listings to the U.S. runner?">Move failing to U.S. runner</button></form><?php endif; ?>
       <?php if ($failing): ?><form method="post"><input type="hidden" name="token" value="<?= h($token) ?>"><button class="quiet" name="action" value="queue_failing">Queue all failing</button></form><?php endif; ?>
       <a class="primary" href="?add=1">Add listing</a></div></div>

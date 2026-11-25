@@ -42,6 +42,16 @@ run(async (t) => {
     t.ok('the email says it is a test and links to the site', /If you can read this, alerts are working/.test(mail) && /index\.html/.test(mail));
   }
 
+  // move every automatic listing to the U.S. runner (the starter list has several set to this server)
+  const moveButton = await p.$('button[value="route_all"]');
+  t.ok('the "Move all to U.S. runner" button is offered while listings are on this server', moveButton !== null && /^Move all \d+ to U\.S\. runner$/i.test((await moveButton.textContent()).trim()), moveButton ? (await moveButton.textContent()).trim() : 'missing');
+  const countOnServer = moveButton ? Number(((await moveButton.textContent()).match(/\d+/) || [0])[0]) : 0;
+  await p.click('button[value="route_all"]'); await p.waitForLoadState();
+  const movedNotice = (await p.textContent('.notice')).trim();
+  t.ok('it reports how many were moved', new RegExp('^' + countOnServer + ' listing\\(s\\) moved to the U\\.S\\. runner').test(movedNotice) && countOnServer > 0, movedNotice);
+  t.ok('afterwards the button is gone, because nothing is left on this server', (await p.$('button[value="route_all"]')) === null);
+  t.ok('the listing rows now say U.S. runner for at least the moved ones', ((await p.textContent('body')).match(/· U\.S\. runner/g) || []).length >= countOnServer, String(((await p.textContent('body')).match(/· U\.S\. runner/g) || []).length));
+
   // duplicates and bad links
   const before = (await catalog()).length;
   await read(LINK + '?ref=trueprepper&variant=44663304552531');
