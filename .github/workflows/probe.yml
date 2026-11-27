@@ -11,11 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Product details
+      - name: Firmware and location facts
         run: |
           python3 - <<'PY'
           import json, re, time, urllib.request
-          host = 'shop.meshsmith.net'
 
           def get(url, limit=3000000):
               req = urllib.request.Request(url, headers={'User-Agent': 'OffgridCommsTracker-Probe/1.0'})
@@ -25,22 +24,20 @@ jobs:
               except Exception as e:
                   return getattr(e, 'code', 0), str(e)[:160]
 
-          for handle in ['ethermesh-1w', 'photon-1w', 'pimesh-1w-basic', '26cm-fiberglass-antenna', '40cm-fiberglass-antenna', 'muzi-whip-antenna-17cm',
-                         'outpost-ipex-to-sma-15cm', 'outpost-ipex-to-type-n-25cm', 'outpost-sma-to-type-n-25cm']:
-              s, body = get('https://%s/products/%s.js' % (host, handle))
-              try:
-                  d = json.loads(body)
-              except Exception:
-                  print('##', handle, 'ERROR', s, body[:100]); continue
+          for handle in ['ethermesh-1w', 'photon-1w', 'pimesh-1w-basic']:
+              s, body = get('https://shop.meshsmith.net/products/%s.js' % handle)
+              d = json.loads(body)
               text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', d.get('description', '')))
-              print('## %s | %s | options=%s' % (handle, d['title'], [o['name'] + '=' + '/'.join(o['values'][:6]) for o in d.get('options', [])]))
-              for v in d['variants'][:14]:
-                  print('   variant: %s | %s | %s' % (v.get('public_title') or v['title'], v['price'], v['available']))
-              print('   desc:', text[:900])
-              time.sleep(1.5)
-          for path in ['/policies/shipping-policy', '/pages/shipping', '/pages/about', '/pages/contact']:
-              s, body = get('https://%s%s' % (host, path), 200000)
-              text = re.sub(r'\s+', ' ', re.sub(r'<script.*?</script>|<style.*?</style>|<[^>]+>', ' ', body, flags=re.S))
-              hits = re.findall(r'.{80}(?:ship(?:s|ped|ping)? from|located in|based in|warehouse|Colorado|Texas|California|Florida|USA|United States).{80}', text, re.I)[:4]
-              print(path, s, hits)
+              print('##', handle, len(text))
+              for m in re.findall(r'.{90}(?:Meshtastic|MeshCore|firmware|Firmware|LoRa module|SX126|LR11|dBm|\b1 ?W\b|GPS|nRF|ESP32).{90}', text)[:10]:
+                  print('   ', m)
+              time.sleep(1.2)
+          s, js = get('https://meshsmith.net/assets/index-BOouPi_x.js')
+          print('## bundle product blocks')
+          for key in ['pimesh-1w', 'photon-1w', 'ethermesh-1w']:
+              i = js.find('link:"/products/%s"' % key)
+              print('  ', key, js[max(0, i - 400):i + 500].replace('\n', ' ') if i >= 0 else 'not found')
+          print('## location words:', sorted(set(re.findall(r'\b(?:Colorado|Texas|California|Florida|Ohio|Utah|Arizona|Virginia|Washington|Oregon|Nevada|Georgia|Michigan|Illinois|Tennessee|Carolina|New York|Minnesota|Wisconsin|Pennsylvania)\b', js)))[:12])
+          for m in re.findall(r'.{80}(?:ships from|Ships from|made in|Made in|based in|Based in|located in|Located in|designed in|Designed in).{80}', js)[:6]:
+              print('   loc:', m.replace('\n', ' '))
           PY
