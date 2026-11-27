@@ -58,8 +58,9 @@ $graph = ['@context'=>'https://schema.org', '@type'=>'CollectionPage', 'name'=>'
     + ($data['verified'] !== '' ? ['dateModified'=>$data['verified']] : []);
 
 /** One outside link as a button: new tab, not an endorsement. */
-function group_button(array $link): string {
-    return '<a class="' . ($link[2] ? 'primary' : 'quiet') . ' btnlink" href="' . h($link[1]) . '" target="_blank" rel="noopener noreferrer nofollow">' . h($link[0]) . '<span class="sr"> (opens in a new tab)</span></a>';
+function group_button(array $link, array $dead = []): string {
+    $down = in_array($link[3] ?? '', $dead, true);
+    return '<a class="' . ($link[2] ? 'primary' : 'quiet') . ' btnlink' . ($down ? ' down' : '') . '"' . ($down ? ' title="This link did not respond the last times we checked"' : '') . ' href="' . h($link[1]) . '" target="_blank" rel="noopener noreferrer nofollow">' . h($link[0]) . '<span class="sr"> (opens in a new tab)</span></a>';
 }
 
 /** One group as a card. */
@@ -70,11 +71,12 @@ function group_card(array $g): string {
         . ($where !== '' ? '<p class="gwhere">' . h($where) . '</p>' : '')
         . ($g['city'] !== '' && $g['coverage'] !== '' && strcasecmp($g['coverage'], $g['city']) !== 0 ? '<p class="gcov">' . h($g['coverage']) . '</p>' : '')
         . ($g['review'] === 'unconfirmed' ? '<p class="gflag">Website not confirmed</p>' : '')
+        . (!empty($g['dead']) ? '<p class="gflag">Did not respond when last checked: ' . h(implode(', ', array_map(static fn($f) => GROUP_LINK_FIELDS[$f], $g['dead']))) . '</p>' : '')
         . ($g['notes'] !== '' ? '<p class="gcov">' . h($g['notes']) . '</p>' : '')
         . (count($g['states']) > 1 ? '<p class="gcov">Serves ' . h(implode(', ', array_map(static fn($s) => GROUP_STATE_CODES[$s] ?? $s, $g['states']))) . '</p>' : '')
         . '<div class="glinks">';
     foreach (groups_links($g) as $link) {
-        $html .= group_button($link);
+        $html .= group_button($link, $g['dead'] ?? []);
     }
     if ($g['discord_members_only']) {
         $html .= '<span class="quiet btnlink off" title="This Discord link needs existing membership">Discord (members only)</span>';

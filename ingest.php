@@ -64,6 +64,19 @@ try {
         $limit = max(1, min(60, (int)($input['limit'] ?? 24)));
         reply(200, ['jobs'=>claim_jobs($dir, $limit)]);
     }
+    if ($action === 'group_jobs') {
+        reply(200, ['jobs'=>groups_link_jobs(groups_current()['groups'])]);
+    }
+    if ($action === 'group_results') {
+        $summary = groups_store_link_results($dir, is_array($input['results'] ?? null) ? $input['results'] : []);
+        if ($summary['newly']) {
+            $lines = array_map(static fn($n) => '• ' . $n[0] . ' · ' . $n[1], array_slice($summary['newly'], 0, 20));
+            notify('Group directory: ' . count($summary['newly']) . ' link' . (count($summary['newly']) === 1 ? '' : 's') . ' not responding',
+                "These links failed the last two monthly checks and now carry a note on the public page:\n" . implode("\n", $lines)
+                . (count($summary['newly']) > 20 ? "\n…and " . (count($summary['newly']) - 20) . ' more.' : '') . (base_url() !== '' ? "\n" . base_url() . 'admin.php?view=groups' : ''), ['type'=>'groups']);
+        }
+        reply(200, ['stored'=>$summary['stored'], 'ignored'=>$summary['ignored'], 'counts'=>$summary['counts']]);
+    }
     if ($action === 'results') {
         reply(200, accept_results($dir, is_array($input['results'] ?? null) ? $input['results'] : [],
             is_array($input['bulk_hosts'] ?? null) ? $input['bulk_hosts'] : [], is_array($input['bulk_failed'] ?? null) ? $input['bulk_failed'] : []));

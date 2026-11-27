@@ -157,7 +157,7 @@ function groups_link_label(string $url, string $fallback): string {
 
 /** The buttons for one group: [[label, url, primary?], ...]. The main link comes first, and nothing is listed twice. */
 function groups_links(array $g): array {
-    $links = [[groups_link_label($g['url'], 'Website'), $g['url'], true]];
+    $links = [[groups_link_label($g['url'], 'Website'), $g['url'], true, 'url']];
     $seen = [$g['url'] => true];
     foreach ([['discord', 'Discord'], ['facebook', 'Facebook'], ['other', 'More'], ['map', 'Map']] as [$key, $label]) {
         $url = $g[$key];
@@ -165,7 +165,7 @@ function groups_links(array $g): array {
             continue;
         }
         $seen[$url] = true;
-        $links[] = [groups_link_label($url, $label), $url, false];
+        $links[] = [groups_link_label($url, $label), $url, false, $key];
     }
     return $links;
 }
@@ -218,11 +218,11 @@ function groups_apply(array $base, array $store, bool $withHidden): array {
     $out = [];
     foreach ($base as $g) {
         $edited = is_array($store['edits'][$g['id']] ?? null) ? groups_clean($store['edits'][$g['id']]) : null;
-        $out[] = ($edited ?? $g) + ['origin'=>'file', 'edited'=>$edited !== null, 'hidden'=>!empty($store['hidden'][$g['id']])];
+        $out[] = ($edited ?? $g) + ['origin'=>'file', 'edited'=>$edited !== null, 'hidden'=>!empty($store['hidden'][$g['id']])] + groups_link_info($store, $edited['id'] ?? $g['id'], $edited ?? $g);
     }
     foreach (is_array($store['added'] ?? null) ? $store['added'] : [] as $g) {
         if (is_array($g) && ($clean = groups_clean($g)) !== null) {
-            $out[] = $clean + ['origin'=>'added', 'edited'=>false, 'hidden'=>!empty($store['hidden'][$clean['id']])];
+            $out[] = $clean + ['origin'=>'added', 'edited'=>false, 'hidden'=>!empty($store['hidden'][$clean['id']])] + groups_link_info($store, $clean['id'], $clean);
         }
     }
     return $withHidden ? $out : array_values(array_filter($out, static fn($g) => !$g['hidden']));
@@ -389,5 +389,95 @@ function groups_admin_delete(string $dir, string $id): string {
         $store['updated'] = time();
         $state['groups'] = $store;
         return 'Deleted the group.';
+    });
+}
+
+// ---- Link health. The monthly check (runner/links.php) asks for the list of links, then posts what it found.
+// $store['links'][id . '|' . field] = ['status'=>..., 'code'=>..., 'checked'=>unix time, 'fails'=>failed checks in a row, 'h'=>short hash of the address].
+
+const GROUP_LINK_FIELDS = ['url'=>'Website', 'discord'=>'Discord', 'facebook'=>'Facebook', 'other'=>'Other link', 'map'=>'Map'];
+const GROUP_LINK_DEAD_AFTER = 2; // failed checks in a row before visitors are told a link may be out of date
+
+function groups_link_hash(string $url): string {
+    return substr(sha1($url), 0, 10);
+}
+
+/**
+ * What the last checks found for one group: 'link_health' => [field => ['status', 'code', 'checked', 'fails']] for its links that were checked
+ * and still have the address that was checked, and 'dead' => the fields that failed enough times in a row to tell visitors.
+ */
+function groups_link_info(array $store, string $id, array $group): array {
+    $health = [];
+    $dead = [];
+    foreach (array_keys(GROUP_LINK_FIELDS) as $field) {
+        $url = (string)($group[$field] ?? '');
+        $record = $store['links'][$id . '|' . $field] ?? null;
+        if ($url === '' || !is_array($record) || ($record['h'] ?? '') !== groups_link_hash($url)) {
+            continue;
+        }
+        $health[$field] = ['status'=>(string)$record['status'], 'code'=>(int)($record['code'] ?? 0), 'checked'=>(int)($record['checked'] ?? 0), 'fails'=>(int)($record['fails'] ?? 0)];
+        if ($health[$field]['fails'] >= GROUP_LINK_DEAD_AFTER && in_array($health[$field]['status'], ['dead', 'error'], true)) {
+            $dead[] = $field;
+        }
+    }
+    return ['link_health'=>$health, 'dead'=>$dead];
+}
+
+/** The links to check: every address of every group that is shown, with a short hash so an address edited meanwhile is not mixed up. */
+function groups_link_jobs(array $groups): array {
+    $jobs = [];
+    foreach ($groups as $g) {
+        foreach (array_keys(GROUP_LINK_FIELDS) as $field) {
+            if (($g[$field] ?? '') !== '' && !($field === 'discord' && !empty($g['discord_members_only']))) {
+                $jobs[] = ['id'=>$g['id'], 'field'=>$field, 'url'=>$g[$field], 'h'=>groups_link_hash($g[$field])];
+            }
+        }
+    }
+    return $jobs;
+}
+
+/**
+ * Keeps what the check found. Returns ['stored'=>n, 'ignored'=>n, 'counts'=>[status => n], 'newly'=>[[group name, field label], ...]], where
+ * "newly" lists the links that have just failed enough times in a row to be reported.
+ */
+function groups_store_link_results(string $dir, array $results, ?int $now = null): array {
+    $now ??= time();
+    $base = groups_load()['groups'];
+    return change_state($dir, static function (&$state) use ($base, $results, $now) {
+        $store = $state['groups'] ?? [];
+        $known = array_column(groups_apply($base, $store, true), null, 'id');
+        $summary = ['stored'=>0, 'ignored'=>0, 'counts'=>array_fill_keys(LINKCHECK_STATUSES, 0), 'newly'=>[]];
+        foreach (array_slice($results, 0, 2000) as $r) {
+            $id = is_array($r) && is_string($r['id'] ?? null) ? $r['id'] : '';
+            $field = is_array($r) && is_string($r['field'] ?? null) ? $r['field'] : '';
+            $status = is_array($r) && is_string($r['status'] ?? null) ? $r['status'] : '';
+            $group = $known[$id] ?? null;
+            if ($group === null || !isset(GROUP_LINK_FIELDS[$field]) || !in_array($status, LINKCHECK_STATUSES, true) || (string)($group[$field] ?? '') === ''
+                || !is_string($r['h'] ?? null) || !hash_equals(groups_link_hash((string)$group[$field]), $r['h'])) {
+                $summary['ignored']++;
+                continue;
+            }
+            $key = $id . '|' . $field;
+            $before = $store['links'][$key] ?? null;
+            $failed = in_array($status, ['dead', 'error'], true);
+            $fails = $failed ? ((is_array($before) && ($before['h'] ?? '') === $r['h'] ? (int)($before['fails'] ?? 0) : 0) + 1) : 0;
+            $store['links'][$key] = ['status'=>$status, 'code'=>max(0, min(999, (int)($r['code'] ?? 0))), 'checked'=>$now, 'fails'=>$fails, 'h'=>$r['h']];
+            $summary['counts'][$status]++;
+            $summary['stored']++;
+            if ($failed && $fails === GROUP_LINK_DEAD_AFTER && !$group['hidden']) {
+                $summary['newly'][] = [$group['name'], GROUP_LINK_FIELDS[$field]];
+            }
+        }
+        // Forget results for addresses that are no longer in the directory.
+        foreach (array_keys($store['links'] ?? []) as $key) {
+            [$id, $field] = array_pad(explode('|', $key, 2), 2, '');
+            $record = $store['links'][$key];
+            if (!isset($known[$id]) || (string)($known[$id][$field] ?? '') === '' || ($record['h'] ?? '') !== groups_link_hash((string)$known[$id][$field])) {
+                unset($store['links'][$key]);
+            }
+        }
+        $store['links_run'] = ['at'=>$now] + $summary['counts'];
+        $state['groups'] = $store;
+        return $summary;
     });
 }

@@ -335,7 +335,7 @@ If the checks stop, prices and stock quietly go out of date, so the owner is tol
 - **Map:** a tile map drawn on the server (`groups_map_svg()`). Every state is one tile of the same size, so small states stay clickable, and tiles are shaded by how many groups they have.
 - **Data:** regenerate `includes/groups.json` from the research spreadsheet with `python3 tests/tools/import-groups.py <sheet.xlsx>` (needs openpyxl), then run the tests. A group that serves several states is one entry listing each state.
 - **Admin:** the Groups tab in `admin.php` (`?view=groups`, template `includes/admin-groups.php`) lists every group with search and filters (protocol, shown, hidden, edited, added here, website not confirmed). Add a group, edit one, hide or show it, restore a group from the file to its original, or delete one added here. Changes are kept in `tracker.json` under `groups` on top of `includes/groups.json`, so the file is never changed and a refreshed file keeps your edits (`groups_apply()`). Saves are checked: https links only, a real protocol and state, and a main link that is already listed is refused.
-- **Still to come:** a way for visitors to send corrections, and a monthly link check.
+- **Still to come:** a way for visitors to send corrections.
 
 ### Starting order
 
@@ -354,3 +354,12 @@ Listings of the same product are shown as one card (`groupRows()` and `makeGroup
 ### The plain list
 
 `radios.php` follows the catalog: one row per product (warehouses of the same product page share a row, `radios_units()`), each table sorted cheapest first (no price last, then by name), in the same availability sections as before. Five columns that fit without sideways scrolling on a desktop: the name (with seller and firmware or antenna facts under it), price, stock (and the time of the last check), where each option ships from with its price, and a link for each warehouse. The antennas section uses the same rows and order, showing band, gain, connector and length under the name.
+
+### Group link check
+
+Once a month (the 1st, 07:17 UTC, `.github/workflows/links.yml`, or "Check links now" in Admin when `github_token` is set) `runner/links.php` asks the site for every link of every shown group (`ingest.php?action=group_jobs`), visits each one, and posts what it found (`group_results`). It runs on GitHub because that can reach every site. The rules are in `includes/linkcheck.php`.
+
+- **Results:** `ok` (it answered, redirects followed), `blocked` (401, 403 or 429: it refused a robot, so we cannot tell), `unchecked` (Facebook, which answers the same for every address, and members-only Discord channels), `dead` (404, 410, no DNS, no connection, timeout) or `error` (a 5xx). Discord invites are looked up through Discord's public invite lookup. A failure is retried twice, four seconds apart, before it counts. Each site is visited at most once a second and each address once, however many groups share it.
+- **Two in a row:** one failed check is kept and shown in Admin (a "Link problem" tag and filter, and a result table on the group's edit page). Two in a row put a note on the public card ("Did not respond when last checked") and make that link look faded, and the owner gets one alert naming the group and link. The link itself stays, since a site can be down for a month and come back. An answer, a refusal or "cannot check" clears the count.
+- **Stale results:** results are tied to the address that was checked (a short hash), so editing an address in Admin drops its old result, and a result that arrives for an address changed meanwhile is ignored.
+- **The public "List compiled" date** does not change when links are checked.

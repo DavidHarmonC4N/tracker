@@ -147,6 +147,17 @@ try {
             session_destroy();
             go();
         }
+        if ($action === 'group_links_run') {
+            if (!github_trigger_enabled()) {
+                throw new InvalidArgumentException('Starting GitHub from here is not set up. Run the "Group directory link check" workflow from the GitHub Actions tab instead.');
+            }
+            $problem = github_dispatch('links.yml');
+            if ($problem !== '') {
+                throw new InvalidArgumentException($problem);
+            }
+            $_SESSION['notice'] = 'The link check was started. It takes a few minutes. Reload this page afterwards to see the results.';
+            go('?view=groups');
+        }
         if (in_array($action, ['group_save', 'group_hide', 'group_show', 'group_restore', 'group_delete'], true)) {
             // The group directory (includes/admin-groups.php). Each action says what it did, then returns to the right page.
             $groupId = field($_POST,'id');
@@ -496,7 +507,7 @@ $reading = $editor['result'] ?? [];
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= is_staging() ? '[STAGING] ' : '' ?><?= $auth && !empty($state['submissions']) ? '(' . h(count($state['submissions'])) . ') ' : '' ?>Admin · Offgrid Comms Tracker</title>
-<link rel="stylesheet" href="assets/styles.css?v=20261204-grouped">
+<link rel="stylesheet" href="assets/styles.css?v=20261205-linkcheck">
 <script src="assets/admin.js?v=3" defer></script>
 </head>
 <body>

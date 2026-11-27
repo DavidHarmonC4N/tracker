@@ -593,3 +593,7 @@ nav.crumbs { display: block; gap: 0; }
 .rtable .opt { display: block; }
 .rtable td.links a { margin-right: 0; }
 .rtable td.nw small { white-space: nowrap; }
+
+/* A group link that did not answer the last checks stays a link, but looks tired */
+.glinks .down { opacity: .65; border-style: dashed; }
+.inline-form { display: inline; margin: 0; }

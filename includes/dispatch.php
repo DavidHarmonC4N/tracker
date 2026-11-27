@@ -18,12 +18,12 @@ function github_trigger_enabled(): bool {
 }
 
 /** Starts the workflow. Returns an empty string on success, or a short error message. */
-function github_dispatch(): string {
+function github_dispatch(string $workflowFile = ''): string {
     if (!github_trigger_enabled() || !extension_loaded('curl')) {
         return 'GitHub triggering is not configured, or cURL is missing.';
     }
     $c = config();
-    $workflow = (string)($c['github_workflow'] ?? 'check.yml');
+    $workflow = $workflowFile !== '' ? $workflowFile : (string)($c['github_workflow'] ?? 'check.yml');
     $ref = (string)($c['github_ref'] ?? 'main');
     if (!preg_match('/^[A-Za-z0-9_.-]+\.ya?ml$/D', $workflow) || !preg_match('~^[A-Za-z0-9_./-]{1,100}$~D', $ref)) {
         return 'Check github_workflow and github_ref in config.php.';
