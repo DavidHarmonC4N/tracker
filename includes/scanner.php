@@ -321,6 +321,7 @@ function warehouse_key(string $name): ?string {
     $name = strtolower($name);
     return match (true) {
         (bool)preg_match('/\b(?:china|shenzhen|cn)\b/', $name) => 'cn',
+        (bool)preg_match('/(?<![a-z])(?:united kingdom|uk|u\.k\.|great britain|britain|england|scotland|wales)(?![a-z])/', $name) => 'uk',
         (bool)preg_match('/\b(?:germany|munich|europe|eu)\b/', $name) => 'eu',
         (bool)preg_match('/\b(?:united states|usa|us|u\.s\.)\b/', $name) => 'us',
         default => null,

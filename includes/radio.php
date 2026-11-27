@@ -14,7 +14,7 @@ require_once __DIR__ . '/radios.php';
  * without JavaScript, and includes the price and stock history drawn on the server.
  */
 
-const RADIO_WAREHOUSE_ORDER = ['us'=>0, 'eu'=>1, 'cn'=>2, ''=>3];
+const RADIO_WAREHOUSE_ORDER = ['us'=>0, 'eu'=>1, 'uk'=>2, 'cn'=>3, ''=>4];
 
 function radio_slug(string $text): string {
     $ascii = function_exists('iconv') ? (string)@iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text) : $text;

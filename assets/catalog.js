@@ -4,7 +4,7 @@ const lookup = {
   firmware: { meshcore: 'MeshCore only', meshtastic: 'Meshtastic only', both: 'Both firmware options' },
   kind: { handheld: 'Handheld', keyboard: 'Keyboard radio', solar: 'Solar node', base: 'Base station', tracker: 'GPS tracker', board: 'Board or kit', other: 'Other',
     antenna_omni: 'Omni antenna', antenna_directional: 'Directional antenna', antenna_whip: 'Whip or flexible antenna', antenna_cable: 'Cable, adapter or mount' },
-  warehouse: { us: 'U.S. warehouse', eu: 'EU warehouse', cn: 'China warehouse' },
+  warehouse: { us: 'U.S. warehouse', eu: 'EU warehouse', uk: 'UK warehouse', cn: 'China warehouse' },
   role: { companion: 'Companion', tracker: 'Tracker', repeater: 'Repeater', solar_repeater: 'Solar repeater', unspecified: 'Unspecified' },
   setup: { meshcore: 'MeshCore installed', meshtastic: 'Meshtastic installed', choice: 'Choose or request firmware', flash: 'Install MeshCore yourself', unknown: 'See listing for setup' },
   status: { in_stock: 'In stock', orderable: 'Orderable', out_of_stock: 'Out of stock', preorder: 'Preorder / backorder', unknown: 'Unverified' }
@@ -429,6 +429,7 @@ function changeBadge(row, status) {
 const FLAGS = {
   us: '<svg class="flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false"><rect y="0.000" width="30" height="1.558" fill="#B22234"/><rect y="1.538" width="30" height="1.558" fill="#FFFFFF"/><rect y="3.077" width="30" height="1.558" fill="#B22234"/><rect y="4.615" width="30" height="1.558" fill="#FFFFFF"/><rect y="6.154" width="30" height="1.558" fill="#B22234"/><rect y="7.692" width="30" height="1.558" fill="#FFFFFF"/><rect y="9.231" width="30" height="1.558" fill="#B22234"/><rect y="10.769" width="30" height="1.558" fill="#FFFFFF"/><rect y="12.308" width="30" height="1.558" fill="#B22234"/><rect y="13.846" width="30" height="1.558" fill="#FFFFFF"/><rect y="15.385" width="30" height="1.558" fill="#B22234"/><rect y="16.923" width="30" height="1.558" fill="#FFFFFF"/><rect y="18.462" width="30" height="1.558" fill="#B22234"/><rect width="12" height="10.77" fill="#3C3B6E"/><circle cx="2.20" cy="1.90" r=".85" fill="#fff"/><circle cx="5.10" cy="1.90" r=".85" fill="#fff"/><circle cx="8.00" cy="1.90" r=".85" fill="#fff"/><circle cx="10.90" cy="1.90" r=".85" fill="#fff"/><circle cx="2.20" cy="4.45" r=".85" fill="#fff"/><circle cx="5.10" cy="4.45" r=".85" fill="#fff"/><circle cx="8.00" cy="4.45" r=".85" fill="#fff"/><circle cx="10.90" cy="4.45" r=".85" fill="#fff"/><circle cx="2.20" cy="7.00" r=".85" fill="#fff"/><circle cx="5.10" cy="7.00" r=".85" fill="#fff"/><circle cx="8.00" cy="7.00" r=".85" fill="#fff"/><circle cx="10.90" cy="7.00" r=".85" fill="#fff"/><circle cx="2.20" cy="9.55" r=".85" fill="#fff"/><circle cx="5.10" cy="9.55" r=".85" fill="#fff"/><circle cx="8.00" cy="9.55" r=".85" fill="#fff"/><circle cx="10.90" cy="9.55" r=".85" fill="#fff"/></svg>',
   eu: '<svg class="flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#003399"/><circle cx="21.20" cy="10.00" r="1.15" fill="#FFCC00"/><circle cx="20.37" cy="13.10" r="1.15" fill="#FFCC00"/><circle cx="18.10" cy="15.37" r="1.15" fill="#FFCC00"/><circle cx="15.00" cy="16.20" r="1.15" fill="#FFCC00"/><circle cx="11.90" cy="15.37" r="1.15" fill="#FFCC00"/><circle cx="9.63" cy="13.10" r="1.15" fill="#FFCC00"/><circle cx="8.80" cy="10.00" r="1.15" fill="#FFCC00"/><circle cx="9.63" cy="6.90" r="1.15" fill="#FFCC00"/><circle cx="11.90" cy="4.63" r="1.15" fill="#FFCC00"/><circle cx="15.00" cy="3.80" r="1.15" fill="#FFCC00"/><circle cx="18.10" cy="4.63" r="1.15" fill="#FFCC00"/><circle cx="20.37" cy="6.90" r="1.15" fill="#FFCC00"/></svg>',
+  uk: '<svg class="flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#012169"/><path d="M0,0L30,20M30,0L0,20" stroke="#FFFFFF" stroke-width="4"/><path d="M0,0L30,20M30,0L0,20" stroke="#C8102E" stroke-width="1.6"/><path d="M15,0V20M0,10H30" stroke="#FFFFFF" stroke-width="6"/><path d="M15,0V20M0,10H30" stroke="#C8102E" stroke-width="3.6"/></svg>',
   cn: '<svg class="flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#DE2910"/><polygon points="5.00,2.40 5.67,4.47 7.85,4.47 6.09,5.75 6.76,7.83 5.00,6.55 3.24,7.83 3.91,5.75 2.15,4.47 4.33,4.47" fill="#FFDE00"/><polygon points="10.00,1.00 10.22,1.69 10.95,1.69 10.36,2.12 10.59,2.81 10.00,2.38 9.41,2.81 9.64,2.12 9.05,1.69 9.78,1.69" fill="#FFDE00"/><polygon points="12.00,3.10 12.22,3.79 12.95,3.79 12.36,4.22 12.59,4.91 12.00,4.48 11.41,4.91 11.64,4.22 11.05,3.79 11.78,3.79" fill="#FFDE00"/><polygon points="12.00,6.00 12.22,6.69 12.95,6.69 12.36,7.12 12.59,7.81 12.00,7.38 11.41,7.81 11.64,7.12 11.05,6.69 11.78,6.69" fill="#FFDE00"/><polygon points="10.00,8.10 10.22,8.79 10.95,8.79 10.36,9.22 10.59,9.91 10.00,9.48 9.41,9.91 9.64,9.22 9.05,8.79 9.78,8.79" fill="#FFDE00"/></svg>',
 };
 
@@ -462,7 +463,7 @@ function modelNodes(text) {
 }
 
 // One product sold from several places (Seeed lists the same page once per warehouse) is shown as one card with its options inside.
-const WAREHOUSE_ORDER = ['us', 'eu', 'cn', ''];
+const WAREHOUSE_ORDER = ['us', 'eu', 'uk', 'cn', ''];
 
 function groupKey(row) {
   return /^radio\.php\?r=[a-z0-9-]+$/.test(row.page || '') ? row.page : 'id:' + row.id;
@@ -921,7 +922,7 @@ function draw() {
     }
   } else if (chips.seeed) {
     // One section per warehouse, each in the chosen sort order.
-    const groups = ['us', 'eu', 'cn', ''].map((key) => [key, shown.filter((row) => (row.warehouse || '') === key)]).filter(([, list]) => list.length);
+    const groups = ['us', 'eu', 'uk', 'cn', ''].map((key) => [key, shown.filter((row) => (row.warehouse || '') === key)]).filter(([, list]) => list.length);
     for (const [key, group] of groups) {
       const label = lookup.warehouse[key] || 'Warehouse not specified';
       const flag = flagNode(key);
