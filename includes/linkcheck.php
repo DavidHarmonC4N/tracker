@@ -85,7 +85,7 @@ function linkcheck_fetch(string $url, bool $allowHttp = false, int $timeout = 20
     $read = 0;
     curl_setopt_array($curl, [
         CURLOPT_RETURNTRANSFER=>false, CURLOPT_FOLLOWLOCATION=>true, CURLOPT_MAXREDIRS=>5, CURLOPT_TIMEOUT=>$timeout, CURLOPT_CONNECTTIMEOUT=>10,
-        CURLOPT_PROTOCOLS=>$protocols, CURLOPT_REDIR_PROTOCOLS=>$protocols, CURLOPT_USERAGENT=>'OffgridCommsTracker-LinkCheck/1.0 (+https://mesh.davidandlaura.net/)',
+        CURLOPT_PROTOCOLS=>$protocols, CURLOPT_REDIR_PROTOCOLS=>(CURLPROTO_HTTP | CURLPROTO_HTTPS), // the address we were given must be https, but a site that sends us on to plain http is still a working site CURLOPT_USERAGENT=>'OffgridCommsTracker-LinkCheck/1.0 (+https://mesh.davidandlaura.net/)',
         CURLOPT_HTTPHEADER=>['Accept: text/html,*/*;q=0.5'], CURLOPT_PROXY=>'',
         CURLOPT_WRITEFUNCTION=>static function ($c, string $chunk) use (&$read): int {
             $read += strlen($chunk);
