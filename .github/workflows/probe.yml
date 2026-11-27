@@ -1,0 +1,49 @@
+name: Probe a seller (temporary)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Look at the store
+        run: |
+          python3 - <<'PY'
+          import json, re, urllib.request
+          host = 'meshsmith.net'
+
+          def get(path, limit=400000):
+              req = urllib.request.Request('https://%s%s' % (host, path), headers={'User-Agent': 'OffgridCommsTracker-Probe/1.0'})
+              try:
+                  with urllib.request.urlopen(req, timeout=25) as r:
+                      return r.status, dict(r.headers), r.read(limit).decode('utf-8', 'replace')
+              except Exception as e:
+                  return getattr(e, 'code', 0), {}, str(e)[:120]
+
+          status, headers, body = get('/')
+          print('HOME', status, len(body), headers.get('server'), headers.get('x-shopify-stage') or '', headers.get('x-powered-by') or '')
+          print('platform hints:', [k for k in ['shopify', 'woocommerce', 'wp-content', 'bigcommerce', 'squarespace', 'wix', 'cdn.shopify'] if k in body.lower()])
+          title = re.search(r'<title>(.*?)</title>', body, re.S)
+          print('title:', title.group(1).strip()[:120] if title else '')
+          s, h, robots = get('/robots.txt')
+          print('ROBOTS', s); print(robots[:900])
+          s, h, pj = get('/products.json?limit=250', 3000000)
+          print('PRODUCTS.JSON', s)
+          try:
+              data = json.loads(pj)
+              for p in data['products']:
+                  v = p['variants']
+                  print('  %s | %s | %s | %s | variants=%d | %s' % (p['handle'][:60], p['title'][:60], v[0]['price'], v[0]['available'], len(v), p.get('product_type', '')))
+          except Exception as e:
+              print('  not json:', pj[:150].replace('\n', ' '))
+          for path in ['/sitemap.xml', '/wp-json/wc/store/v1/products?per_page=5']:
+              s, h, b = get(path, 4000)
+              print(path, s, b[:200].replace('\n', ' '))
+          links = sorted(set(re.findall(r'href="(/[^"#?]*(?:product|shop|store|collections)[^"#?]*)"', body)))[:25]
+          print('links:', links)
+          PY
