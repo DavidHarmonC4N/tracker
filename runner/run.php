@@ -59,11 +59,16 @@ try {
     $deadline = time() + 240;
     // Stores with several listings in this run: read the whole product feed once instead of one page per listing.
     $wanted = [];
+    $countryPrice = [];
     foreach ($jobs as $job) {
         $handle = ($job['mode'] ?? '') === 'auto' ? shopify_handle((string)($job['url'] ?? '')) : null;
         if ($handle !== null) {
             try {
-                $wanted[seller_bucket(product_url($job['url'])['host'])][$handle] = true;
+                $jobHost = seller_bucket(product_url($job['url'])['host']);
+                $wanted[$jobHost][$handle] = true;
+                if (shopify_country((string)$job['url']) !== null) {
+                    $countryPrice[$jobHost] = true; // the bulk feed has no country price, so these are read one by one
+                }
             } catch (InvalidArgumentException) {
                 continue;
             }
@@ -74,7 +79,13 @@ try {
     $bulkFailed = [];
     $kept = [];
     foreach ($wanted as $host => $handles) {
-        if (count($handles) < BULK_MIN_PAGES) {
+        if (count($handles) < BULK_MIN_PAGES || isset($countryPrice[$host])) {
+            continue;
+        }
+        // A feed in another currency would be saved as dollars. Those stores are read page by page, where the guard refuses or asks for the U.S. price.
+        $storeCurrency = shop_currency($host, $cache);
+        if ($storeCurrency !== null && $storeCurrency !== 'USD') {
+            echo $host . ' prices in ' . $storeCurrency . ", so its bulk feed is not used.\n";
             continue;
         }
         $feeds[$host] = shopify_bulk_lookup($host, array_keys($handles), static fn($url) => guarded_fetch_live($url, $cache));

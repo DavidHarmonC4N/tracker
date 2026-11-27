@@ -363,3 +363,13 @@ Once a month (the 1st, 07:17 UTC, `.github/workflows/links.yml`, or "Check links
 - **Two in a row:** one failed check is kept and shown in Admin (a "Link problem" tag and filter, and a result table on the group's edit page). Two in a row put a note on the public card ("Did not respond when last checked") and make that link look faded, and the owner gets one alert naming the group and link. The link itself stays, since a site can be down for a month and come back. An answer, a refusal or "cannot check" clears the count.
 - **Stale results:** results are tied to the address that was checked (a short hash), so editing an address in Admin drops its old result, and a result that arrives for an address changed meanwhile is ignored.
 - **The public "List compiled" date** does not change when links are checked.
+
+### Currency safeguard
+
+The tracker records U.S. dollars. A store that prices in another currency would have its prices saved as dollars (23.99 pounds as $23.99), so Shopify stores are checked before any price is read (`shop_currency()` and `shop_currency_guard()` in `includes/scanner.php`).
+
+- **How:** the store's `/meta.json` names its currency. The answer is kept for a day per store. A store that is not in dollars is refused with a message that says why: "This store prices in GBP, so a price read from it would be wrong". A store whose currency cannot be read (not Shopify, or no answer) is read as before.
+- **The U.S. price:** a listing whose link ends in `?country=US` asks the store for its U.S. market price, which is in dollars and may include duties (zerofox3D's $36.00 against 23.99 pounds). Only `US` is accepted for a store that is not in dollars.
+- **Add by link:** for a store that is not in dollars, Admin looks for the U.S. price and checks the product page really uses dollars with `?country=US`. If it does, the listing is added with `?country=US` and a note; if not, it is refused (`reason: currency`).
+- **The runner:** a store that is not in dollars, or one whose listings use `?country=`, is never read from the bulk feed (the feed has no country price). Its listings are read one by one, where the guard applies.
+- **Pages read as web pages** were already safe: only a price the page states in U.S. dollars is kept.

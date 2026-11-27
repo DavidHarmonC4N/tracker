@@ -446,6 +446,52 @@ function page_result(string $body, array $item): ?array {
     return $status === 'unknown' && $price === null ? null : result($status, $price, 'Seller product page', $qty);
 }
 
+/** The two-letter country a listing asks the store to price for (?country=US in its link), or null. */
+function shopify_country(string $url): ?string {
+    parse_str((string)(parse_url($url, PHP_URL_QUERY) ?? ''), $query);
+    return is_string($query['country'] ?? null) && preg_match('/^[A-Za-z]{2}$/D', $query['country']) ? strtoupper($query['country']) : null;
+}
+
+/**
+ * The currency a Shopify store prices in, from its /meta.json, or null when that cannot be told (not a Shopify store, or no answer).
+ * The answer is kept for a day per store, in memory and in the data folder, so checking it costs one request a day.
+ * $fetch takes a URL and returns [status, body]; the default is the guarded fetch used for every seller.
+ */
+function shop_currency(string $host, string $dir, ?callable $fetch = null): ?string {
+    static $memory = [];
+    $host = strtolower($host);
+    $key = $dir . '|' . $host;
+    if (array_key_exists($key, $memory)) {
+        return $memory[$key];
+    }
+    $file = $dir . '/currency-' . hash('sha256', $host) . '.json';
+    $saved = is_file($file) ? json_decode((string)@file_get_contents($file), true) : null;
+    if (is_array($saved) && ($saved['expires'] ?? 0) > time() && array_key_exists('currency', $saved)) {
+        return $memory[$key] = is_string($saved['currency']) && $saved['currency'] !== '' ? $saved['currency'] : null;
+    }
+    $currency = null;
+    try {
+        [$status, $body] = ($fetch ?? static fn(string $url) => guarded_fetch($url, $dir))('https://' . $host . '/meta.json');
+        $data = $status === 200 ? json_decode($body, true) : null;
+        $currency = is_array($data) && is_string($data['currency'] ?? null) && preg_match('/^[A-Z]{3}$/D', $data['currency']) ? $data['currency'] : null;
+    } catch (ScanFailure) {
+        return null; // no answer now: ask again next time rather than remember a guess
+    }
+    @file_put_contents($file, json_encode(['currency'=>$currency ?? '', 'expires'=>time() + 86400]), LOCK_EX);
+    return $memory[$key] = $currency;
+}
+
+/**
+ * Refuses to read prices from a store that does not price in U.S. dollars, unless the listing asks for the store's U.S. price.
+ * Without this a price of 23.99 pounds would be saved as $23.99.
+ */
+function shop_currency_guard(string $host, string $url, string $dir, ?callable $fetch = null): void {
+    $currency = shop_currency($host, $dir, $fetch);
+    if ($currency !== null && $currency !== 'USD' && shopify_country($url) !== 'US') {
+        throw new ScanFailure('This store prices in ' . $currency . ', so a price read from it would be wrong. Add ?country=US to the listing link to read its U.S. price, or remove the listing.');
+    }
+}
+
 const BULK_MIN_PAGES = 3;   // a store with fewer product pages than this in one run is cheaper to read page by page
 const BULK_PAGE_SIZE = 100; // products per feed page (250 can pass the 4 MB read limit)
 const BULK_MAX_PAGES = 8;
@@ -524,7 +570,9 @@ function scan_item(array $item, string $dir, ?array $bulk = null): array {
         }
     }
     if ($item['mode'] === 'auto' && preg_match('~^(.*?/products/[a-z0-9][a-z0-9._-]*)/?$~iD', $parsed['path'], $path)) {
-        [$status, $body] = guarded_fetch('https://' . strtolower($parsed['host']) . $path[1] . '.js', $dir);
+        shop_currency_guard($parsed['host'], $url, $dir);
+        $country = shopify_country($url);
+        [$status, $body] = guarded_fetch('https://' . strtolower($parsed['host']) . $path[1] . '.js' . ($country !== null ? '?country=' . $country : ''), $dir);
         if ($status === 200 && ($found = shopify_result($body, $item))) {
             return $found;
         }

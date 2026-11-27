@@ -606,10 +606,12 @@ $reading = $editor['result'] ?? [];
         <div class="anote fail"><b><?= match ($addurl['read']['reason'] ?? '') {
             'manual' => 'This seller blocks automated checks',
             'blocked' => 'This server could not read the page',
+            'currency' => 'This store does not price in U.S. dollars',
             default => 'Could not read a product feed',
         } ?>.</b> <?= h($addurl['read']['message'] ?? '') ?> <?= match ($addurl['read']['reason'] ?? '') {
             'manual' => 'The form is set to "Manual review only", and the public page will show the asterisk. Record the price and stock by hand under "Record a manual price or stock reading".',
             'blocked' => 'The form is set to scan the page' . (($addurl['guess']['values']['checker'] ?? '') === 'remote' ? ' with the U.S. runner, which takes the first reading within the hour' : '') . '. Check the fields below.',
+            'currency' => 'The form is set to scan the page. Only a price the page states in U.S. dollars is kept, so this listing shows stock but no price until the store offers one.',
             default => 'The form is filled in from the link and set to scan the page. Add page rules under "Variant and page rules" if the first checks fail.',
         } ?></div>
       <?php endif; ?>

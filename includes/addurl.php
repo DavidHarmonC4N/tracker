@@ -54,7 +54,7 @@ function addurl_is_manual_host(string $host, array $items): bool {
  * Reads a Shopify-style product feed for the link. $fetch takes a URL and returns [status, body], like guarded_fetch().
  * Returns ['ok'=>true, 'product'=>[...]] or ['ok'=>false, 'reason'=>'manual|blocked|no_feed|unreadable', 'message'=>'...'].
  */
-function addurl_read(string $url, callable $fetch, array $items): array {
+function addurl_read(string $url, callable $fetch, array $items, bool $localized = false): array {
     $clean = addurl_clean_url($url);
     $parts = product_url($clean['url']);
     $base = ['url'=>$clean['url'], 'host'=>$clean['host'], 'removed'=>$clean['removed']];
@@ -64,8 +64,9 @@ function addurl_read(string $url, callable $fetch, array $items): array {
     if (!preg_match('~^(.*?/products/[a-z0-9][a-z0-9._-]*)/?$~iD', $parts['path'], $path)) {
         return $base + ['ok'=>false, 'reason'=>'no_feed', 'message'=>'This does not look like a store product page with a feed.'];
     }
+    $country = shopify_country($clean['url']);
     try {
-        [$status, $body] = $fetch('https://' . strtolower($parts['host']) . $path[1] . '.js');
+        [$status, $body] = $fetch('https://' . strtolower($parts['host']) . $path[1] . '.js' . ($country !== null ? '?country=' . $country : ''));
     } catch (ScanFailure $failure) {
         return $base + ['ok'=>false, 'reason'=>'blocked', 'message'=>$failure->getMessage()];
     }
@@ -87,10 +88,46 @@ function addurl_read(string $url, callable $fetch, array $items): array {
     if (!$variants) {
         return $base + ['ok'=>false, 'reason'=>'no_feed', 'message'=>'The product feed has no readable variants.'];
     }
+    // Prices in another currency would be saved as dollars. Ask the store for its U.S. price and check that it really is in dollars.
+    if (!$localized) {
+        try {
+            $currency = shop_currency($parts['host'], sys_get_temp_dir() . '/offgrid-addurl-currency', $fetch);
+        } catch (Throwable) {
+            $currency = null;
+        }
+        if ($currency !== null && $currency !== 'USD') {
+            $us = addurl_us_price($clean['url'], $parts, $path[1], $fetch, $items);
+            if ($us !== null) {
+                return $us + ['currency_note'=>'This store prices in ' . $currency . '. These prices are its U.S. market prices in dollars (the link has ?country=US), which can include duties and differ from a plain conversion.'];
+            }
+            return $base + ['ok'=>false, 'reason'=>'currency', 'message'=>'This store prices in ' . $currency . ' and does not show a U.S. dollar price we can read, so a price read from it would be wrong.'];
+        }
+    }
     $text = trim((string)preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string)($data['description'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
     $tags = array_values(array_filter(array_map('strval', is_array($data['tags'] ?? null) ? $data['tags'] : []), 'strlen'));
     return $base + ['ok'=>true, 'product'=>['title'=>mb_substr($data['title'], 0, 200), 'vendor'=>mb_substr((string)($data['vendor'] ?? ''), 0, 80),
         'description'=>mb_substr($text, 0, 1500), 'tags'=>array_slice($tags, 0, 20), 'variants'=>$variants], 'body'=>$body];
+}
+
+/**
+ * The same product read with the store's U.S. price, or null when the store does not show a price in dollars. The product page is
+ * checked for the currency it really uses with ?country=US, because the product feed does not say.
+ */
+function addurl_us_price(string $cleanUrl, array $parts, string $path, callable $fetch, array $items): ?array {
+    try {
+        [$status, $html] = $fetch('https://' . strtolower($parts['host']) . $path . '?country=US');
+    } catch (ScanFailure) {
+        return null;
+    }
+    if ($status !== 200 || !preg_match('/Shopify\.currency\s*=\s*\{"active":"USD"/', $html)) {
+        return null;
+    }
+    $link = addurl_listing_url($cleanUrl, null);
+    if (shopify_country($link) === null) {
+        $link .= (str_contains($link, '?') ? '&' : '?') . 'country=US';
+    }
+    $read = addurl_read($link, $fetch, $items, true);
+    return !empty($read['ok']) ? $read : null;
 }
 
 /** The first reading for a listing link, read from the feed body already fetched. Null when it cannot be matched. */
