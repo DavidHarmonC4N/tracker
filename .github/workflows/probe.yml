@@ -1,0 +1,63 @@
+name: Probe a seller (temporary)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Currency handling
+        run: |
+          python3 - <<'PY'
+          import json, re, urllib.request
+          host = 'www.zerofox3d.com'
+          handle = 'nibbler2-portable-meshcore-meshtastic-node-case-wi'
+
+          def get(path, headers=None, limit=2000000):
+              h = {'User-Agent': 'OffgridCommsTracker-Probe/1.0'}
+              h.update(headers or {})
+              req = urllib.request.Request('https://%s%s' % (host, path), headers=h)
+              try:
+                  with urllib.request.urlopen(req, timeout=25) as r:
+                      return r.status, r.read(limit).decode('utf-8', 'replace')
+              except Exception as e:
+                  return getattr(e, 'code', 0), str(e)[:120]
+
+          s, meta = get('/meta.json', limit=100000)
+          try:
+              m = json.loads(meta)
+              print('META currency=%s country=%s money_format=%s ships_to=%s' % (m.get('currency'), m.get('country'), m.get('money_format'), str(m.get('ships_to_countries'))[:200]))
+          except Exception:
+              print('META', s, meta[:150])
+          s, pj = get('/products.json?limit=250')
+          products = json.loads(pj)['products']
+          full = next((p for p in products if p['handle'].startswith('nibbler2-portable')), products[0])
+          handle = full['handle']
+          print('PRODUCT', handle, 'feed price', full['variants'][0]['price'])
+          variants = [
+              ('default', '', {}),
+              ('?country=US', '?country=US', {}),
+              ('?currency=USD', '?currency=USD', {}),
+              ('cookie localization=US', '', {'Cookie': 'localization=US'}),
+              ('cookie cart_currency=USD', '', {'Cookie': 'cart_currency=USD; localization=US'}),
+              ('accept-language en-US', '', {'Accept-Language': 'en-US,en;q=0.9'}),
+          ]
+          for label, q, hdr in variants:
+              s, body = get('/products/%s.js%s' % (handle, q), hdr)
+              try:
+                  d = json.loads(body)
+                  print('JS  %-26s price=%s compare=%s' % (label, d['variants'][0]['price'], d['variants'][0].get('compare_at_price')))
+              except Exception:
+                  print('JS  %-26s ERR %s %s' % (label, s, body[:80]))
+              s, body = get('/products/%s%s' % (handle, q), hdr, 600000)
+              cur = re.findall(r'"priceCurrency":\s*"([A-Z]{3})"', body)[:2]
+              price = re.findall(r'"price":\s*"?([0-9.]+)"?', body)[:3]
+              meta_cur = re.findall(r'<meta property="og:price:currency" content="([A-Z]{3})"', body)[:1]
+              shop_cur = re.findall(r'Shopify\.currency\s*=\s*\{"active":"([A-Z]{3})","rate":"([0-9.]+)"', body)[:1]
+              print('HTML %-25s jsonld currency=%s price=%s og=%s shopify.currency=%s' % (label, cur, price, meta_cur, shop_cur))
+          PY
