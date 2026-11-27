@@ -350,3 +350,7 @@ Listings of the same product are shown as one card (`groupRows()` and `makeGroup
 - **My picks:** starring a grouped card watches every option, and My picks still lists each option as its own card, since picks, links and the RSS feed are per listing.
 - **The Seeed quick filter** keeps its warehouse sections, so it shows listings ungrouped.
 - **Not grouped:** colors and sizes that are separate listings with separate links (a different product page per variant) stay separate cards.
+
+### The plain list
+
+`radios.php` follows the catalog: one row per product (warehouses of the same product page share a row, `radios_units()`), each table sorted cheapest first (no price last, then by name), in the same availability sections as before. Five columns that fit without sideways scrolling on a desktop: the name (with seller and firmware or antenna facts under it), price, stock (and the time of the last check), where each option ships from with its price, and a link for each warehouse. The antennas section uses the same rows and order, showing band, gain, connector and length under the name.

@@ -68,7 +68,7 @@ run(async (t) => {
   // ---- the rest of the site links to the pages
   const list = await (await crawler.request.get(t.SITE + 'radios.php')).text();
   const listed = [...list.matchAll(/<th scope="row"><a href="(radio\.php\?r=[^"]+)">/g)].map((m) => m[1]);
-  t.ok('the plain list links every radio\'s name to its page', listed.length === catalog.items.length && listed.every((h) => pages.includes(h)), listed.length + ' links');
+  t.ok('the plain list links every product\'s name to its page', listed.length === pages.length && new Set(listed).size === pages.length && listed.every((h) => pages.includes(h)), listed.length + ' links');
   const map = await (await crawler.request.get(t.SITE + 'sitemap.php')).text();
   const locs = [...map.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   t.ok('the sitemap lists every radio page, plus the main pages and the group directory', locs.filter((l) => /radio\.php\?r=/.test(l)).length === pages.length && pages.every((pg) => locs.some((l) => l.endsWith(pg))) && locs.length === pages.length + 4 + 54, locs.length + ' urls');

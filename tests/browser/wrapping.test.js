@@ -24,7 +24,7 @@ function audit() {
     for (const cell of body.querySelectorAll('td, th[scope="row"]')) {
       if (cell.closest('.sr') || cell.matches('th[scope="row"]') && cell.textContent.trim().length > 24) continue;
       const text = cell.textContent.trim();
-      if (!text || text.length > 24 || cell.querySelector('small, br, div, p')) continue;
+      if (!text || text.length > 24 || cell.querySelector('small, br, div, p, .opt')) continue;
       // Only the words count: an inline flag or icon next to them sits at its own height.
       const tops = new Set();
       const words = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);

@@ -12,11 +12,12 @@ run(async (t) => {
   const catalog = await (await crawler.request.get(t.SITE + 'catalog.php')).json();
   await page.goto(t.SITE + 'radios.php');
   const rows = await page.$$eval('table.rtable tbody tr', (r) => r.length);
-  t.ok('radios.php lists every radio in the HTML', rows === catalog.items.length && rows > 40, rows + ' rows vs ' + catalog.items.length + ' listings');
+  const products = new Set(catalog.items.map((i) => i.page)).size;
+  t.ok('radios.php lists every product in the HTML, one row each (warehouses share a row)', rows === products && rows > 40 && rows < catalog.items.length, rows + ' rows for ' + catalog.items.length + ' listings');
   const names = await page.$$eval('table.rtable tbody th', (r) => r.map((x) => x.childNodes[0].textContent));
   t.ok('the names a crawler reads match the catalog', catalog.items.every((i) => names.includes(i.name)));
   t.ok('it has one h1 and a heading for each availability group', (await page.$$('h1')).length === 1 && (await page.$$('h2[id^="g-"]')).length >= 1);
-  t.ok('every table has a caption and header cells', (await page.$$eval('table.rtable', (tb) => tb.every((x) => x.querySelector('caption') && x.querySelectorAll('thead th[scope="col"]').length === 7))));
+  t.ok('every table has a caption and header cells', (await page.$$eval('table.rtable', (tb) => tb.every((x) => x.querySelector('caption') && x.querySelectorAll('thead th[scope="col"]').length === 5))));
   const links = await page.$$eval('table.rtable td a', (a) => a.map((x) => ({ target: x.target, rel: x.rel, https: x.href.startsWith('https://') })));
   t.ok('every listing link is https and opens in a new tab', links.length > 40 && links.every((l) => l.https && l.target === '_blank' && /noopener/.test(l.rel)));
   const head = await raw('radios.php');

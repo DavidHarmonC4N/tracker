@@ -584,3 +584,12 @@ nav.crumbs { display: block; gap: 0; }
 
 /* While a card's options are open, the cards beside it keep their own height instead of stretching to match */
 .catalog:has(details[open]) { align-items: start; }
+
+/* Plain list: five columns that fit, cells aligned on their first line */
+.rwide { min-width: 0; }
+.rtable th, .rtable td { vertical-align: baseline; }
+.rtable td.links a { margin-right: .8rem; white-space: nowrap; }
+.rtable tbody th small:first-of-type { color: var(--text); opacity: .85; }
+.rtable .opt { display: block; }
+.rtable td.links a { margin-right: 0; }
+.rtable td.nw small { white-space: nowrap; }

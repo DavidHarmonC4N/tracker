@@ -25,10 +25,12 @@ $items = array_values(array_filter($all, static fn($item) => ($item['category'] 
 $antennas = array_values(array_filter($all, static fn($item) => ($item['category'] ?? '') === 'antenna'));
 $now = time();
 $sellers = count(array_unique(array_column($items, 'seller')));
+$productCount = count(radios_units($items, $now));
+$antennaCount = count(radios_units($antennas, $now));
 $latest = radios_latest_reading($items);
 $base = base_url();
 $title = 'All MeshCore and Meshtastic Radios: Prices and Stock | Offgrid Comms Tracker';
-$description = count($items) . ' MeshCore and Meshtastic radios from ' . $sellers . ' sellers with current price, stock and where each one ships from, checked about once an hour.';
+$description = $productCount . ' MeshCore and Meshtastic radios from ' . $sellers . ' sellers with current price, stock and where each one ships from, checked about once an hour.';
 $version = (string)(@filemtime(__DIR__ . '/assets/styles.css') ?: 1);
 $canonical = $base !== '' ? $base . 'radios.php' : '';
 $graph = ['@context'=>'https://schema.org', '@type'=>'CollectionPage', 'name'=>'All MeshCore and Meshtastic radios', 'description'=>$description, 'inLanguage'=>'en']
@@ -67,13 +69,13 @@ $graph = ['@context'=>'https://schema.org', '@type'=>'CollectionPage', 'name'=>'
   <main class="wrap guide" id="radios">
     <div class="pagehead">
       <div><p class="eyebrow">OFFGRID COMMS TRACKER</p><h1>All MeshCore and Meshtastic radios</h1>
-        <p class="lead"><?= h(count($items)) ?> radios from <?= h($sellers) ?> sellers, with the current price and stock for each. Stock is checked about once an hour<?= $latest ? ' (latest check <time datetime="' . h(gmdate('c', $latest)) . '">' . h(gmdate('M j, H:i', $latest)) . ' UTC</time>)' : '' ?>.
+        <p class="lead"><?= h($productCount) ?> radios from <?= h($sellers) ?> sellers, with the current price and stock for each. Stock is checked about once an hour<?= $latest ? ' (latest check <time datetime="' . h(gmdate('c', $latest)) . '">' . h(gmdate('M j, H:i', $latest)) . ' UTC</time>)' : '' ?>.
           Confirm stock and the selected variant with the seller before you order. This site receives no commissions.</p>
         <p class="plain-link"><a href="./#inventory">Open the interactive catalog</a> with filters, a price range and My picks, or see <a href="prices.html">price history</a>.</p></div>
     </div>
     <?= radios_tables($items, $now) ?>
     <?php if ($antennas): ?>
-    <section id="antennas" aria-labelledby="antennas-h"><h2 class="sec-head" id="antennas-h">Antennas · <?= h(count($antennas)) ?></h2>
+    <section id="antennas" aria-labelledby="antennas-h"><h2 class="sec-head" id="antennas-h">Antennas · <?= h($antennaCount) ?></h2>
       <p class="dim">Antennas and cables that fit these radios. Check the band (915 MHz in the U.S.) and the connector before you buy. Each name links to its own page with specs and price history.</p>
       <?= radios_tables($antennas, $now, 'a', 'Antennas: ', 'antennas') ?></section>
     <?php endif; ?>
