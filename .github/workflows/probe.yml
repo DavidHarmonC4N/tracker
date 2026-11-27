@@ -1,0 +1,55 @@
+name: Probe a seller (temporary)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Look at the site
+        run: |
+          python3 - <<'PY'
+          import json, re, urllib.request
+          host = 'www.zerofox3d.com'
+
+          def get(path, limit=2000000):
+              req = urllib.request.Request('https://%s%s' % (host, path), headers={'User-Agent': 'OffgridCommsTracker-Probe/1.0'})
+              try:
+                  with urllib.request.urlopen(req, timeout=25) as r:
+                      return r.status, dict(r.headers), r.read(limit).decode('utf-8', 'replace')
+              except Exception as e:
+                  return getattr(e, 'code', 0), {}, str(e)[:160]
+
+          s, h, home = get('/')
+          print('HOME', s, len(home), {k: v for k, v in h.items() if k.lower() in ('server', 'x-shopify-stage', 'x-powered-by', 'content-type')})
+          print('platform hints:', [k for k in ['shopify', 'woocommerce', 'wp-content', 'bigcommerce', 'squarespace', 'wix', 'cdn.shopify', 'etsy', 'big cartel', 'bigcartel', 'ecwid', 'weebly', 'godaddy', 'stripe', 'paypal'] if k in home.lower()])
+          t = re.search(r'<title>(.*?)</title>', home, re.S)
+          print('title:', t.group(1).strip()[:150] if t else '')
+          d = re.search(r'<meta name="description" content="(.*?)"', home, re.S)
+          print('description:', d.group(1)[:300] if d else '')
+          text = re.sub(r'\s+', ' ', re.sub(r'<script.*?</script>|<style.*?</style>|<[^>]+>', ' ', home, flags=re.S))
+          print('TEXT:', text[:1800])
+          print('LINKS:', sorted(set(re.findall(r'href="([^"#]+)"', home)))[:70])
+          s, h, robots = get('/robots.txt', 20000)
+          print('ROBOTS', s)
+          for line in robots.splitlines():
+              if line.strip() and not line.startswith('#'):
+                  print('  ' + line)
+          s, h, pj = get('/products.json?limit=250', 3000000)
+          print('PRODUCTS.JSON', s)
+          try:
+              data = json.loads(pj)
+              for p in data['products']:
+                  v = p['variants']
+                  print('  %s | %s | %s | %s | variants=%d | %s' % (p['handle'][:50], p['title'][:60], v[0]['price'], v[0]['available'], len(v), p.get('product_type', '')))
+          except Exception:
+              print('  not json:', pj[:120].replace('\n', ' '))
+          for path in ['/sitemap.xml', '/shop', '/store', '/products', '/collections/all']:
+              s, h, b = get(path, 5000)
+              print(path, s, re.sub(r'\s+', ' ', b[:160]))
+          PY
