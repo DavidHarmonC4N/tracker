@@ -336,3 +336,7 @@ If the checks stop, prices and stock quietly go out of date, so the owner is tol
 - **Data:** regenerate `includes/groups.json` from the research spreadsheet with `python3 tests/tools/import-groups.py <sheet.xlsx>` (needs openpyxl), then run the tests. A group that serves several states is one entry listing each state.
 - **Admin:** the Groups tab in `admin.php` (`?view=groups`, template `includes/admin-groups.php`) lists every group with search and filters (protocol, shown, hidden, edited, added here, website not confirmed). Add a group, edit one, hide or show it, restore a group from the file to its original, or delete one added here. Changes are kept in `tracker.json` under `groups` on top of `includes/groups.json`, so the file is never changed and a refreshed file keeps your edits (`groups_apply()`). Saves are checked: https links only, a real protocol and state, and a main link that is already listed is refused.
 - **Still to come:** a way for visitors to send corrections, and a monthly link check.
+
+### Starting order
+
+The catalog opens sorted by price, low to high, so the cheapest listing that is available now comes first (listings with no price come last). It is one flat list. "Availability" is still in the sort box and groups the list by status, and a link keeps any order other than the starting one (`?sort=availability`). Clear all goes back to price, low to high.

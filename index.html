@@ -28,7 +28,7 @@
   </script>
   <link rel="alternate" type="application/rss+xml" title="Stock and price changes" href="feed.php">
   <link rel="stylesheet" href="assets/styles.css?v=20261202-groups">
-  <script src="assets/catalog.js?v=20261201-review" defer></script>
+  <script src="assets/catalog.js?v=20261203-sort" defer></script>
 </head>
 <body>
   <a class="skip" href="#inventory">Skip to listings</a>
@@ -120,7 +120,7 @@
               <button class="text-button clear-all" id="reset" type="reset" hidden>Clear all</button>
               <button type="button" class="picks-btn" id="picks-btn" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z"/></svg>My picks <b id="picks-n">0</b></button>
             </div>
-            <div class="result-line"><div class="count-wrap"><p id="count" aria-live="polite"></p><button type="button" class="text-button" id="fold-all" hidden>Collapse all</button></div><label class="sort"><span>Sort by</span><select id="sort"><option value="availability">Availability</option><option value="price">Price, low to high</option><option value="recent">Recently checked</option><option value="name">Name, A to Z</option><option value="role">Primary use</option></select></label></div>
+            <div class="result-line"><div class="count-wrap"><p id="count" aria-live="polite"></p><button type="button" class="text-button" id="fold-all" hidden>Collapse all</button></div><label class="sort"><span>Sort by</span><select id="sort"><option value="price">Price, low to high</option><option value="availability">Availability</option><option value="recent">Recently checked</option><option value="name">Name, A to Z</option><option value="role">Primary use</option></select></label></div>
           </form>
         </div>
         <p class="plain-link"><a href="radios.php">Prefer a plain list? See every radio with its price and stock</a></p>

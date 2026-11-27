@@ -13,7 +13,7 @@ run(async (t) => {
     });
   });
   const p = t.watch(await ctx.newPage());
-  await p.goto(t.SITE + 'index.html'); await p.waitForSelector('.card');
+  await p.goto(t.SITE + 'index.html?sort=availability'); await p.waitForSelector('.card');
   const folds = () => p.$$eval('#list .fold', (f) => f.map((x) => x.dataset.fold + ':' + x.getAttribute('aria-expanded')));
 
   t.ok('Available now: In stock and Orderable start open', (await folds()).join() === 'in_stock:true,orderable:true', (await folds()).join());

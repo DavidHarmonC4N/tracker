@@ -97,4 +97,36 @@ run(async (t) => {
   t.ok('phone: the select filters fold behind a Filters button', !(await m.$eval('#filter-selects', (e) => e.offsetParent !== null)) && await m.$eval('#filters-toggle', (e) => e.offsetParent !== null));
   await m.click('#filters-toggle'); await m.selectOption('#role', 'companion');
   t.ok('phone: the Filters button counts the active filters', (await m.textContent('#filters-n')).trim() === '1');
+
+  // ---- the starting order is price, low to high
+  const fresh = t.watch(await (await t.openContext({ viewport: { width: 1280, height: 900 } })).newPage());
+  await fresh.context().route('**/catalog.php', async (route) => {
+    const r = await route.fetch(); const data = await r.json(); const now = new Date().toISOString();
+    data.items.forEach((i, n) => { i.result = { ...i.result, status: 'in_stock', observed_at: now, price: n % 9 === 4 ? null : 9000 - n * 37 + (n % 5) * 400, qty: null }; });
+    route.fulfill({ response: r, json: data });
+  });
+  await fresh.goto(t.SITE + 'index.html'); await fresh.waitForSelector('.card');
+  const dollars = () => fresh.$$eval('.card .price', (p) => p.map((x) => { const m = x.textContent.match(/\$([\d,]+\.\d\d)\s*$/); return m ? Number(m[1].replace(',', '')) : null; }));
+  t.ok('the sort box starts on Price, low to high', (await fresh.$eval('#sort', (s) => s.options[s.selectedIndex].textContent)) === 'Price, low to high');
+  const first = await dollars();
+  const known = first.filter((v) => v !== null);
+  t.ok('the first cards are the cheapest, in order', known.length > 20 && known.every((v, i) => i === 0 || known[i - 1] <= v), known.slice(0, 6).join(', '));
+  t.ok('listings with no price come after every priced one', first.indexOf(null) === -1 || first.slice(first.indexOf(null)).every((v) => v === null));
+  t.ok('the list is one flat list, not groups', (await fresh.$$('#list .group-head')).length === 0 && (await fresh.$$('#list .catalog')).length === 1);
+  t.ok('the starting order is not written into the address', !/sort=/.test(await fresh.evaluate(() => location.href)));
+  await fresh.selectOption('#sort', 'availability');
+  t.ok('choosing Availability groups by status and is saved in the address', (await fresh.$$('#list .group-head')).length >= 1 && /sort=availability/.test(await fresh.evaluate(() => location.href)));
+  await fresh.reload(); await fresh.waitForSelector('.card');
+  t.ok('a link with Availability opens grouped', (await fresh.$eval('#sort', (s) => s.value)) === 'availability' && (await fresh.$$('#list .group-head')).length >= 1);
+  await fresh.goto(t.SITE + 'index.html?sort=name'); await fresh.waitForSelector('.card');
+  t.ok('another saved order is kept', (await fresh.$eval('#sort', (s) => s.value)) === 'name');
+  await fresh.goto(t.SITE + 'index.html?cat=antennas'); await fresh.waitForSelector('.card');
+  const antennaPrices = (await dollars()).filter((v) => v !== null);
+  t.ok('the antenna catalog also starts cheapest first', antennaPrices.length > 10 && antennaPrices.every((v, i) => i === 0 || antennaPrices[i - 1] <= v));
+  await fresh.goto(t.SITE + 'index.html?sort=availability'); await fresh.waitForSelector('.card');
+  await fresh.selectOption('#sort', 'role');
+  await fresh.click('[data-chip="lowest"]');
+  await fresh.click('#reset');
+  await fresh.waitForFunction(() => document.getElementById('sort').value === 'price', null, { timeout: 3000 }).catch(() => {});
+  t.ok('Clear all returns to price, low to high', (await fresh.$eval('#sort', (s) => s.value)) === 'price');
 });

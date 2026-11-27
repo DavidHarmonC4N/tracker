@@ -53,7 +53,7 @@ run(async (t) => {
     data.items.forEach((i, n) => { i.result = { ...i.result, status: n % 5 === 0 ? 'unknown' : 'in_stock', observed_at: n % 5 === 0 ? null : now, price: 3000 + n }; });
   });
   const c = t.watch(await site.newPage());
-  await c.goto(t.SITE + 'index.html'); await c.waitForSelector('.card');
+  await c.goto(t.SITE + 'index.html?sort=availability'); await c.waitForSelector('.card');
   const unverified = c.locator('#unverified-toggle');
   t.ok('there are unverified listings to show', (await unverified.count()) === 1);
   await unverified.click();

@@ -351,7 +351,7 @@ function writeUrlFilters() {
   for (const [key, id] of Object.entries(filterIds)) {
     const control = byId(id);
     const value = control.value.trim();
-    if (value && !(key === 'sort' && value === 'availability')) params.set(key, value);
+    if (value && !(key === 'sort' && value === 'price')) params.set(key, value); // low to high is the starting order, so only another choice goes in the link
   }
   if (category === 'antenna') params.set('cat', 'antennas');
   if (tab !== 'available') params.set('status', tab);
