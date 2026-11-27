@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Look at the store
+      - name: Look at the shop
         run: |
           python3 - <<'PY'
           import json, re, urllib.request
-          host = 'meshsmith.net'
+          host = 'shop.meshsmith.net'
 
           def get(url, limit=3000000):
               req = urllib.request.Request(url, headers={'User-Agent': 'OffgridCommsTracker-Probe/1.0'})
@@ -25,22 +25,29 @@ jobs:
               except Exception as e:
                   return getattr(e, 'code', 0), {}, str(e)[:160]
 
+          s, h, js = get('https://meshsmith.net/assets/index-BOouPi_x.js')
+          print('SHOP URLS in bundle:', sorted(set(re.findall(r'https://shop\.meshsmith\.net[A-Za-z0-9_/.?=&%-]*', js)))[:40])
           s, h, home = get('https://%s/' % host)
-          print('HOME HTML:'); print(home)
+          print('SHOP HOME', s, len(home), {k: v for k, v in h.items() if k.lower() in ('server', 'x-shopify-stage', 'x-powered-by', 'content-type', 'x-sorting-hat-shopid')})
+          print('platform hints:', [k for k in ['shopify', 'woocommerce', 'wp-content', 'bigcommerce', 'squarespace', 'wix', 'cdn.shopify', 'stripe', 'snipcart', 'medusa', 'saleor'] if k in home.lower()])
+          t = re.search(r'<title>(.*?)</title>', home, re.S)
+          print('title:', t.group(1).strip()[:120] if t else '')
           s, h, robots = get('https://%s/robots.txt' % host)
-          print('ROBOTS (rules):')
+          print('SHOP ROBOTS', s)
           for line in robots.splitlines():
               if line.strip() and not line.startswith('#'):
                   print('  ' + line)
-          for src in re.findall(r'(?:src|href)="([^"]+\.(?:js|json))"', home)[:6]:
-              url = src if src.startswith('http') else 'https://%s%s' % (host, src if src.startswith('/') else '/' + src)
-              s, h, js = get(url)
-              print('ASSET', url, s, len(js))
-              urls = sorted(set(re.findall(r'https?://[A-Za-z0-9._~:/?#@!$&()*+,;=%-]{6,120}', js)))
-              keep = [u for u in urls if not re.search(r'w3\.org|reactjs|github\.com|mozilla|schema\.org|npmjs|fb\.me|google\.com/', u)]
-              print('  urls in bundle:', keep[:30])
-              for m in sorted(set(re.findall(r'["\'](/(?:api|rest|v1|products|shop|store|catalog)[A-Za-z0-9_/.-]{0,60})["\']', js)))[:30]:
-                  print('  path:', m)
-              for m in re.findall(r'.{60}(?:price|\$\d+\.\d\d|in.stock|add.to.cart|buy now).{60}', js, re.I)[:8]:
-                  print('  hint:', m.replace('\n', ' '))
+          s, h, pj = get('https://%s/products.json?limit=250' % host)
+          print('PRODUCTS.JSON', s)
+          try:
+              data = json.loads(pj)
+              for p in data['products']:
+                  v = p['variants']
+                  print('  %s | %s | %s | %s | variants=%d | %s' % (p['handle'][:60], p['title'][:60], v[0]['price'], v[0]['available'], len(v), p.get('product_type', '')))
+          except Exception as e:
+              print('  not json:', pj[:200].replace('\n', ' '))
+          for path in ['/products/pimesh-1w', '/products/pimesh-1w.js', '/products/photon-1w.js', '/collections/all']:
+              s, h, b = get('https://%s%s' % (host, path), 60000)
+              print(path, s, len(b), b[:160].replace('\n', ' '))
+          print('links:', sorted(set(re.findall(r'href="([^"#]*(?:product|collection)[^"#]*)"', home)))[:20])
           PY
