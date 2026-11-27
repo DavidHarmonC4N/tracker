@@ -239,7 +239,7 @@ function radio_fitting_antennas(array $groups, array $radio, int $now, int $limi
         $specs = clean_specs($group['specs'] ?? []);
         $key = antenna_connector_key($specs['connector']);
         $fits = $port === 'ufl'
-            ? ($key === 'cable' && preg_match('/u\.?fl|ipex|mhf/', strtolower($specs['connector'])) === 1 && str_contains(strtolower($specs['connector']), 'sma'))
+            ? ($key === 'cable' && preg_match('/u\.?fl|ipex|mhf/', strtolower($specs['connector'])) === 1 && preg_match('/\b(?:sma|n)\b/', strtolower($specs['connector'])) === 1)
             : ($key === $port && $group['kind'] !== 'antenna_cable' && antenna_is_915($group));
         if ($fits) {
             $list[] = ['group'=>$group, 'summary'=>radio_group_summary($group, $now)];

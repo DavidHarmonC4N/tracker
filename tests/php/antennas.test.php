@@ -80,4 +80,16 @@ check('with every listing live, the U.S. listing leads', $all['t-us'] === 't-us'
 $paused = radio_topic_leads($offers(['us']));
 check('when the lead is paused the next listing leads, for every listing that is still shown', $paused['t-eu'] === 't-eu' && $paused['t-cn'] === 't-eu' && !isset($paused['t-us']));
 check('the same list gives the same answer whether or not paused rows are passed in', radio_topic_leads($offers(['us'])) === radio_lead_ids(array_values(array_filter($offers(['us']), static fn($i) => !$i['paused']))));
+
+// ---- MeshSmith (a Shopify store whose boards have option sets)
+$ms = array_values(array_filter($seed, static fn($i) => $i['seller'] === 'MeshSmith'));
+check('MeshSmith has three boards and six antennas or cables, all read automatically from its store', count($ms) === 9 && count(array_filter($ms, static fn($i) => is_antenna_kind($i['kind']))) === 6 && count(array_filter($ms, static fn($i) => $i['mode'] === 'auto' && str_starts_with($i['url'], 'https://shop.meshsmith.net/products/'))) === 9);
+check('its boards pick the 915 MHz options and make no claim about firmware', count(array_filter($ms, static fn($i) => !is_antenna_kind($i['kind']) && str_starts_with($i['variant'], '915 Mhz') && $i['firmware'] === 'both' && $i['setup'] === 'unknown' && str_contains($i['note'], 'does not say which firmware'))) === 3);
+check('its pigtails fit a U.FL radio, including the one that adds an N connector', (static function () use ($catalog, $now) {
+    $groups = radio_groups($catalog['items']);
+    $t096 = null;
+    foreach ($groups as $g) { foreach ($g['offers'] as $o) { if ($o['id'] === 'rok-t096') { $t096 = $g; } } }
+    $names = array_map(static fn($e) => $e['group']['name'], radio_fitting_antennas($groups, $t096, $now, 50));
+    return in_array('IPEX to SMA Bulkhead Pigtail · 15 cm', $names, true) && in_array('IPEX to Type-N Bulkhead Pigtail · 25 cm', $names, true) && !in_array('SMA to Type-N Bulkhead Pigtail · 20 cm', $names, true);
+})());
 finish();

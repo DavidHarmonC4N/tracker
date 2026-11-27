@@ -76,4 +76,23 @@ accept_results($dir, [], [], ['store.rokland.com']);
 check('a store whose feed stopped working loses the flag', !isset(load_state($dir)['bulk_hosts']['store.rokland.com']));
 change_state($dir, static function (&$state) { $state['bulk_hosts']['store.rokland.com'] = time() - (BULK_HOST_DAYS + 1) * 86400; $state['host_next_scan'] = []; foreach ($state['items'] as &$row) { $row['attempted_at'] = null; } });
 check('a flag nobody has confirmed for two weeks expires', $rok(claim_jobs($dir, 60)) === 3);
+
+// ---- a store whose products have several option sets (MeshSmith's boards): choose by the frequency option
+$option = static fn(string $freq, string $mod, string $solar, int $cents, bool $avail, int $id) => ['id'=>$id, 'title'=>$freq . ' / ' . $mod . ' / ' . $solar, 'option1'=>$freq, 'option2'=>$mod, 'option3'=>$solar, 'available'=>$avail, 'price'=>number_format($cents / 100, 2, '.', '')];
+$photon = ['handle'=>'photon-1w', 'title'=>'Photon-1W', 'variants'=>[
+    $option('915 Mhz (USA)', 'NRF52', 'No', 7500, true, 1), $option('915 Mhz (USA)', 'NRF52', 'Yes', 9500, true, 2), $option('915 Mhz (USA)', 'None (Diy)', 'No', 6500, true, 3),
+    $option('868 Mhz', 'NRF52', 'No', 7500, false, 4), $option('868 Mhz', 'None (Diy)', 'No', 6500, false, 5)]];
+$photonBody = json_encode(shopify_feed_to_product($photon));
+$us = shopify_result($photonBody, ['url'=>'https://shop.meshsmith.net/products/photon-1w', 'variant'=>'915 Mhz (USA)']);
+check('a frequency option picks the 915 MHz variants, and the price is the cheapest of them', $us['status'] === 'orderable' && $us['price'] === 6500 && $us['from_price'] === true, json_encode($us));
+$eu = shopify_result($photonBody, ['url'=>'https://shop.meshsmith.net/products/photon-1w', 'variant'=>'868 Mhz']);
+check('the 868 MHz variants are separate: all sold out here', $eu['status'] === 'out_of_stock');
+check('a feed price in dollars is read as cents for these options too', shopify_feed_to_product($photon)['variants'][0]['price'] === 7500);
+$oneOut = ['handle'=>'pimesh', 'title'=>'PiMesh-1W', 'variants'=>[$option('915 Mhz (USA)', 'No GPS', 'None', 6000, false, 1), $option('915 Mhz (USA)', 'With GPS', 'None', 7000, true, 2)]];
+$pi = shopify_result(json_encode(shopify_feed_to_product($oneOut)), ['url'=>'https://shop.meshsmith.net/products/pimesh-1w-basic', 'variant'=>'915 Mhz (USA)']);
+check('when the cheapest 915 MHz option is sold out the price is the cheapest one still available', $pi['price'] === 7000 && $pi['status'] === 'orderable');
+check('a variant that is not offered is an error, not a wrong price', (static function () use ($photonBody) {
+    try { shopify_result($photonBody, ['url'=>'https://shop.meshsmith.net/products/photon-1w', 'variant'=>'433 Mhz']); } catch (ScanFailure) { return true; }
+    return false;
+})());
 finish();

@@ -314,7 +314,7 @@ Each radio can carry `antenna_port` (`sma`, `rp-sma`, `n`, `ufl` or `none`, see 
 - **Radio pages** list antennas whose connector matches the port (`radio_fitting_antennas()`), only 915 MHz or dual-band ones, in stock first and then cheapest. A U.FL port is pointed at U.FL to SMA pigtail cables. A radio with no external port says its antenna is built in.
 - **Antenna pages** list radios whose port matches (`antenna_fitting_radios()`). Cables and NMO antennas list none.
 - **Connector words:** `antenna_connector_key()` reads the seller's wording ("SMA male", "N-Type", "U.FL to RP-SMA female"). RP-SMA is never read as SMA. Nothing is guessed when the connector is unknown.
-- **Sellers:** the starter list also has antennas from Atlavox, RAKwireless, ameriDroid, SpecFive and Muzi Works. Their connectors, bands and lengths were taken from the product pages. Every one is read automatically from the store's product feed.
+- **Sellers:** the starter list also has antennas from Atlavox, RAKwireless, ameriDroid, SpecFive and Muzi Works. Their connectors, bands and lengths were taken from the product pages. Every one is read automatically from the store's product feed. MeshSmith (`shop.meshsmith.net`, a Shopify store behind the `meshsmith.net` site) adds three 1 W boards (Photon-1W, PiMesh-1W, EtherMesh-1W, tracked by their 915 MHz options) and three antennas or pigtails.
 
 ### Checker health alerts
 
