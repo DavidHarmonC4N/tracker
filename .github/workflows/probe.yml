@@ -11,43 +11,36 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Look at the shop
+      - name: Product details
         run: |
           python3 - <<'PY'
-          import json, re, urllib.request
+          import json, re, time, urllib.request
           host = 'shop.meshsmith.net'
 
           def get(url, limit=3000000):
               req = urllib.request.Request(url, headers={'User-Agent': 'OffgridCommsTracker-Probe/1.0'})
               try:
                   with urllib.request.urlopen(req, timeout=25) as r:
-                      return r.status, dict(r.headers), r.read(limit).decode('utf-8', 'replace')
+                      return r.status, r.read(limit).decode('utf-8', 'replace')
               except Exception as e:
-                  return getattr(e, 'code', 0), {}, str(e)[:160]
+                  return getattr(e, 'code', 0), str(e)[:160]
 
-          s, h, js = get('https://meshsmith.net/assets/index-BOouPi_x.js')
-          print('SHOP URLS in bundle:', sorted(set(re.findall(r'https://shop\.meshsmith\.net[A-Za-z0-9_/.?=&%-]*', js)))[:40])
-          s, h, home = get('https://%s/' % host)
-          print('SHOP HOME', s, len(home), {k: v for k, v in h.items() if k.lower() in ('server', 'x-shopify-stage', 'x-powered-by', 'content-type', 'x-sorting-hat-shopid')})
-          print('platform hints:', [k for k in ['shopify', 'woocommerce', 'wp-content', 'bigcommerce', 'squarespace', 'wix', 'cdn.shopify', 'stripe', 'snipcart', 'medusa', 'saleor'] if k in home.lower()])
-          t = re.search(r'<title>(.*?)</title>', home, re.S)
-          print('title:', t.group(1).strip()[:120] if t else '')
-          s, h, robots = get('https://%s/robots.txt' % host)
-          print('SHOP ROBOTS', s)
-          for line in robots.splitlines():
-              if line.strip() and not line.startswith('#'):
-                  print('  ' + line)
-          s, h, pj = get('https://%s/products.json?limit=250' % host)
-          print('PRODUCTS.JSON', s)
-          try:
-              data = json.loads(pj)
-              for p in data['products']:
-                  v = p['variants']
-                  print('  %s | %s | %s | %s | variants=%d | %s' % (p['handle'][:60], p['title'][:60], v[0]['price'], v[0]['available'], len(v), p.get('product_type', '')))
-          except Exception as e:
-              print('  not json:', pj[:200].replace('\n', ' '))
-          for path in ['/products/pimesh-1w', '/products/pimesh-1w.js', '/products/photon-1w.js', '/collections/all']:
-              s, h, b = get('https://%s%s' % (host, path), 60000)
-              print(path, s, len(b), b[:160].replace('\n', ' '))
-          print('links:', sorted(set(re.findall(r'href="([^"#]*(?:product|collection)[^"#]*)"', home)))[:20])
+          for handle in ['ethermesh-1w', 'photon-1w', 'pimesh-1w-basic', '26cm-fiberglass-antenna', '40cm-fiberglass-antenna', 'muzi-whip-antenna-17cm',
+                         'outpost-ipex-to-sma-15cm', 'outpost-ipex-to-type-n-25cm', 'outpost-sma-to-type-n-25cm']:
+              s, body = get('https://%s/products/%s.js' % (host, handle))
+              try:
+                  d = json.loads(body)
+              except Exception:
+                  print('##', handle, 'ERROR', s, body[:100]); continue
+              text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', d.get('description', '')))
+              print('## %s | %s | options=%s' % (handle, d['title'], [o['name'] + '=' + '/'.join(o['values'][:6]) for o in d.get('options', [])]))
+              for v in d['variants'][:14]:
+                  print('   variant: %s | %s | %s' % (v.get('public_title') or v['title'], v['price'], v['available']))
+              print('   desc:', text[:900])
+              time.sleep(1.5)
+          for path in ['/policies/shipping-policy', '/pages/shipping', '/pages/about', '/pages/contact']:
+              s, body = get('https://%s%s' % (host, path), 200000)
+              text = re.sub(r'\s+', ' ', re.sub(r'<script.*?</script>|<style.*?</style>|<[^>]+>', ' ', body, flags=re.S))
+              hits = re.findall(r'.{80}(?:ship(?:s|ped|ping)? from|located in|based in|warehouse|Colorado|Texas|California|Florida|USA|United States).{80}', text, re.I)[:4]
+              print(path, s, hits)
           PY
