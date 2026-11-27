@@ -340,3 +340,13 @@ If the checks stop, prices and stock quietly go out of date, so the owner is tol
 ### Starting order
 
 The catalog opens sorted by price, low to high, so the cheapest listing that is available now comes first (listings with no price come last). It is one flat list. "Availability" is still in the sort box and groups the list by status, and a link keeps any order other than the starting one (`?sort=availability`). Clear all goes back to price, low to high.
+
+### One card per product
+
+Listings of the same product are shown as one card (`groupRows()` and `makeGroup()` in `assets/catalog.js`). Listings are grouped by their product page (`row.page`), which already puts Seeed's U.S., EU and China listings together. Filters, the price range and the quick filters apply to each listing first, then what is left is grouped, so a card shows only the options that matched.
+
+- **The card** takes its status and price from the best option (best stock status, then lowest price), says "From" when options differ or "Same price in all N", and has a folded "Compare N options" table with each option's price, stock and its own link (https, new tab). The main button opens the cheapest option.
+- **Tabs, counts and sorting** work on products. "Lowest seen", "Limited stock" and "Dropped" badges show when any option qualifies.
+- **My picks:** starring a grouped card watches every option, and My picks still lists each option as its own card, since picks, links and the RSS feed are per listing.
+- **The Seeed quick filter** keeps its warehouse sections, so it shows listings ungrouped.
+- **Not grouped:** colors and sizes that are separate listings with separate links (a different product page per variant) stay separate cards.

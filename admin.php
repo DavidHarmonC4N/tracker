@@ -496,7 +496,7 @@ $reading = $editor['result'] ?? [];
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= is_staging() ? '[STAGING] ' : '' ?><?= $auth && !empty($state['submissions']) ? '(' . h(count($state['submissions'])) . ') ' : '' ?>Admin · Offgrid Comms Tracker</title>
-<link rel="stylesheet" href="assets/styles.css?v=20261203-admingroups">
+<link rel="stylesheet" href="assets/styles.css?v=20261204-grouped">
 <script src="assets/admin.js?v=3" defer></script>
 </head>
 <body>

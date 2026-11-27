@@ -25,8 +25,14 @@ function audit() {
       if (cell.closest('.sr') || cell.matches('th[scope="row"]') && cell.textContent.trim().length > 24) continue;
       const text = cell.textContent.trim();
       if (!text || text.length > 24 || cell.querySelector('small, br, div, p')) continue;
-      const r = document.createRange(); r.selectNodeContents(cell);
-      const tops = new Set([...r.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top / 4)));
+      // Only the words count: an inline flag or icon next to them sits at its own height.
+      const tops = new Set();
+      const words = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+      for (let w = words.nextNode(); w; w = words.nextNode()) {
+        if (!w.textContent.trim()) continue;
+        const r = document.createRange(); r.selectNodeContents(w);
+        [...r.getClientRects()].filter((x) => x.width > 0).forEach((x) => tops.add(Math.round(x.top / 4)));
+      }
       if (tops.size > 1) out.push('short cell wraps: "' + text + '"');
     }
   }

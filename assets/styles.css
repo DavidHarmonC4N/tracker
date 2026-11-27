@@ -568,3 +568,19 @@ nav.crumbs { display: block; gap: 0; }
 .states-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: .2rem .8rem; margin: 1rem 0 0; padding: .8rem; border: 1px solid var(--edge); }
 .states-grid legend { padding: 0 .4rem; color: var(--dim); font: .8rem var(--mono); text-transform: uppercase; }
 .states-grid label { margin: 0; }
+
+/* Grouped cards: one product, several options */
+.card .more { border-top: 1px solid var(--edge); padding-top: .55rem; }
+.card .more summary { cursor: pointer; color: var(--green); font: 700 .78rem var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+.opt-wrap { position: relative; overflow-x: auto; }
+.optable { width: 100%; margin-top: .5rem; border-collapse: collapse; font-size: .88rem; }
+.optable th, .optable td { padding: .4rem .3rem; text-align: left; border-top: 1px solid var(--edge); white-space: nowrap; }
+.optable thead th { border-top: 0; color: var(--dim); font: 400 .7rem var(--mono); text-transform: uppercase; }
+.optable tbody th { font-weight: 400; }
+.optable .num { font-family: var(--mono); }
+.optable tr.best td, .optable tr.best th { color: var(--green); }
+.optable .flag { width: 18px; height: 12px; vertical-align: -1px; margin-right: .2rem; }
+.optable a.ext { color: var(--green); }
+
+/* While a card's options are open, the cards beside it keep their own height instead of stretching to match */
+.catalog:has(details[open]) { align-items: start; }

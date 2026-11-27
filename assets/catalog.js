@@ -108,7 +108,24 @@ function snapshot(row) {
   return { price: Number.isInteger(row.result.price) ? row.result.price : null, status: displayStatus(row) };
 }
 
-function togglePick(row) {
+// A grouped card stars every option, so a change at any warehouse shows up in My picks.
+function pickRows(row) {
+  return row._options || [row];
+}
+
+function toggleGroupPicks(row) {
+  const rowsToToggle = pickRows(row);
+  const any = rowsToToggle.some((r) => picks[r.id]);
+  for (const r of rowsToToggle) {
+    if (any && picks[r.id]) togglePick(r, true);
+    else if (!any) togglePick(r, true);
+  }
+  savePicks();
+  syncPickButtons();
+  if (picksView) draw();
+}
+
+function togglePick(row, quiet = false) {
   if (picks[row.id]) {
     delete picks[row.id];
   } else {
@@ -116,6 +133,7 @@ function togglePick(row) {
     picks[row.id] = { added: Date.now(), price: now.price, status: now.status, seenPrice: now.price, seenStatus: now.status };
     baseline[row.id] = now;
   }
+  if (quiet) return;
   savePicks();
   syncPickButtons();
   if (picksView) draw();
@@ -126,7 +144,7 @@ function syncPickButtons() {
   byId('picks-n').textContent = count;
   byId('picks-btn').setAttribute('aria-pressed', String(picksView));
   document.querySelectorAll('.star[data-pick]').forEach((button) => {
-    const on = Boolean(picks[button.dataset.pick]);
+    const on = (button.dataset.ids || button.dataset.pick).split(',').some((id) => Boolean(picks[id]));
     button.setAttribute('aria-pressed', String(on));
     const label = (on ? 'Stop watching ' : 'Watch ') + button.dataset.name;
     button.setAttribute('aria-label', label);
@@ -138,9 +156,10 @@ function starButton(row) {
   const button = el('button', 'star');
   button.type = 'button';
   button.dataset.pick = row.id;
+  if (row._options) button.dataset.ids = row._options.map((o) => o.id).join(',');
   button.dataset.name = row.name;
   button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + STAR_PATH + '</svg>';
-  button.addEventListener('click', () => togglePick(row));
+  button.addEventListener('click', () => (row._options ? toggleGroupPicks(row) : togglePick(row)));
   return button;
 }
 
@@ -442,6 +461,83 @@ function modelNodes(text) {
   return nodes;
 }
 
+// One product sold from several places (Seeed lists the same page once per warehouse) is shown as one card with its options inside.
+const WAREHOUSE_ORDER = ['us', 'eu', 'cn', ''];
+
+function groupKey(row) {
+  return /^radio\.php\?r=[a-z0-9-]+$/.test(row.page || '') ? row.page : 'id:' + row.id;
+}
+
+// Several listings of one product become one row that behaves like a listing: it takes the best option's reading
+// (best stock status, then lowest price), and carries every option in _options.
+function makeGroup(options) {
+  const byBest = options.slice().sort((a, b) => priority.indexOf(displayStatus(a)) - priority.indexOf(displayStatus(b))
+    || (a.result.price ?? Infinity) - (b.result.price ?? Infinity) || a.id.localeCompare(b.id));
+  const best = byBest[0];
+  const ordered = options.slice().sort((a, b) => WAREHOUSE_ORDER.indexOf(a.warehouse || '') - WAREHOUSE_ORDER.indexOf(b.warehouse || '') || a.id.localeCompare(b.id));
+  const changes = options.map((o) => o.change).filter(Boolean).sort((a, b) => Date.parse(b.t) - Date.parse(a.t));
+  return { ...best, _options: ordered, _best: best, change: changes[0] || null };
+}
+
+function groupRows(list) {
+  const byKey = new Map();
+  for (const row of list) {
+    const key = groupKey(row);
+    if (!byKey.has(key)) byKey.set(key, []);
+    byKey.get(key).push(row);
+  }
+  return [...byKey.values()].map((options) => (options.length > 1 ? makeGroup(options) : options[0]));
+}
+
+// The prices that count for a grouped card: the options that are on sale now, or all of them when none is.
+function groupPrices(row) {
+  const live = row._options.filter((o) => ['in_stock', 'orderable'].includes(displayStatus(o)) && Number.isInteger(o.result.price));
+  const use = live.length ? live : row._options.filter((o) => Number.isInteger(o.result.price));
+  return use.map((o) => o.result.price);
+}
+
+// The table of options inside a grouped card.
+function optionsTable(row) {
+  const details = el('details', 'more');
+  details.append(el('summary', '', 'Compare ' + row._options.length + ' options'));
+  const wrap = el('div', 'opt-wrap');
+  const table = el('table', 'optable');
+  const head = el('tr');
+  for (const label of ['Ships from', 'Price', 'Stock', '']) head.append(el('th', '', label));
+  head.firstChild.scope = head.children[1].scope = head.children[2].scope = 'col';
+  const caption = el('caption', 'sr', 'Options for ' + row.name);
+  table.append(caption, el('thead'), el('tbody'));
+  table.tHead.append(head);
+  const lowest = Math.min(...groupPrices(row), Infinity);
+  for (const option of row._options) {
+    const status = displayStatus(option);
+    const tr = el('tr');
+    if (Number.isInteger(option.result.price) && option.result.price === lowest && ['in_stock', 'orderable'].includes(status)) tr.className = 'best';
+    const place = el('th', '', lookup.warehouse[option.warehouse] || option.seller);
+    place.scope = 'row';
+    const flag = FLAGS[option.warehouse] ? flagNode(option.warehouse) : null;
+    if (flag) place.prepend(flag, document.createTextNode(' '));
+    const price = el('td', 'num', Number.isInteger(option.result.price) ? (option.result.from_price ? 'From ' : '') + formatMoney.format(option.result.price / 100) : 'See seller');
+    const stock = el('td', '', lookup.status[status] + (status === 'in_stock' && Number.isInteger(option.result.qty) ? ' · ' + option.result.qty + ' shown' : ''));
+    const cell = el('td');
+    let link = null;
+    try { link = new URL(option.url); } catch (error) { /* a damaged link gets no button */ }
+    if (link && link.protocol === 'https:') {
+      const a = el('a', 'ext', 'View');
+      a.href = link.href;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.setAttribute('aria-label', 'View ' + row.name + ' from ' + (lookup.warehouse[option.warehouse] || option.seller) + ' (new tab)');
+      cell.append(a);
+    }
+    tr.append(place, price, stock, cell);
+    table.tBodies[0].append(tr);
+  }
+  wrap.append(table);
+  details.append(wrap);
+  return details;
+}
+
 // The band, gain, connector and length of an antenna, as short labels.
 function antennaFacts(row) {
   const specs = row.specs || {};
@@ -467,7 +563,7 @@ function card(row) {
   first.append(kind, tag);
 
   const title = el('div');
-  const sellerLine = el('p', 'seller', row.seller + (row.location ? ' · ' + row.location : ''));
+  const sellerLine = el('p', 'seller', row.seller + (row.location ? ' · ' + row.location : '') + (row._options ? ' · ' + row._options.length + ' options' : ''));
   if (isManual(row)) {
     const star = el('span', 'asterisk', ' *');
     star.title = 'This seller blocks automated stock checks, so this listing is checked by hand.';
@@ -485,7 +581,13 @@ function card(row) {
   } else {
     facts.append(fact(lookup.firmware[row.firmware]), fact(lookup.setup[row.setup]));
   }
-  if (lookup.warehouse[row.warehouse]) {
+  if (row._options) {
+    for (const option of row._options) {
+      if (!lookup.warehouse[option.warehouse]) continue;
+      facts.append(fact(lookup.warehouse[option.warehouse].replace(' warehouse', ''), option.warehouse,
+        'Ships from the seller’s ' + lookup.warehouse[option.warehouse].replace(' warehouse', '') + ' warehouse. Shipping time, duties and fees depend on the warehouse.'));
+    }
+  } else if (lookup.warehouse[row.warehouse]) {
     facts.append(fact(lookup.warehouse[row.warehouse], row.warehouse,
       'Ships from the seller’s ' + lookup.warehouse[row.warehouse].replace(' warehouse', '') + ' warehouse. Shipping time, duties and fees depend on the warehouse.'));
   }
@@ -494,14 +596,21 @@ function card(row) {
   const price = el('div', 'price');
   if (Number.isInteger(reading.price)) {
     const lastPrice = !previewSource && (reading.price_previous || status === 'unknown' || row.check_failed);
-    const drop = lastPrice ? null : recentDrop(row);
+    const drop = lastPrice ? null : recentDrop(row._best || row);
     if (lastPrice) price.append(el('small', '', 'Last reported price'));
     else if (drop) price.append(el('small', '', 'was ' + formatMoney.format(drop.from / 100)));
-    price.append(document.createTextNode((reading.from_price ? 'From ' : '') + formatMoney.format(reading.price / 100)));
+    if (row._options) {
+      const prices = groupPrices(row);
+      const spread = new Set(prices).size > 1;
+      if (!lastPrice && !drop) price.append(el('small', '', spread ? 'From' : 'Same price in all ' + row._options.length));
+      price.append(document.createTextNode(formatMoney.format((prices.length ? Math.min(...prices) : reading.price) / 100)));
+    } else {
+      price.append(document.createTextNode((reading.from_price ? 'From ' : '') + formatMoney.format(reading.price / 100)));
+    }
   } else {
     price.textContent = 'See seller';
   }
-  const link = el('a', 'retailer', 'View listing');
+  const link = el('a', 'retailer', row._options && new Set(groupPrices(row)).size > 1 ? 'View cheapest option' : 'View listing');
   let url = null;
   try { url = new URL(row.url); } catch (error) { /* a damaged link gets no button */ }
   if (url && url.protocol === 'https:') {
@@ -528,14 +637,19 @@ function card(row) {
   const fall = recentDrop(row);
   if (fall) {
     const when = fall.days === 0 ? 'today' : fall.days === 1 ? '1 day ago' : fall.days + ' days ago';
-    marks.append(el('span', 'badge mute', 'Dropped ' + formatMoney.format((fall.from - row.result.price) / 100) + ' · ' + when));
+    marks.append(el('span', 'badge mute', 'Dropped ' + formatMoney.format((fall.from - fall.to) / 100) + ' · ' + when));
   }
   if (marks.children.length) result.append(marks);
   const badge = changeBadge(row, status);
   if (badge) result.append(badge);
   if (row.note) result.append(el('p', 'note', row.note));
   const note = el('p', 'observed', detail);
-  result.append(end, note);
+  result.append(end);
+  if (row._options) {
+    result.dataset.options = String(row._options.length);
+    result.append(optionsTable(row));
+  }
+  result.append(note);
   if (/^radio\.php\?r=[a-z0-9-]+$/.test(row.page || '')) {
     const more = el('a', 'details', 'Details and price history');
     more.href = row.page;
@@ -561,21 +675,28 @@ function isSeeed(row) {
 
 // "Lowest seen": at the lowest price this tracker has recorded, and the price has moved at least once.
 function lowestSeen(row) {
+  if (row._options) return row._options.some(lowestSeen);
   return !previewSource && Number.isInteger(row.low) && Number.isInteger(row.high) && row.high > row.low
     && Number.isInteger(row.result.price) && row.result.price === row.low && displayStatus(row) !== 'unknown';
 }
 
 // "Limited": the seller reports a small count, five or fewer.
 function isLimited(row) {
+  if (row._options) return row._options.some(isLimited);
   return displayStatus(row) === 'in_stock' && Number.isInteger(row.result.qty) && row.result.qty > 0 && row.result.qty <= 5;
 }
 
 // A price drop in the last 30 days, from the recorded history.
 function recentDrop(row) {
+  if (row._options) {
+    // The biggest recent drop among the options.
+    const drops = row._options.map(recentDrop).filter(Boolean).sort((a, b) => (b.from - b.to) - (a.from - a.to));
+    return drops[0] || null;
+  }
   const was = row.was;
   if (previewSource || !was || !Number.isInteger(row.result.price) || was.price <= row.result.price) return null;
   const days = (Date.now() - Date.parse(was.t)) / 86400000;
-  return Number.isFinite(days) && days <= 30 ? { from: was.price, days: Math.max(0, Math.round(days)) } : null;
+  return Number.isFinite(days) && days <= 30 ? { from: was.price, to: row.result.price, days: Math.max(0, Math.round(days)) } : null;
 }
 
 function priceBounds() {
@@ -747,17 +868,22 @@ function draw() {
     && [row.name, row.seller, row.location, row.note].join(' ').toLowerCase().includes(query)
   );
 
+  // One card per product: the listings that passed the filters are grouped by product page. The Seeed quick filter lists
+  // each warehouse on its own, so it shows listings as they are.
+  const units = chips.seeed ? base : groupRows(base);
+  const allUnits = chips.seeed ? inCategory : groupRows(inCategory);
+
   // Tab counts follow the other filters, so each tab shows what a click would give you.
   document.querySelectorAll('.status-tab').forEach((button) => {
     const key = button.dataset.tab;
-    const total = base.filter((row) => matchesTab(key, row)).length;
+    const total = units.filter((row) => matchesTab(key, row)).length;
     button.querySelector('.tab-count').textContent = total;
     button.setAttribute('aria-pressed', String(key === tab));
     button.classList.toggle('active', key === tab);
   });
 
-  const unverifiedRows = base.filter((row) => displayStatus(row) === 'unknown');
-  const inTab = base.filter((row) => matchesTab(tab, row));
+  const unverifiedRows = units.filter((row) => displayStatus(row) === 'unknown');
+  const inTab = units.filter((row) => matchesTab(tab, row));
   // Unverified listings stay out of the broad views until the visitor asks for them.
   const hideable = tab === 'available' || tab === 'all';
   const hiddenCount = hideable ? unverifiedRows.length : 0;
@@ -766,7 +892,7 @@ function draw() {
   if (hideable && tab === 'available' && showUnverified) shown = inTab.concat(unverifiedRows);
   sortRows(shown, sort);
   const visibleCount = shown.length;
-  byId('count').textContent = visibleCount + ' of ' + inCategory.length + (category === 'antenna' ? ' antennas' : ' listings')
+  byId('count').textContent = visibleCount + ' of ' + allUnits.length + (category === 'antenna' ? ' antennas' : ' radios')
     + (hideable && !showUnverified && hiddenCount ? ' · ' + hiddenCount + ' unverified hidden' : '');
   writeUrlFilters();
 
